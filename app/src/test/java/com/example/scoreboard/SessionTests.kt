@@ -1,5 +1,6 @@
 package com.example.scoreboard
 
+import com.example.scoreboard.session.Session
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import java.util.Calendar
