@@ -4,7 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
-class ScoreboardDatabase(context: Context) : SQLiteOpenHelper(
+open class ScoreboardDatabase(context: Context) : SQLiteOpenHelper(
     context,
     DatabaseConstants.DATABASE_NAME,
     null,
@@ -31,6 +31,6 @@ class ScoreboardDatabase(context: Context) : SQLiteOpenHelper(
     }
 
     fun createSessionsTagsTable(db: SQLiteDatabase) {
-        db.execSQL(DatabaseConstants.CREATE_SESSIONS_TAGS_TABLE)
+        db.execSQL(DatabaseConstants.CREATE_SESSION_TAG_TABLE)
     }
 }

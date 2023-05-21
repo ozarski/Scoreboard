@@ -1,5 +1,5 @@
 package com.example.scoreboard
 
-class Tag(tagName: String, id: Long)
+class Tag(val tagName: String, val id: Long)
 
 

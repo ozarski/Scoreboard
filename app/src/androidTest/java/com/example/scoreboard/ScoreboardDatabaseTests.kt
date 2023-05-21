@@ -65,12 +65,12 @@ class ScoreboardDatabaseTests {
         val cursor = dbService.readableDatabase.rawQuery(
             "SELECT name " +
                     "FROM sqlite_master WHERE type='table' " +
-                    "AND name='${DatabaseConstants.SessionsTagsTable.TABLE_NAME}'",
+                    "AND name='${DatabaseConstants.SessionTagTable.TABLE_NAME}'",
             null
         )
         cursor.use {
             assertTrue(cursor.moveToFirst())
-            assertEquals(DatabaseConstants.SessionsTagsTable.TABLE_NAME, cursor.getString(0))
+            assertEquals(DatabaseConstants.SessionTagTable.TABLE_NAME, cursor.getString(0))
         }
     }
 }

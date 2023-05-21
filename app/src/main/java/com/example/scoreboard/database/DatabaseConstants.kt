@@ -17,9 +17,11 @@ object DatabaseConstants {
             "${BaseColumns._ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
             "${TagsTable.NAME_COLUMN} TEXT NOT NULL)"
 
-    const val CREATE_SESSIONS_TAGS_TABLE = "CREATE TABLE ${SessionsTagsTable.TABLE_NAME} (" +
-            "${SessionsTagsTable.SESSION_ID_COLUMN} INTEGER NOT NULL," +
-            "${SessionsTagsTable.TAG_ID_COLUMN} INTEGER NOT NULL)"
+    const val CREATE_SESSION_TAG_TABLE = "CREATE TABLE ${SessionTagTable.TABLE_NAME} (" +
+            "${SessionTagTable.SESSION_ID_COLUMN} INTEGER NOT NULL," +
+            "${SessionTagTable.TAG_ID_COLUMN} INTEGER NOT NULL," +
+            "FOREIGN KEY(${SessionTagTable.SESSION_ID_COLUMN}) REFERENCES ${SessionsTable.TABLE_NAME}(${BaseColumns._ID})," +
+            "FOREIGN KEY(${SessionTagTable.TAG_ID_COLUMN}) REFERENCES ${TagsTable.TABLE_NAME}(${BaseColumns._ID}))"
 
     object SessionsTable {
         const val TABLE_NAME = "WorkSessions"
@@ -32,7 +34,7 @@ object DatabaseConstants {
         const val NAME_COLUMN = "name"
     }
 
-    object SessionsTagsTable {
+    object SessionTagTable {
         const val TABLE_NAME = "SessionsTags"
         const val SESSION_ID_COLUMN = "session_id"
         const val TAG_ID_COLUMN = "tag_id"
