@@ -1,23 +1,73 @@
 package com.example.scoreboard.database
 
+import android.content.ContentValues
 import android.content.Context
+import android.provider.BaseColumns
 import com.example.scoreboard.Tag
 
-class TagDBService(context: Context): ScoreboardDatabase(context) {
+class TagDBService(context: Context) : ScoreboardDatabase(context) {
 
-    fun addTag(tag: Tag): Long{
-        TODO("Not yet implemented")
+    fun addTag(tag: Tag): Long {
+        if (tag.tagName.isEmpty()) {
+            return -1L
+        }
+        val db = this.writableDatabase
+        val contentValues = ContentValues().apply {
+            put(DatabaseConstants.TagsTable.NAME_COLUMN, tag.tagName)
+        }
+        val tagID = db.insert(DatabaseConstants.TagsTable.TABLE_NAME, null, contentValues)
+        db.close()
+        return tagID
     }
 
-    fun updateTag(tag: Tag){
-        TODO("Not yet implemented")
+    fun updateTag(tag: Tag) {
+        if (tag.tagName.isEmpty()) {
+            return
+        }
+        val db = this.writableDatabase
+        val contentValues = ContentValues().apply {
+            put(DatabaseConstants.TagsTable.NAME_COLUMN, tag.tagName)
+        }
+        val selection = "${BaseColumns._ID} = ?"
+        val selectionArgs = arrayOf(tag.id.toString())
+        db.update(
+            DatabaseConstants.TagsTable.TABLE_NAME,
+            contentValues,
+            selection,
+            selectionArgs
+        )
+        db.close()
     }
 
-    fun deleteTagByID(id: Long){
-        TODO("Not yet implemented")
+    fun deleteTagByID(id: Long) {
+        val db = this.writableDatabase
+        val selection = "${BaseColumns._ID} = ?"
+        val selectionArgs = arrayOf(id.toString())
+        db.delete(DatabaseConstants.TagsTable.TABLE_NAME, selection, selectionArgs)
+        db.close()
     }
 
     fun getTagByID(id: Long): Tag? {
-        TODO("Not yet implemented")
+        val db = this.readableDatabase
+        val projection = arrayOf(
+            DatabaseConstants.TagsTable.NAME_COLUMN
+        )
+        val selection = "${BaseColumns._ID} = ?"
+        val selectionArgs = arrayOf(id.toString())
+        val cursor = db.query(
+            DatabaseConstants.TagsTable.TABLE_NAME,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            null
+        )
+        if (cursor.moveToFirst()) {
+            val tagName =
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseConstants.TagsTable.NAME_COLUMN))
+            return Tag(tagName, id)
+        }
+        return null
     }
 }

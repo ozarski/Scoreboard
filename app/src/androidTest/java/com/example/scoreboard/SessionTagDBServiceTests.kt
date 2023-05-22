@@ -37,7 +37,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun addTagToSessionTest(){
+    fun addTagToSessionTest() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -48,7 +48,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun addTagToSessionFailInvalidTagID(){
+    fun addTagToSessionFailInvalidTagID() {
         val tag = Tag("tag_name", -1)
         tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -66,7 +66,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun addTagToSessionFailInvalidSessionID(){
+    fun addTagToSessionFailInvalidSessionID() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -84,7 +84,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun removeTagFromSessionTest(){
+    fun removeTagFromSessionTest() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -104,7 +104,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun removeTagFromSessionFailInvalidTagID(){
+    fun removeTagFromSessionFailInvalidTagID() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -117,7 +117,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun removeTagFromSessionFailInvalidSessionID(){
+    fun removeTagFromSessionFailInvalidSessionID() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -130,7 +130,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun getSessionIDsForTag(){
+    fun getSessionIDsForTag() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -143,7 +143,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun getSessionIDsForTagNoSessionsForTag(){
+    fun getSessionIDsForTagNoSessionsForTag() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
 
@@ -152,13 +152,13 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun getSessionIDsForTagInvalidTagID(){
+    fun getSessionIDsForTagInvalidTagID() {
         val sessionIDs = sessionTagDBService.getSessionIDsForTag(-1)
         assertEquals(0, sessionIDs.size)
     }
 
     @Test
-    fun getTagIDsForSession(){
+    fun getTagIDsForSession() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -171,7 +171,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun getTagIDsForSessionNoTagsForSession(){
+    fun getTagIDsForSessionNoTagsForSession() {
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf())
         val sessionID = sessionDBService.addSession(session)
 
@@ -180,13 +180,13 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun getTagIDsForSessionInvalidSessionID(){
+    fun getTagIDsForSessionInvalidSessionID() {
         val tagIDs = sessionTagDBService.getTagIDsForSession(-1)
         assertEquals(0, tagIDs.size)
     }
 
     @Test
-    fun deleteSessionTagsOnSessionDelete(){
+    fun deleteSessionTagsOnSessionDelete() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -205,7 +205,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun deleteSessionTagsOnSessionDeleteFailInvalidID(){
+    fun deleteSessionTagsOnSessionDeleteFailInvalidID() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -218,7 +218,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun deleteSessionTagsOnTagDelete(){
+    fun deleteSessionTagsOnTagDelete() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -237,7 +237,7 @@ class SessionTagDBServiceTests {
     }
 
     @Test
-    fun deleteSessionTagsOnTagDeleteFailInvalidID(){
+    fun deleteSessionTagsOnTagDeleteFailInvalidID() {
         val tag = Tag("tag_name", -1)
         val tagID = tagDBService.addTag(tag)
         val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
@@ -249,20 +249,24 @@ class SessionTagDBServiceTests {
         assertSessionTagCreated(sessionID, tagID)
     }
 
-    private fun assertSessionTagCreated(sessionID: Long, tagID: Long){
+    private fun assertSessionTagCreated(sessionID: Long, tagID: Long) {
         val cursor = sessionTagDBService.readableDatabase.rawQuery(
             "SELECT * FROM ${DatabaseConstants.SessionTagTable.TABLE_NAME}",
             null
         )
         cursor.use {
             assertTrue(cursor.moveToFirst())
+            val getTagID =
+                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.TAG_ID_COLUMN))
+            val getSessionID =
+                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
             assertEquals(
                 tagID,
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.TAG_ID_COLUMN))
+                getTagID
             )
             assertEquals(
                 sessionID,
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
+                getSessionID
             )
         }
     }

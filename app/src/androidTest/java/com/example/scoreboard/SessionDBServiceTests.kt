@@ -5,6 +5,7 @@ import android.provider.BaseColumns
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.scoreboard.database.DatabaseConstants
 import com.example.scoreboard.database.SessionDBService
+import com.example.scoreboard.database.TagDBService
 import com.example.scoreboard.session.Session
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
@@ -77,69 +78,72 @@ class SessionDBServiceTests {
         val session = Session(0, calendar, 0, mutableListOf())
         val id = sessionDBService.addSession(session)
 
-        val sessionAdded = Session(1, calendar, id, mutableListOf())
+        val sessionAdded = Session(0, calendar, id, mutableListOf())
         assertSessionAdded(sessionAdded)
 
         val sessionData = sessionDBService.getSessionDataByID(id)
         assertEquals(id, sessionData?.id)
-        assertEquals(0, sessionData?.duration)
+        assertEquals(0L, sessionData?.duration)
         assertEquals(calendar.timeInMillis, sessionData?.date)
     }
 
     @Test
-    fun getSessionDataByIDFailInvalidID(){
+    fun getSessionDataByIDFailInvalidID() {
         val sessionData = sessionDBService.getSessionDataByID(-1)
         assertEquals(null, sessionData)
     }
 
     @Test
-    fun getSessionWithTagsByIDTest(){
+    fun getSessionWithTagsByIDTest() {
         val calendar = Calendar.getInstance()
         val tags = mutableListOf<Tag>(Tag("tag1", 1), Tag("tag2", 2))
+        tags.forEach {
+            TagDBService(applicationContext).addTag(it)
+        }
         val session = Session(0, calendar, 0, tags)
         val id = sessionDBService.addSession(session)
 
-        val sessionAdded = Session(1, calendar, id, mutableListOf())
+        val sessionAdded = Session(0, calendar, id, mutableListOf())
         assertSessionAdded(sessionAdded)
 
         val sessionData = sessionDBService.getSessionWithTagsByID(id)
 
         assertEquals(id, sessionData?.id)
-        assertEquals(0, sessionData?.getDuration())
+        assertEquals(0L, sessionData?.getDuration())
         assertEquals(calendar.timeInMillis, sessionData?.getDate()?.timeInMillis)
         assertEquals(2, sessionData?.tags?.size)
     }
 
     @Test
-    fun getSessionWithTagsTestNoTagsForSession(){
+    fun getSessionWithTagsTestNoTagsForSession() {
         val calendar = Calendar.getInstance()
         val session = Session(0, calendar, 0, mutableListOf())
         val id = sessionDBService.addSession(session)
 
-        val sessionAdded = Session(1, calendar, id, mutableListOf())
+        val sessionAdded = Session(0, calendar, id, mutableListOf())
         assertSessionAdded(sessionAdded)
 
         val sessionData = sessionDBService.getSessionWithTagsByID(id)
 
         assertEquals(id, sessionData?.id)
-        assertEquals(0, sessionData?.getDuration())
+        assertEquals(0L, sessionData?.getDuration())
         assertEquals(calendar.timeInMillis, sessionData?.getDate()?.timeInMillis)
         assertEquals(0, sessionData?.tags?.size)
     }
 
     @Test
-    fun getSessionWithTagsByIDFailInvalidID(){
+    fun getSessionWithTagsByIDFailInvalidID() {
         val sessionData = sessionDBService.getSessionWithTagsByID(-1)
         assertEquals(null, sessionData)
     }
 
     @Test
-    fun updateSessionTest(){
+    fun updateSessionTest() {
         val calendar = Calendar.getInstance()
         val session = Session(0, calendar, 0, mutableListOf())
         val id = sessionDBService.addSession(session)
 
-        val sessionAdded = Session(1, calendar, id, mutableListOf())
+        val sessionAdded = Session(0, calendar, id, mutableListOf())
         assertSessionAdded(sessionAdded)
 
         val newCalendar = Calendar.getInstance()
@@ -148,17 +152,17 @@ class SessionDBServiceTests {
         sessionDBService.updateSession(newSession)
 
         val updated = sessionDBService.getSessionDataByID(id)
-        assertEquals(1, updated?.duration)
+        assertEquals(1L, updated?.duration)
         assertEquals(newCalendar.timeInMillis, updated?.date)
     }
 
     @Test
-    fun updateSessionFailInvalidID(){
+    fun updateSessionFailInvalidID() {
         val calendar = Calendar.getInstance()
         val session = Session(0, calendar, 0, mutableListOf())
 
         val sessionID = sessionDBService.addSession(session)
-        val sessionAdded = Session(1, calendar, sessionID, mutableListOf())
+        val sessionAdded = Session(0, calendar, sessionID, mutableListOf())
         assertSessionAdded(sessionAdded)
 
         val id = -1L
@@ -167,18 +171,18 @@ class SessionDBServiceTests {
         val newSession = Session(1, newCalendar, id, mutableListOf())
         sessionDBService.updateSession(newSession)
 
-        val updated = sessionDBService.getSessionDataByID(id)
-        assertEquals(0, updated?.duration)
+        val updated = sessionDBService.getSessionDataByID(sessionID)
+        assertEquals(0L, updated?.duration)
         assertEquals(calendar.timeInMillis, updated?.date)
     }
 
     @Test
-    fun updateSessionFailNegativeDuration(){
+    fun updateSessionFailNegativeDuration() {
         val calendar = Calendar.getInstance()
         val session = Session(0, calendar, 0, mutableListOf())
 
         val sessionID = sessionDBService.addSession(session)
-        val sessionAdded = Session(1, calendar, sessionID, mutableListOf())
+        val sessionAdded = Session(0, calendar, sessionID, mutableListOf())
         assertSessionAdded(sessionAdded)
 
         val id = -1L
@@ -187,18 +191,18 @@ class SessionDBServiceTests {
         val newSession = Session(-1, newCalendar, id, mutableListOf())
         sessionDBService.updateSession(newSession)
 
-        val updated = sessionDBService.getSessionDataByID(id)
-        assertEquals(0, updated?.duration)
+        val updated = sessionDBService.getSessionDataByID(sessionID)
+        assertEquals(0L, updated?.duration)
         assertEquals(calendar.timeInMillis, updated?.date)
     }
 
     @Test
-    fun updateSessionFailFutureDate(){
+    fun updateSessionFailFutureDate() {
         val calendar = Calendar.getInstance()
         val session = Session(0, calendar, 0, mutableListOf())
 
         val sessionID = sessionDBService.addSession(session)
-        val sessionAdded = Session(1, calendar, sessionID, mutableListOf())
+        val sessionAdded = Session(0, calendar, sessionID, mutableListOf())
         assertSessionAdded(sessionAdded)
 
         val id = -1L
@@ -207,17 +211,17 @@ class SessionDBServiceTests {
         val newSession = Session(1, newCalendar, id, mutableListOf())
         sessionDBService.updateSession(newSession)
 
-        val updated = sessionDBService.getSessionDataByID(id)
-        assertEquals(0, updated?.duration)
+        val updated = sessionDBService.getSessionDataByID(sessionID)
+        assertEquals(0L, updated?.duration)
         assertEquals(calendar.timeInMillis, updated?.date)
     }
 
     @Test
-    fun deleteSessionByID(){
+    fun deleteSessionByID() {
         val calendar = Calendar.getInstance()
         val session = Session(0, calendar, 0, mutableListOf())
         val id = sessionDBService.addSession(session)
-        val sessionAdded = Session(id, calendar, 0, mutableListOf())
+        val sessionAdded = Session(session.getDuration(), calendar, id, mutableListOf())
         assertSessionAdded(sessionAdded)
         sessionDBService.deleteSessionByID(id)
         val deleted = sessionDBService.getSessionDataByID(id)
@@ -225,11 +229,11 @@ class SessionDBServiceTests {
     }
 
     @Test
-    fun deleteSessionByIDFailInvalidID(){
-         val calendar = Calendar.getInstance()
+    fun deleteSessionByIDFailInvalidID() {
+        val calendar = Calendar.getInstance()
         val session = Session(0, calendar, 0, mutableListOf())
         val id = sessionDBService.addSession(session)
-        val sessionAdded = Session(id, calendar, 0, mutableListOf())
+        val sessionAdded = Session(session.getDuration(), calendar, id, mutableListOf())
         assertSessionAdded(sessionAdded)
         val invalidID = -1L
         sessionDBService.deleteSessionByID(invalidID)
@@ -238,7 +242,7 @@ class SessionDBServiceTests {
     }
 
     @Test
-    fun getAllSessionsTest(){
+    fun getAllSessionsTest() {
         val calendar = Calendar.getInstance()
         val session1 = Session(0, calendar, 0, mutableListOf())
         val session2 = Session(0, calendar, 0, mutableListOf())
@@ -248,9 +252,9 @@ class SessionDBServiceTests {
         val session2ID = sessionDBService.addSession(session2)
         val session3ID = sessionDBService.addSession(session3)
 
-        val session1Added = Session(session1ID, calendar, 0, mutableListOf())
-        val session2Added = Session(session2ID, calendar, 0, mutableListOf())
-        val session3Added = Session(session3ID, calendar, 0, mutableListOf())
+        val session1Added = Session(session1.getDuration(), calendar, session1ID, mutableListOf())
+        val session2Added = Session(session2.getDuration(), calendar, session2ID, mutableListOf())
+        val session3Added = Session(session3.getDuration(), calendar, session3ID, mutableListOf())
 
         assertSessionAdded(session1Added)
         assertSessionAdded(session2Added)
@@ -261,7 +265,7 @@ class SessionDBServiceTests {
     }
 
     @Test
-    fun getAllSessionsTestNoSessions(){
+    fun getAllSessionsTestNoSessions() {
         val sessions = sessionDBService.getAllSessions()
         assertEquals(0, sessions.size)
     }
