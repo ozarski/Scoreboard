@@ -6,42 +6,28 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
-import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
+import com.chargemap.compose.numberpicker.FullHours
 import com.chargemap.compose.numberpicker.Hours
 import com.chargemap.compose.numberpicker.HoursNumberPicker
 import com.example.scoreboard.Tag
@@ -51,18 +37,18 @@ import com.example.scoreboard.session.Session
 import org.apache.commons.lang3.tuple.MutablePair
 import java.util.Calendar
 
-class PopupGenerator(val context: Context) : ComponentActivity() {
+class AddSessionPopup(val context: Context) : ComponentActivity() {
 
     @Composable
-    fun AddSessionPopup(popupVisible: MutableState<Boolean>, hourPickerValue: MutableState<Hours>) {
-        AddSessionPopupLayout(popupVisible = popupVisible, hourPickerValue = hourPickerValue)
+    fun GeneratePopup(popupVisible: MutableState<Boolean>) {
+        AddSessionPopupLayout(popupVisible = popupVisible)
     }
 
     @Composable
     fun AddSessionPopupLayout(
-        popupVisible: MutableState<Boolean>,
-        hourPickerValue: MutableState<Hours>
+        popupVisible: MutableState<Boolean>
     ) {
+        val hourPickerValue = remember { mutableStateOf<Hours>(FullHours(0, 0)) }
         val tagList = TagDBService(context).getAllTags()
         val tagListPick = remember { SnapshotStateList<MutablePair<Tag, Boolean>>() }
         tagListPick.addAll(tagList.map { MutablePair(it, false) })
@@ -96,7 +82,8 @@ class PopupGenerator(val context: Context) : ComponentActivity() {
                     )
                     popupVisible.value = false
                     SessionDBService(context).addSession(session)
-                }) {
+                },
+                modifier = Modifier.padding(10.dp)){
                     Text(text = "Add session", fontSize = 22.sp, modifier = Modifier.padding(10.dp))
                 }
             }
@@ -215,12 +202,6 @@ class PopupGenerator(val context: Context) : ComponentActivity() {
                     }
                 }
             }
-        }
-    }
-
-    companion object {
-        fun getInstance(context: Context): PopupGenerator {
-            return PopupGenerator(context)
         }
     }
 }

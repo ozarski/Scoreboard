@@ -22,3 +22,9 @@ fun durationInSecondsToDaysAndHoursAndMinutes(duration: Long): String{
     val minutes = (duration - days * 24 * 60 * 60 - hours * 60 * 60) / 60
     return "${days}d ${hours}h ${minutes}min"
 }
+
+fun durationInSecondsToHoursAndMinutes(duration: Long): String{
+    val hours = duration / (60 * 60)
+    val minutes = (duration - hours * 60 * 60) / 60
+    return "${hours}h ${minutes}min"
+}

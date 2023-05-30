@@ -1,18 +1,13 @@
 package com.example.scoreboard
 
 import android.content.Context
-import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FloatingActionButton
@@ -30,26 +25,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
 import com.chargemap.compose.numberpicker.FullHours
 import com.chargemap.compose.numberpicker.Hours
 import com.example.scoreboard.database.StatsDBService
-import com.example.scoreboard.popups.PopupGenerator
-import com.example.scoreboard.popups.WindowCenterOffsetPositionProvider
+import com.example.scoreboard.popups.AddSessionPopup
 
 class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
     @Composable
     fun GenerateLayout() {
         val popupVisible = remember { mutableStateOf(false) }
-        val hourPickerValue = remember { mutableStateOf<Hours>(FullHours(0, 0)) }
-        ActivitiesTabLayout(popupVisible, hourPickerValue)
+        ActivitiesTabLayout(popupVisible)
     }
 
     @Composable
-    fun ActivitiesTabLayout(popupVisible: MutableState<Boolean>, hourPickerValue: MutableState<Hours>) {
+    fun ActivitiesTabLayout(popupVisible: MutableState<Boolean>) {
         if (popupVisible.value) {
-            PopupGenerator.getInstance(context).AddSessionPopup(popupVisible, hourPickerValue)
+            AddSessionPopup(context).GeneratePopup(popupVisible)
         }
         Column(
             modifier = Modifier.fillMaxSize(),

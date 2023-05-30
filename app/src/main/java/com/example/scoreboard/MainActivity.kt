@@ -114,12 +114,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 1 -> {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("History")
-                    }
+                    HistoryTab(this@MainActivity).GenerateLayout()
                 }
             }
         }
