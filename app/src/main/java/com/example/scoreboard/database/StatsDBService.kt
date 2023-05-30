@@ -58,9 +58,10 @@ class StatsDBService(private val appContext: Context): ScoreboardDatabase(appCon
 
     fun getAllTagsWithDurations(): List<Pair<Tag, Long>>{
         val tagList = TagDBService(appContext).getAllTags()
-        val tagDurationList = tagList.map { tag ->
+        var tagDurationList = tagList.map { tag ->
             Pair(tag, getDurationForTag(tag.id))
         }
+        tagDurationList = tagDurationList.sortedByDescending { it.second }
         return tagDurationList
     }
 }

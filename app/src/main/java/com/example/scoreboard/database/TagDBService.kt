@@ -45,6 +45,8 @@ class TagDBService(context: Context) : ScoreboardDatabase(context) {
         val selectionArgs = arrayOf(id.toString())
         db.delete(DatabaseConstants.TagsTable.TABLE_NAME, selection, selectionArgs)
         db.close()
+        deleteSessionsOnTagDelete(id)
+        SessionTagDBService(context).deleteSessionTagsOnTagDelete(id)
     }
 
     fun getTagByID(id: Long): Tag? {
@@ -97,5 +99,33 @@ class TagDBService(context: Context) : ScoreboardDatabase(context) {
         cursor.close()
         db.close()
         return tags
+    }
+
+    private fun deleteSessionsOnTagDelete(tagID: Long){
+        val db = this.writableDatabase
+        val projection = arrayOf(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)
+        val selection = "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} = ?"
+        val selectionArgs = arrayOf(tagID.toString())
+        val cursor = db.query(
+            DatabaseConstants.SessionTagTable.TABLE_NAME,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            null
+        )
+        val sessionIDs = mutableListOf<Long>()
+        with(cursor) {
+            while (moveToNext()) {
+                val sessionID = getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
+                sessionIDs.add(sessionID)
+            }
+        }
+        cursor.close()
+        db.close()
+        for(sessionID in sessionIDs){
+            SessionDBService(context).deleteSessionByID(sessionID)
+        }
     }
 }

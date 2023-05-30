@@ -2,6 +2,7 @@ package com.example.scoreboard
 
 import android.content.Context
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,21 +26,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.chargemap.compose.numberpicker.FullHours
-import com.chargemap.compose.numberpicker.Hours
 import com.example.scoreboard.database.StatsDBService
 import com.example.scoreboard.popups.AddSessionPopup
+import com.example.scoreboard.popups.TagDetailsPopup
 
 class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
     @Composable
     fun GenerateLayout() {
         val popupVisible = remember { mutableStateOf(false) }
-        ActivitiesTabLayout(popupVisible)
+        val totalDuration = remember { mutableStateOf(StatsDBService(context).getTotalDuration()) }
+        val tagsWithDurations =
+            remember { mutableStateOf(StatsDBService(context).getAllTagsWithDurations()) }
+        ActivitiesTabLayout(popupVisible, totalDuration, tagsWithDurations)
     }
 
     @Composable
-    fun ActivitiesTabLayout(popupVisible: MutableState<Boolean>) {
+    fun ActivitiesTabLayout(
+        popupVisible: MutableState<Boolean>,
+        totalDuration: MutableState<Long>,
+        tagsWithDurations: MutableState<List<Pair<Tag, Long>>>
+    ) {
         if (popupVisible.value) {
             AddSessionPopup(context).GeneratePopup(popupVisible)
         }
@@ -47,8 +54,8 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top
         ) {
-            TotalDurationTextView()
-            ActivitiesDurationLazyColumn()
+            TotalDurationTextView(totalDuration)
+            ActivitiesDurationLazyColumn(tagsWithDurations)
         }
 
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
@@ -72,9 +79,8 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    fun TotalDurationTextView() {
-        val totalDuration = StatsDBService(context).getTotalDuration()
-        val totalDurationString = durationInSecondsToDaysAndHoursAndMinutes(totalDuration)
+    fun TotalDurationTextView(totalDuration: MutableState<Long>) {
+        val totalDurationString = durationInSecondsToDaysAndHoursAndMinutes(totalDuration.value)
 
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -95,30 +101,35 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    fun ActivitiesDurationLazyColumn() {
-        var tagsWithDurations = StatsDBService(context).getAllTagsWithDurations()
-        tagsWithDurations = tagsWithDurations.sortedBy { it.first.tagName }
+    fun ActivitiesDurationLazyColumn(tagsWithDurations: MutableState<List<Pair<Tag, Long>>>) {
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(tagsWithDurations.size) { index ->
+            items(tagsWithDurations.value.size) { index ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 10.dp, bottom = 10.dp)
                 ) {
-                    ActivityItem(tagsWithDurations[index])
+                    ActivityItem(tagsWithDurations.value[index])
                 }
             }
         }
     }
 
     @Composable
-    fun ActivityItem(activityItem: Pair<Tag, Long>) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+    fun ActivityItem(
+        activityItem: Pair<Tag, Long>
+    ) {
+        val sessionPopupVisible = remember { mutableStateOf(false) }
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                sessionPopupVisible.value = true
+            }, horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
                 text = activityItem.first.tagName,
                 fontSize = 25.sp,
@@ -130,6 +141,10 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                 fontSize = 25.sp,
                 modifier = Modifier.padding(end = 10.dp)
             )
+        }
+
+        if (sessionPopupVisible.value) {
+            TagDetailsPopup(context, activityItem.first).GeneratePopup(sessionPopupVisible)
         }
     }
 

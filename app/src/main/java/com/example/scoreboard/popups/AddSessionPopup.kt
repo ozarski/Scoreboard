@@ -168,7 +168,6 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 Column(
                     modifier = Modifier
                         .width(280.dp)
-                        .height(700.dp)
                         .background(Color.LightGray, RoundedCornerShape(16.dp)),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
