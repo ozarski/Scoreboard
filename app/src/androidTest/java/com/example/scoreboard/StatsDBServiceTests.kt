@@ -7,6 +7,7 @@ import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.database.StatsDBService
 import com.example.scoreboard.database.TagDBService
 import com.example.scoreboard.session.Session
+import junit.framework.TestCase.assertEquals
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -104,6 +105,34 @@ class StatsDBServiceTests {
 
         val duration = statsDBService.getDurationForTag(-1)
         assert(duration == 0L)
+    }
+
+    @Test
+    fun getAllTagsWithDurationsTest(){
+        val tag1 = createTag("tag1")
+        val tag2 = createTag("tag2")
+        assert(tag1 != null)
+        assert(tag2 != null)
+
+        val session1 = Session(10, Calendar.getInstance(), 0, mutableListOf(tag1!!))
+        val session2 = Session(20, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session3 = Session(30, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session4 = Session(40, Calendar.getInstance(), 0, mutableListOf(tag2!!))
+        val session5 = Session(50, Calendar.getInstance(), 0, mutableListOf(tag2))
+        sessionDBService.addSession(session1)
+        sessionDBService.addSession(session2)
+        sessionDBService.addSession(session3)
+        sessionDBService.addSession(session4)
+        sessionDBService.addSession(session5)
+
+        val tagsWithDurations = statsDBService.getAllTagsWithDurations()
+        assert(tagsWithDurations.size == 2)
+        assertEquals(tagsWithDurations[0].first.tagName, tag1.tagName)
+        assertEquals(tagsWithDurations[0].first.id, tag1.id)
+        assertEquals(tagsWithDurations[0].second, 60L)
+        assertEquals(tagsWithDurations[1].first.tagName, tag2.tagName)
+        assertEquals(tagsWithDurations[1].first.id, tag2.id)
+        assertEquals(tagsWithDurations[1].second, 90L)
     }
 
     fun createTag(name: String): Tag?{

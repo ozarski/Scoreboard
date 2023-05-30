@@ -158,4 +158,38 @@ class TagDBServiceTests {
             )
         }
     }
+
+    @Test
+    fun getAllTagsTest(){
+        val tag1 = Tag("tag_name1", -1)
+        val id1 = tagDBService.addTag(tag1)
+        val addedTag1 = Tag("tag_name1", id1)
+        assertTagAdded(addedTag1)
+
+        val tag2 = Tag("tag_name2", -1)
+        val id2 = tagDBService.addTag(tag2)
+        val addedTag2 = Tag("tag_name2", id2)
+        assertTagAdded(addedTag2)
+
+        val tag3 = Tag("tag_name3", -1)
+        val id3 = tagDBService.addTag(tag3)
+        val addedTag3 = Tag("tag_name3", id3)
+        assertTagAdded(addedTag3)
+
+        val tags = tagDBService.getAllTags()
+        assertEquals(3, tags.size)
+        assertEquals(addedTag1.tagName, tags[0].tagName)
+        assertEquals(addedTag2.tagName, tags[1].tagName)
+        assertEquals(addedTag3.tagName, tags[2].tagName)
+        assertEquals(addedTag1.id, tags[0].id)
+        assertEquals(addedTag2.id, tags[1].id)
+        assertEquals(addedTag3.id, tags[2].id)
+    }
+
+    @Test
+    fun getAllTagsTestNoTagsInDatabase(){
+        val tags = tagDBService.getAllTags()
+        assertEquals(0, tags.size)
+    }
+
 }

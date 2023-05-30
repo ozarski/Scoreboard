@@ -8,7 +8,7 @@ import com.example.scoreboard.session.SessionData
 import com.example.scoreboard.setCalendarToDayEnd
 import java.util.Calendar
 
-class SessionDBService(val context: Context) : ScoreboardDatabase(context) {
+class SessionDBService(private val appContext: Context) : ScoreboardDatabase(appContext) {
 
     fun addSession(session: Session): Long {
         if (session.getDuration() < 0) {
@@ -29,7 +29,7 @@ class SessionDBService(val context: Context) : ScoreboardDatabase(context) {
         val sessionID = db.insert(DatabaseConstants.SessionsTable.TABLE_NAME, null, contentValues)
 
         session.tags.forEach {
-            SessionTagDBService(context).addTagToSession(it.id, sessionID)
+            SessionTagDBService(appContext).addTagToSession(it.id, sessionID)
         }
 
         db.close()
@@ -59,9 +59,9 @@ class SessionDBService(val context: Context) : ScoreboardDatabase(context) {
             selection,
             selectionArgs
         )
-        SessionTagDBService(context).deleteSessionTagsOnSessionDelete(session.id)
+        SessionTagDBService(appContext).deleteSessionTagsOnSessionDelete(session.id)
         session.tags.forEach {
-            SessionTagDBService(context).addTagToSession(it.id, session.id)
+            SessionTagDBService(appContext).addTagToSession(it.id, session.id)
         }
         db.close()
     }
@@ -75,7 +75,7 @@ class SessionDBService(val context: Context) : ScoreboardDatabase(context) {
             selection,
             selectionArgs
         )
-        SessionTagDBService(context).deleteSessionTagsOnSessionDelete(id)
+        SessionTagDBService(appContext).deleteSessionTagsOnSessionDelete(id)
         db.close()
     }
 
@@ -132,9 +132,9 @@ class SessionDBService(val context: Context) : ScoreboardDatabase(context) {
             val date =
                 cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
             val session = Session(duration, Calendar.getInstance().apply{ timeInMillis = date }, id, mutableListOf())
-            val sessionTagIDs = SessionTagDBService(context).getTagIDsForSession(id)
+            val sessionTagIDs = SessionTagDBService(appContext).getTagIDsForSession(id)
             sessionTagIDs.forEach {
-                val tag = TagDBService(context).getTagByID(it)
+                val tag = TagDBService(appContext).getTagByID(it)
                 if(tag!=null){
                     session.tags.add(tag)
                 }
@@ -170,9 +170,9 @@ class SessionDBService(val context: Context) : ScoreboardDatabase(context) {
             val date =
                 cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
             val session = Session(duration, Calendar.getInstance().apply{ timeInMillis = date }, id, mutableListOf())
-            val sessionTagIDs = SessionTagDBService(context).getTagIDsForSession(id)
+            val sessionTagIDs = SessionTagDBService(appContext).getTagIDsForSession(id)
             sessionTagIDs.forEach {
-                val tag = TagDBService(context).getTagByID(it)
+                val tag = TagDBService(appContext).getTagByID(it)
                 if(tag!=null){
                     session.tags.add(tag)
                 }

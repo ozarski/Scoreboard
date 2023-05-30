@@ -70,4 +70,32 @@ class TagDBService(context: Context) : ScoreboardDatabase(context) {
         }
         return null
     }
+
+    fun getAllTags(): List<Tag>{
+        val db = this.readableDatabase
+        val projection = arrayOf(
+            BaseColumns._ID,
+            DatabaseConstants.TagsTable.NAME_COLUMN
+        )
+        val cursor = db.query(
+            DatabaseConstants.TagsTable.TABLE_NAME,
+            projection,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        val tags = mutableListOf<Tag>()
+        while(cursor.moveToNext()){
+            val id = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID))
+            val tagName =
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseConstants.TagsTable.NAME_COLUMN))
+            tags.add(Tag(tagName, id))
+            println("Tag: $id, $tagName")
+        }
+        cursor.close()
+        db.close()
+        return tags
+    }
 }

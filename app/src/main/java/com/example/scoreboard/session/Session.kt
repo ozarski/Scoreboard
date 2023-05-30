@@ -7,7 +7,7 @@ import java.util.Calendar
 class Session(
     private var duration: Long,
     private val date: Calendar,
-    val id: Long,
+    var id: Long,
     val tags: MutableList<Tag>
 ) {
 

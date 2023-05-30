@@ -2,8 +2,9 @@ package com.example.scoreboard.database
 
 import android.content.Context
 import android.provider.BaseColumns
+import com.example.scoreboard.Tag
 
-class StatsDBService(context: Context): ScoreboardDatabase(context) {
+class StatsDBService(private val appContext: Context): ScoreboardDatabase(appContext) {
 
     fun getTotalDuration(): Long{
         val db = this.readableDatabase
@@ -53,5 +54,13 @@ class StatsDBService(context: Context): ScoreboardDatabase(context) {
             return duration
         }
         return 0L
+    }
+
+    fun getAllTagsWithDurations(): List<Pair<Tag, Long>>{
+        val tagList = TagDBService(appContext).getAllTags()
+        val tagDurationList = tagList.map { tag ->
+            Pair(tag, getDurationForTag(tag.id))
+        }
+        return tagDurationList
     }
 }

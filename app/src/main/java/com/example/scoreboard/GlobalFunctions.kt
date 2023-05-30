@@ -15,3 +15,10 @@ fun setCalendarToDayEnd(calendar: Calendar){
     calendar.set(Calendar.SECOND, 59)
     calendar.set(Calendar.MILLISECOND, 999)
 }
+
+fun durationInSecondsToDaysAndHoursAndMinutes(duration: Long): String{
+    val days = duration / (24 * 60 * 60)
+    val hours = (duration - days * 24 * 60 * 60) / (60 * 60)
+    val minutes = (duration - days * 24 * 60 * 60 - hours * 60 * 60) / 60
+    return "${days}d ${hours}h ${minutes}min"
+}

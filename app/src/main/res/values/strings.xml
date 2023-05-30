@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Scoreboard</string>
+    <string name="main_tabs_activity_tab_title">Activities</string>
+    <string name="main_tabs_history_tab_title">History</string>
 </resources>
