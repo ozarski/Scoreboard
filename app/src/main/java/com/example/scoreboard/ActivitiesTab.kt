@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FloatingActionButton
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.scoreboard.database.StatsDBService
@@ -32,24 +34,34 @@ import com.example.scoreboard.popups.TagDetailsPopup
 
 class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
+    private lateinit var totalDuration: MutableState<Long>
+    private lateinit var tagsWithDurations: MutableState<List<Pair<Tag, Long>>>
+    private lateinit var popupDismissed: MutableState<Boolean>
+
     @Composable
     fun GenerateLayout() {
         val popupVisible = remember { mutableStateOf(false) }
-        val totalDuration = remember { mutableStateOf(StatsDBService(context).getTotalDuration()) }
-        val tagsWithDurations =
+        totalDuration = remember { mutableStateOf(StatsDBService(context).getTotalDuration()) }
+        tagsWithDurations =
             remember { mutableStateOf(StatsDBService(context).getAllTagsWithDurations()) }
-        ActivitiesTabLayout(popupVisible, totalDuration, tagsWithDurations)
+        popupDismissed = remember { mutableStateOf(false) }
+        ActivitiesTabLayout(popupVisible)
     }
 
     @Composable
     fun ActivitiesTabLayout(
-        popupVisible: MutableState<Boolean>,
-        totalDuration: MutableState<Long>,
-        tagsWithDurations: MutableState<List<Pair<Tag, Long>>>
+        popupVisible: MutableState<Boolean>
     ) {
         if (popupVisible.value) {
             AddSessionPopup(context).GeneratePopup(popupVisible)
         }
+
+        if(MainActivity.activitiesDataUpdate.value){
+            totalDuration.value = StatsDBService(context).getTotalDuration()
+            tagsWithDurations.value = StatsDBService(context).getAllTagsWithDurations()
+            MainActivity.activitiesDataUpdate.value = false
+        }
+
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top
@@ -125,21 +137,31 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
         activityItem: Pair<Tag, Long>
     ) {
         val sessionPopupVisible = remember { mutableStateOf(false) }
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                sessionPopupVisible.value = true
-            }, horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    sessionPopupVisible.value = true
+                }, horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Text(
                 text = activityItem.first.tagName,
-                fontSize = 25.sp,
-                modifier = Modifier.padding(start = 10.dp)
+                fontSize = 20.sp,
+                modifier = Modifier
+                    .padding(start = 10.dp, end = 10.dp)
+                    .widthIn(min = 0.dp, max = 250.dp),
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
             )
             val duration = durationInSecondsToDaysAndHoursAndMinutes(activityItem.second)
             Text(
                 text = duration,
-                fontSize = 25.sp,
-                modifier = Modifier.padding(end = 10.dp)
+                fontSize = 20.sp,
+                modifier = Modifier
+                    .padding(end = 10.dp, start = 10.dp)
+                    .widthIn(min = 0.dp, max = 300.dp),
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
             )
         }
 

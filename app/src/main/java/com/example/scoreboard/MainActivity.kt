@@ -36,6 +36,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            activitiesDataUpdate = remember { mutableStateOf(false) }
+            historyDataUpdate = remember { mutableStateOf(false) }
             LayoutMain()
         }
     }
@@ -118,5 +120,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    companion object{
+        lateinit var activitiesDataUpdate: MutableState<Boolean>
+        lateinit var historyDataUpdate: MutableState<Boolean>
     }
 }

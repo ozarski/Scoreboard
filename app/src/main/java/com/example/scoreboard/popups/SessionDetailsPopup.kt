@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
+import com.example.scoreboard.MainActivity
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.durationInSecondsToHoursAndMinutes
@@ -60,6 +61,8 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
         Button(onClick = {
             SessionDBService(context).deleteSessionByID(session.id)
             popupVisible.value = false
+            MainActivity.historyDataUpdate.value = true
+            MainActivity.activitiesDataUpdate.value = true
         }) {
             Text(
                 text = "Delete",

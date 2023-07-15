@@ -16,6 +16,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,13 +26,27 @@ import com.example.scoreboard.session.Session
 
 class HistoryTab(val context: Context) : ComponentActivity() {
 
+    private lateinit var sessions: SnapshotStateList<Session>
+
     @Composable
     fun GenerateLayout() {
+        sessions = remember {SnapshotStateList<Session>()}
+        var tempSessions = SessionDBService(context).getAllSessions()
+        tempSessions = tempSessions.sortedByDescending{ it.getDate().timeInMillis }
+        sessions.clear()
+        sessions.addAll(tempSessions)
         HistoryTabLayout()
     }
 
     @Composable
     fun HistoryTabLayout() {
+        if(MainActivity.historyDataUpdate.value){
+            var tempSessions = SessionDBService(context).getAllSessions()
+            tempSessions = tempSessions.sortedByDescending{ it.getDate().timeInMillis }
+            sessions.clear()
+            sessions.addAll(tempSessions)
+            MainActivity.historyDataUpdate.value = false
+        }
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top
@@ -42,7 +57,6 @@ class HistoryTab(val context: Context) : ComponentActivity() {
 
     @Composable
     fun SessionsHistoryList() {
-        val sessions = SessionDBService(context).getAllSessions()
         LazyColumn {
             items(sessions.size) {
                 SessionItem(sessions[it])
@@ -55,7 +69,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
         val sessionDetailsPopupVisible = remember { mutableStateOf(false) }
         Row(
             modifier = Modifier
-                .padding(start = 10.dp, end = 10.dp, bottom = 20.dp, top = 20.dp)
+                .padding(start = 10.dp, end = 10.dp, bottom = 10.dp, top = 10.dp)
                 .fillMaxWidth()
                 .clickable {
                     sessionDetailsPopupVisible.value = true

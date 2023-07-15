@@ -45,7 +45,6 @@ class TagDBService(context: Context) : ScoreboardDatabase(context) {
         val selectionArgs = arrayOf(id.toString())
         db.delete(DatabaseConstants.TagsTable.TABLE_NAME, selection, selectionArgs)
         db.close()
-        deleteSessionsOnTagDelete(id)
         SessionTagDBService(context).deleteSessionTagsOnTagDelete(id)
     }
 

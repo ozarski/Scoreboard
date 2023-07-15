@@ -30,6 +30,7 @@ import androidx.compose.ui.window.Popup
 import com.chargemap.compose.numberpicker.FullHours
 import com.chargemap.compose.numberpicker.Hours
 import com.chargemap.compose.numberpicker.HoursNumberPicker
+import com.example.scoreboard.MainActivity
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.database.TagDBService
@@ -69,21 +70,26 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 Text(text = "Tags", fontSize = 22.sp, modifier = Modifier.padding(10.dp))
                 TagPickList(tagListPick)
                 AddNewTag(tagList = tagListPick)
-                Button(onClick = {
-                    val selectedTags = tagListPick.filter { it.right }.map { it.left }
-                    val durationMinutes = hourPickerValue.value.hours * 60 + hourPickerValue.value.minutes
-                    val durationSeconds = durationMinutes * 60
-                    val sessionDate = Calendar.getInstance()
-                    val session = Session(
-                        durationSeconds.toLong(),
-                        sessionDate,
-                        -1,
-                        selectedTags.toMutableList()
-                    )
-                    popupVisible.value = false
-                    SessionDBService(context).addSession(session)
-                },
-                modifier = Modifier.padding(10.dp)){
+                Button(
+                    onClick = {
+                        val selectedTags = tagListPick.filter { it.right }.map { it.left }
+                        val durationMinutes =
+                            hourPickerValue.value.hours * 60 + hourPickerValue.value.minutes
+                        val durationSeconds = durationMinutes * 60
+                        val sessionDate = Calendar.getInstance()
+                        val session = Session(
+                            durationSeconds.toLong(),
+                            sessionDate,
+                            -1,
+                            selectedTags.toMutableList()
+                        )
+                        popupVisible.value = false
+                        MainActivity.activitiesDataUpdate.value = true
+                        MainActivity.historyDataUpdate.value = true
+                        SessionDBService(context).addSession(session)
+                    },
+                    modifier = Modifier.padding(10.dp)
+                ) {
                     Text(text = "Add session", fontSize = 22.sp, modifier = Modifier.padding(10.dp))
                 }
             }
@@ -164,7 +170,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                     dialogOpen.value = true
                 })
         if (dialogOpen.value) {
-            Dialog(onDismissRequest = { dialogOpen.value = false }){
+            Dialog(onDismissRequest = { dialogOpen.value = false }) {
                 Column(
                     modifier = Modifier
                         .width(280.dp)
