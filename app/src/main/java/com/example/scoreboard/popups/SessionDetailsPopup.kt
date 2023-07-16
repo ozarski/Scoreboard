@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.example.scoreboard.MainActivity
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionDBService
@@ -35,6 +36,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = { popupVisible.value = false },
+            properties = PopupProperties(focusable = false, dismissOnClickOutside = false)
         ) {
             SessionDetailsPopupLayout(popupVisible)
         }
