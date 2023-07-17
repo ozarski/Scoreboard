@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,7 +58,10 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         val tagListPick = remember { SnapshotStateList<MutablePair<Tag, Boolean>>() }
         tagListPick.addAll(tagList.map { MutablePair(it, false) })
         Popup(
-            onDismissRequest = { popupVisible.value = false },
+            onDismissRequest = {
+                popupVisible.value = false
+                MainActivity.activitiesDataUpdate.value = true
+            },
             popupPositionProvider = WindowCenterOffsetPositionProvider()
         ) {
             Column(
@@ -131,7 +135,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         LazyColumn(
             modifier = Modifier
                 .height(200.dp)
-                .width(250.dp)
+                .width(375.dp)
                 .padding(top = 10.dp, bottom = 10.dp)
         ) {
             items(tagList.size) { index ->
@@ -143,24 +147,29 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    fun TagPickListItem(tag: Tag, tagPicked: MutableState<Boolean>, item: MutablePair<Tag, Boolean>) {
-        val textColor = remember { mutableStateOf(Color.Black) }
-        if(tagPicked.value) {
-            textColor.value = Color.Green
-        }
-        else{
-            textColor.value = Color.Black
+    fun TagPickListItem(
+        tag: Tag,
+        tagPicked: MutableState<Boolean>,
+        item: MutablePair<Tag, Boolean>
+    ) {
+        var textColor = Color.Black
+        if (tagPicked.value) {
+            textColor = Color.Green
+        } else {
+            textColor = Color.Black
         }
         Text(
             text = tag.tagName,
             fontSize = 20.sp,
-            color = textColor.value,
+            color = textColor,
             modifier = Modifier
                 .padding(vertical = 3.dp, horizontal = 10.dp)
                 .clickable {
                     tagPicked.value = !tagPicked.value
                     item.right = tagPicked.value
                 },
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 

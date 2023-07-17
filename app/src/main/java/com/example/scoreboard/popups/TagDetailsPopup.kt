@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
+import com.example.scoreboard.MainActivity
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.TagDBService
 
@@ -114,6 +115,7 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
         Button(onClick = {
             TagDBService(context).deleteTagByID(tag.id)
             popupVisible.value = false
+            MainActivity.activitiesDataUpdate.value = true
         }, modifier = Modifier.padding(bottom = 10.dp)) {
             Text(text = "Delete")
         }
