@@ -6,15 +6,25 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.FloatingActionButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -66,17 +76,40 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         ) {
             Column(
                 modifier = Modifier
-                    .widthIn(max = 450.dp, min = 0.dp)
+                    .widthIn(max = 375.dp, min = 0.dp)
                     .background(Color.LightGray, RoundedCornerShape(16.dp)),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Add session", fontSize = 25.sp, modifier = Modifier.padding(10.dp))
-                Text(text = "Duration", fontSize = 22.sp, modifier = Modifier.padding(10.dp))
+                Text(
+                    text = "Add session",
+                    fontSize = 25.sp,
+                    modifier = Modifier.padding(top = 10.dp, bottom = 5.dp, start = 20.dp)
+                )
+                Text(
+                    text = "Duration",
+                    fontSize = 22.sp,
+                    modifier = Modifier
+                        .padding(top = 10.dp, bottom = 5.dp, start = 20.dp)
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Start
+                )
                 HourPicker24hMax(hourPickerValue)
-                Text(text = "Tags", fontSize = 22.sp, modifier = Modifier.padding(10.dp))
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Tags",
+                        fontSize = 22.sp,
+                        modifier = Modifier
+                            .padding(top = 10.dp, bottom = 5.dp, start = 20.dp),
+                        textAlign = TextAlign.Start
+                    )
+                    AddNewTag(tagList = tagListPick)
+                }
                 TagPickList(tagListPick)
-                AddNewTag(tagList = tagListPick)
                 Button(
                     onClick = {
                         val selectedTags = tagListPick.filter { it.right }.map { it.left }
@@ -95,9 +128,18 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                         MainActivity.historyDataUpdate.value = true
                         SessionDBService(context).addSession(session)
                     },
-                    modifier = Modifier.padding(10.dp)
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                    elevation = ButtonDefaults.elevation(0.dp)
                 ) {
-                    Text(text = "Add session", fontSize = 22.sp, modifier = Modifier.padding(10.dp))
+                    Text(
+                        text = "Add session",
+                        fontSize = 22.sp,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
@@ -114,18 +156,22 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 .width(200.dp),
             hoursDivider = {
                 Text(
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                    modifier = Modifier.padding(start = 8.dp, end = 20.dp),
                     textAlign = TextAlign.Center,
                     text = "h"
                 )
             },
             minutesDivider = {
                 Text(
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                    modifier = Modifier.padding(start = 8.dp),
                     textAlign = TextAlign.Center,
-                    text = "m"
+                    text = "m",
                 )
-            }
+            },
+            textStyle = androidx.compose.ui.text.TextStyle(
+                fontSize = 20.sp,
+                color = Color.Black
+            ),
         )
     }
 
@@ -136,7 +182,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             modifier = Modifier
                 .height(200.dp)
                 .width(375.dp)
-                .padding(top = 10.dp, bottom = 10.dp)
+                .padding(vertical = 10.dp, horizontal = 20.dp)
         ) {
             items(tagList.size) { index ->
                 val tagPicked = remember { mutableStateOf(tagList[index].right) }
@@ -153,10 +199,10 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         item: MutablePair<Tag, Boolean>
     ) {
         var textColor = Color.Black
-        if (tagPicked.value) {
-            textColor = Color.Green
+        textColor = if (tagPicked.value) {
+            Color.Green
         } else {
-            textColor = Color.Black
+            Color.Black
         }
         Text(
             text = tag.tagName,
@@ -177,14 +223,21 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     fun AddNewTag(tagList: SnapshotStateList<MutablePair<Tag, Boolean>>) {
         val newTagName = remember { mutableStateOf("") }
         val dialogOpen = remember { mutableStateOf(false) }
-        Text(
-            text = "Add new tag",
-            fontSize = 21.sp,
-            modifier = Modifier
-                .padding(top = 10.dp)
-                .clickable {
-                    dialogOpen.value = true
-                })
+        FloatingActionButton(
+            onClick = {
+                dialogOpen.value = true
+            },
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.padding(start = 5.dp, top = 7.dp).width(24.dp).height(24.dp),
+            backgroundColor = Color.White,
+            elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Add,
+                contentDescription = "Add button",
+                tint = Color.Black
+            )
+        }
         if (dialogOpen.value) {
             Dialog(onDismissRequest = { dialogOpen.value = false }) {
                 Column(
