@@ -1,6 +1,8 @@
 package com.example.scoreboard
 
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 fun setCalendarToDayStart(calendar: Calendar){
     calendar.set(Calendar.HOUR_OF_DAY, 0)
@@ -27,4 +29,9 @@ fun durationInSecondsToHoursAndMinutes(duration: Long): String{
     val hours = duration / (60 * 60)
     val minutes = (duration - hours * 60 * 60) / 60
     return "${hours}h ${minutes}min"
+}
+
+fun formatDate(calendar: Calendar): String {
+    val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.ROOT)
+    return sdf.format(calendar.time)
 }
