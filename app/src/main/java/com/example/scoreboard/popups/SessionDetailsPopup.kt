@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -27,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.scoreboard.MainActivity
+import com.example.scoreboard.R
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.durationInSecondsToHoursAndMinutes
@@ -35,19 +35,22 @@ import com.example.scoreboard.session.Session
 
 class SessionDetailsPopup(val context: Context, val session: Session) : ComponentActivity() {
 
+    private lateinit var popupVisible: MutableState<Boolean>
+
     @Composable
     fun GeneratePopup(popupVisible: MutableState<Boolean>) {
+        this.popupVisible = popupVisible
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = { popupVisible.value = false },
             properties = PopupProperties(focusable = false, dismissOnClickOutside = false)
         ) {
-            SessionDetailsPopupLayout(popupVisible)
+            SessionDetailsPopupLayout()
         }
     }
 
     @Composable
-    fun SessionDetailsPopupLayout(popupVisible: MutableState<Boolean>) {
+    private fun SessionDetailsPopupLayout() {
         Column(
             modifier = Modifier
                 .width(300.dp)
@@ -59,12 +62,12 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             SessionDate()
             SessionDuration()
             SessionTagsList()
-            DeleteButton(popupVisible)
+            DeleteButton()
         }
     }
 
     @Composable
-    fun DeleteButton(popupVisible: MutableState<Boolean>) {
+    private fun DeleteButton() {
         Button(
             onClick = {
                 SessionDBService(context).deleteSessionByID(session.id)
@@ -78,8 +81,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)
         ) {
             Text(
-                text = "Delete",
-                fontSize = 20.sp,
+                text = context.getString(R.string.simple_delete_button_text),
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center
             )
@@ -87,7 +89,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
     }
 
     @Composable
-    fun SessionDate() {
+    private fun SessionDate() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -96,7 +98,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Date:",
+                text = context.getString(R.string.session_details_date_label),
                 fontSize = 20.sp,
                 textAlign = TextAlign.Center
             )
@@ -110,7 +112,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
     }
 
     @Composable
-    fun SessionDuration() {
+    private fun SessionDuration() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -119,7 +121,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Duration:",
+                text = context.getString(R.string.session_details_duration_label),
                 fontSize = 20.sp,
                 textAlign = TextAlign.Center
             )
@@ -133,9 +135,9 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
     }
 
     @Composable
-    fun SessionTagsList() {
+    private fun SessionTagsList() {
         Text(
-            text = "Tags:",
+            text = context.getString(R.string.session_details_tag_list_label),
             fontSize = 20.sp,
             modifier = Modifier
                 .fillMaxWidth()
@@ -155,7 +157,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
     }
 
     @Composable
-    fun TagItem(tag: Tag) {
+    private fun TagItem(tag: Tag) {
         Row(modifier = Modifier.padding(5.dp)){
             Text(
                 text = tag.tagName,
@@ -163,7 +165,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = Color(android.graphics.Color.parseColor("#dedede")),
+                        color = Color(context.getColor(R.color.tag_item_background_session_details)),
                         shape = RoundedCornerShape(16.dp)
                     )
                     .padding(vertical = 2.dp),

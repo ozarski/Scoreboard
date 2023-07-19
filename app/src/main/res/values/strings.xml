@@ -2,4 +2,17 @@
     <string name="app_name">Scoreboard</string>
     <string name="main_tabs_activity_tab_title">Activities</string>
     <string name="main_tabs_history_tab_title">History</string>
+    <string name="add_session_popup_header">Add session</string>
+    <string name="add_session_popup_duration_header">Duration</string>
+    <string name="add_session_popup_tag_list_header">Tags</string>
+    <string name="simple_add_button_text">ADD</string>
+    <string name="add_new_tag_dialog_header">Add new tag</string>
+    <string name="add_new_tag_dialog_tag_name_label">Tag name</string>
+    <string name="simple_delete_button_text">DELETE</string>
+    <string name="simple_rename_button_text">RENAME</string>
+    <string name="tag_details_popup_header">Tag details</string>
+    <string name="tag_rename_dialog_header">Rename tag</string>
+    <string name="session_details_date_label">Date:</string>
+    <string name="session_details_duration_label">Duration:</string>
+    <string name="session_details_tag_list_label">Tags:</string>
 </resources>

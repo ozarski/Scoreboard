@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -30,24 +29,28 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.scoreboard.MainActivity
+import com.example.scoreboard.R
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.TagDBService
 
 class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() {
 
+    private lateinit var popupVisible: MutableState<Boolean>
+
     @Composable
     fun GeneratePopup(popupVisible: MutableState<Boolean>) {
+        this.popupVisible = popupVisible
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = { popupVisible.value = false },
             properties = PopupProperties(focusable = true)
         ) {
-            TagDetailsPopupLayout(popupVisible)
+            TagDetailsPopupLayout()
         }
     }
 
     @Composable
-    fun TagDetailsPopupLayout(popupVisible: MutableState<Boolean>) {
+    private fun TagDetailsPopupLayout() {
         Column(
             modifier = Modifier
                 .widthIn(min = 0.200.dp, max = 300.dp)
@@ -55,7 +58,8 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            TagHeader()
+            PopupHeader()
+            TagName()
             val buttonsModifier = Modifier
                 .padding(horizontal = 10.dp)
                 .widthIn(100.dp)
@@ -64,14 +68,21 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 ChangeNameButton(buttonsModifier)
-                DeleteButton(popupVisible, buttonsModifier)
+                DeleteButton(buttonsModifier)
             }
         }
     }
 
     @Composable
-    fun TagHeader() {
-        Text(text = "Tag details", fontSize = 15.sp, modifier = Modifier.padding(top = 10.dp))
+    private fun PopupHeader() {
+        Text(
+            text = context.getString(R.string.tag_details_popup_header),
+            fontSize = 15.sp,
+            modifier = Modifier.padding(top = 10.dp)
+        )
+    }
+    @Composable
+    private fun TagName(){
         Text(
             text = tag.tagName,
             fontSize = 20.sp,
@@ -81,7 +92,7 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
     }
 
     @Composable
-    fun ChangeNameButton(modifier: Modifier) {
+    private fun ChangeNameButton(modifier: Modifier) {
         val dialogOpen = remember { mutableStateOf(false) }
         val newTagName = remember { mutableStateOf(tag.tagName) }
         Button(
@@ -90,7 +101,7 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
-            Text(text = "Rename")
+            Text(text = context.getString(R.string.simple_rename_button_text))
         }
         if (dialogOpen.value) {
             ChangeNameDialog(dialogOpen, newTagName)
@@ -98,7 +109,7 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
     }
 
     @Composable
-    fun ChangeNameDialog(dialogOpen: MutableState<Boolean>, newTagName: MutableState<String>) {
+    private fun ChangeNameDialog(dialogOpen: MutableState<Boolean>, newTagName: MutableState<String>) {
         Dialog(onDismissRequest = { dialogOpen.value = false }) {
             Column(
                 modifier = Modifier
@@ -109,14 +120,14 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Change name",
+                    text = context.getString(R.string.tag_rename_dialog_header),
                     fontSize = 25.sp,
                     modifier = Modifier.padding(10.dp)
                 )
                 OutlinedTextField(
                     value = newTagName.value,
                     onValueChange = { newTagName.value = it },
-                    label = { Text(text = "Tag name") },
+                    label = { Text(text = context.getString(R.string.add_new_tag_dialog_tag_name_label)) },
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth(),
@@ -135,14 +146,14 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
                     elevation = ButtonDefaults.elevation(0.dp)
                 ) {
-                    Text(text = "Change name")
+                    Text(text = context.getString(R.string.simple_rename_button_text))
                 }
             }
         }
     }
 
     @Composable
-    fun DeleteButton(popupVisible: MutableState<Boolean>, modifier: Modifier) {
+    private fun DeleteButton(modifier: Modifier) {
         Button(
             onClick = {
                 TagDBService(context).deleteTagByID(tag.id)
@@ -154,7 +165,7 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
-            Text(text = "Delete")
+            Text(text = context.getString(R.string.simple_delete_button_text))
         }
     }
 }

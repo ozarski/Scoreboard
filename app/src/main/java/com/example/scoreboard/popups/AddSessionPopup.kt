@@ -13,14 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.FloatingActionButtonDefaults
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -41,10 +39,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.chargemap.compose.numberpicker.FullHours
 import com.chargemap.compose.numberpicker.Hours
 import com.chargemap.compose.numberpicker.HoursNumberPicker
 import com.example.scoreboard.MainActivity
+import com.example.scoreboard.R
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.database.TagDBService
@@ -54,99 +54,135 @@ import java.util.Calendar
 
 class AddSessionPopup(val context: Context) : ComponentActivity() {
 
-    @Composable
-    fun GeneratePopup(popupVisible: MutableState<Boolean>) {
-        AddSessionPopupLayout(popupVisible = popupVisible)
-    }
+    private lateinit var popupVisible: MutableState<Boolean>
+    private lateinit var tagListPick: SnapshotStateList<MutablePair<Tag, Boolean>>
+    private lateinit var hourPickerValue: MutableState<Hours>
 
     @Composable
-    fun AddSessionPopupLayout(
-        popupVisible: MutableState<Boolean>
-    ) {
-        val hourPickerValue = remember { mutableStateOf<Hours>(FullHours(0, 0)) }
-        val tagList = TagDBService(context).getAllTags()
-        val tagListPick = remember { SnapshotStateList<MutablePair<Tag, Boolean>>() }
-        tagListPick.addAll(tagList.map { MutablePair(it, false) })
+    fun GeneratePopup(popupVisible: MutableState<Boolean>) {
+        this.popupVisible = popupVisible
+        tagListPick = remember {
+            SnapshotStateList()
+        }
+        hourPickerValue = remember { mutableStateOf(FullHours(0, 0)) }
         Popup(
             onDismissRequest = {
                 popupVisible.value = false
                 MainActivity.activitiesDataUpdate.value = true
             },
-            popupPositionProvider = WindowCenterOffsetPositionProvider()
+            popupPositionProvider = WindowCenterOffsetPositionProvider(),
+            properties = PopupProperties(focusable = true)
         ) {
-            Column(
-                modifier = Modifier
-                    .widthIn(max = 375.dp, min = 0.dp)
-                    .background(Color.LightGray, RoundedCornerShape(16.dp)),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Add session",
-                    fontSize = 25.sp,
-                    modifier = Modifier.padding(top = 10.dp, bottom = 5.dp, start = 20.dp)
-                )
-                Text(
-                    text = "Duration",
-                    fontSize = 22.sp,
-                    modifier = Modifier
-                        .padding(top = 10.dp, bottom = 5.dp, start = 20.dp)
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.Start
-                )
-                HourPicker24hMax(hourPickerValue)
-                Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Tags",
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .padding(top = 10.dp, bottom = 5.dp, start = 20.dp),
-                        textAlign = TextAlign.Start
-                    )
-                    AddNewTag(tagList = tagListPick)
-                }
-                TagPickList(tagListPick)
-                Button(
-                    onClick = {
-                        val selectedTags = tagListPick.filter { it.right }.map { it.left }
-                        val durationMinutes =
-                            hourPickerValue.value.hours * 60 + hourPickerValue.value.minutes
-                        val durationSeconds = durationMinutes * 60
-                        val sessionDate = Calendar.getInstance()
-                        val session = Session(
-                            durationSeconds.toLong(),
-                            sessionDate,
-                            -1,
-                            selectedTags.toMutableList()
-                        )
-                        popupVisible.value = false
-                        MainActivity.activitiesDataUpdate.value = true
-                        MainActivity.historyDataUpdate.value = true
-                        SessionDBService(context).addSession(session)
-                    },
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-                    elevation = ButtonDefaults.elevation(0.dp)
-                ) {
-                    Text(
-                        text = "Add session",
-                        fontSize = 22.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
+            AddSessionPopupLayout()
         }
     }
 
     @Composable
-    fun HourPicker24hMax(hourPickerValue: MutableState<Hours>) {
+    private fun AddSessionPopupLayout() {
+        val tagList = TagDBService(context).getAllTags()
+        tagListPick.addAll(tagList.map { MutablePair(it, false) })
+
+        Column(
+            modifier = Modifier
+                .widthIn(max = 375.dp, min = 0.dp)
+                .background(Color.LightGray, RoundedCornerShape(16.dp)),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            PopupHeader()
+
+            DurationLabel()
+            HourPicker24hMax()
+
+            TagListHeader()
+            TagPickList()
+
+            AddSessionButton()
+        }
+    }
+
+    @Composable
+    private fun PopupHeader(){
+        Text(
+            text = context.getString(R.string.add_session_popup_header),
+            fontSize = 25.sp,
+            modifier = Modifier.padding(top = 10.dp, bottom = 5.dp, start = 20.dp)
+        )
+    }
+
+    @Composable
+    private fun DurationLabel(){
+        Text(
+            text = context.getString(R.string.add_session_popup_duration_header),
+            fontSize = 22.sp,
+            modifier = Modifier
+                .padding(top = 10.dp, bottom = 5.dp, start = 20.dp)
+                .fillMaxWidth(),
+            textAlign = TextAlign.Start
+        )
+    }
+
+    @Composable
+    private fun AddSessionButton() {
+
+        Button(
+            onClick = {
+                addNewSession()
+            },
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+            elevation = ButtonDefaults.elevation(0.dp)
+        ) {
+            Text(
+                text = context.getString(R.string.simple_add_button_text),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+
+
+    private fun addNewSession() {
+
+        val selectedTags = tagListPick.filter { it.right }.map { it.left }
+        val durationMinutes =
+            hourPickerValue.value.hours * 60 + hourPickerValue.value.minutes
+        val durationSeconds = durationMinutes * 60
+        val sessionDate = Calendar.getInstance()
+        val session = Session(
+            durationSeconds.toLong(),
+            sessionDate,
+            -1,
+            selectedTags.toMutableList()
+        )
+        popupVisible.value = false
+        MainActivity.activitiesDataUpdate.value = true
+        MainActivity.historyDataUpdate.value = true
+        SessionDBService(context).addSession(session)
+    }
+
+    @Composable
+    private fun TagListHeader() {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = context.getString(R.string.add_session_popup_tag_list_header),
+                fontSize = 22.sp,
+                modifier = Modifier
+                    .padding(top = 10.dp, bottom = 5.dp, start = 20.dp),
+                textAlign = TextAlign.Start
+            )
+            AddNewTag()
+        }
+    }
+
+    @Composable
+    private fun HourPicker24hMax() {
         HoursNumberPicker(
             value = hourPickerValue.value,
             leadingZero = true,
@@ -176,30 +212,29 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    fun TagPickList(tagList: SnapshotStateList<MutablePair<Tag, Boolean>>) {
-        tagList.sortedBy { it.left.tagName }
+    private fun TagPickList() {
+        tagListPick.sortedBy { it.left.tagName }
         LazyColumn(
             modifier = Modifier
                 .height(200.dp)
                 .width(375.dp)
                 .padding(vertical = 10.dp, horizontal = 20.dp)
         ) {
-            items(tagList.size) { index ->
-                val tagPicked = remember { mutableStateOf(tagList[index].right) }
-                val tag = tagList[index].left
-                TagPickListItem(tag, tagPicked, tagList[index])
+            items(tagListPick.size) { index ->
+                val tagPicked = remember { mutableStateOf(tagListPick[index].right) }
+                val tag = tagListPick[index].left
+                TagPickListItem(tag, tagPicked, tagListPick[index])
             }
         }
     }
 
     @Composable
-    fun TagPickListItem(
+    private fun TagPickListItem(
         tag: Tag,
         tagPicked: MutableState<Boolean>,
         item: MutablePair<Tag, Boolean>
     ) {
-        var textColor = Color.Black
-        textColor = if (tagPicked.value) {
+        val textColor: Color = if (tagPicked.value) {
             Color.Green
         } else {
             Color.Black
@@ -220,15 +255,25 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    fun AddNewTag(tagList: SnapshotStateList<MutablePair<Tag, Boolean>>) {
-        val newTagName = remember { mutableStateOf("") }
+    private fun AddNewTag() {
         val dialogOpen = remember { mutableStateOf(false) }
+        AddNewTagButton(dialogOpen)
+        if (dialogOpen.value) {
+            AddNewTagDialog(dialogOpen)
+        }
+    }
+
+    @Composable
+    private fun AddNewTagButton(dialogOpen: MutableState<Boolean>) {
         FloatingActionButton(
             onClick = {
                 dialogOpen.value = true
             },
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.padding(start = 5.dp, top = 7.dp).width(24.dp).height(24.dp),
+            modifier = Modifier
+                .padding(start = 5.dp, top = 7.dp)
+                .width(24.dp)
+                .height(24.dp),
             backgroundColor = Color.White,
             elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp)
         ) {
@@ -238,42 +283,49 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 tint = Color.Black
             )
         }
-        if (dialogOpen.value) {
-            Dialog(onDismissRequest = { dialogOpen.value = false }) {
-                Column(
+    }
+
+    @Composable
+    private fun AddNewTagDialog(dialogOpen: MutableState<Boolean>) {
+
+        val newTagName = remember { mutableStateOf("") }
+        Dialog(onDismissRequest = { dialogOpen.value = false }) {
+            Column(
+                modifier = Modifier
+                    .width(280.dp)
+                    .background(Color.LightGray, RoundedCornerShape(16.dp)),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = context.getString(R.string.add_new_tag_dialog_header),
+                    fontSize = 25.sp,
+                    modifier = Modifier.padding(10.dp)
+                )
+                OutlinedTextField(
+                    value = newTagName.value,
+                    onValueChange = { newTagName.value = it },
+                    label = { Text(text = context.getString(R.string.add_new_tag_dialog_tag_name_label)) },
                     modifier = Modifier
-                        .width(280.dp)
-                        .background(Color.LightGray, RoundedCornerShape(16.dp)),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(10.dp)
+                        .width(250.dp)
+                )
+                Button(
+                    onClick = {
+                        if (newTagName.value != "") {
+                            val newTag = Tag(tagName = newTagName.value, id = -1)
+                            newTag.id = TagDBService(context).addTag(newTag)
+                            tagListPick.add(MutablePair(newTag, false))
+                            newTagName.value = ""
+                        }
+                        dialogOpen.value = false
+                    },
+                    modifier = Modifier.padding(10.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                    elevation = ButtonDefaults.elevation(0.dp)
                 ) {
-                    Text(
-                        text = "Add new tag",
-                        fontSize = 25.sp,
-                        modifier = Modifier.padding(10.dp)
-                    )
-                    OutlinedTextField(
-                        value = newTagName.value,
-                        onValueChange = { newTagName.value = it },
-                        label = { Text(text = "Tag name") },
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .width(250.dp)
-                    )
-                    Button(
-                        onClick = {
-                            if (newTagName.value != "") {
-                                val newTag = Tag(tagName = newTagName.value, id = -1)
-                                newTag.id = TagDBService(context).addTag(newTag)
-                                tagList.add(MutablePair(newTag, false))
-                                newTagName.value = ""
-                            }
-                            dialogOpen.value = false
-                        },
-                        modifier = Modifier.padding(10.dp)
-                    ) {
-                        Text(text = "Add")
-                    }
+                    Text(text = context.getString(R.string.simple_add_button_text))
                 }
             }
         }
