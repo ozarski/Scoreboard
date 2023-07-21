@@ -81,8 +81,9 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
             modifier = Modifier.padding(top = 10.dp)
         )
     }
+
     @Composable
-    private fun TagName(){
+    private fun TagName() {
         Text(
             text = tag.tagName,
             fontSize = 20.sp,
@@ -109,7 +110,10 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
     }
 
     @Composable
-    private fun ChangeNameDialog(dialogOpen: MutableState<Boolean>, newTagName: MutableState<String>) {
+    private fun ChangeNameDialog(
+        dialogOpen: MutableState<Boolean>,
+        newTagName: MutableState<String>
+    ) {
         Dialog(onDismissRequest = { dialogOpen.value = false }) {
             Column(
                 modifier = Modifier
@@ -154,11 +158,11 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
 
     @Composable
     private fun DeleteButton(modifier: Modifier) {
+        val confirmPopupVisible = remember { mutableStateOf(false) }
+        val decision = remember { mutableStateOf(false) }
         Button(
             onClick = {
-                TagDBService(context).deleteTagByID(tag.id)
-                popupVisible.value = false
-                MainActivity.activitiesDataUpdate.value = true
+                confirmPopupVisible.value = true
             },
             modifier = modifier,
             shape = RoundedCornerShape(16.dp),
@@ -167,5 +171,19 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
         ) {
             Text(text = context.getString(R.string.simple_delete_button_text))
         }
+
+        if (confirmPopupVisible.value) {
+            ConfirmPopup(context).GeneratePopup(
+                popupVisible = confirmPopupVisible,
+                decision = decision,
+                otherPopupVisible = popupVisible
+            )
+        }
+
+        if (decision.value) {
+            TagDBService(context).deleteTagByID(tag.id)
+            MainActivity.activitiesDataUpdate.value = true
+        }
+
     }
 }

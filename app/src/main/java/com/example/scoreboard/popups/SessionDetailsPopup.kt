@@ -17,6 +17,8 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,12 +70,11 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
 
     @Composable
     private fun DeleteButton() {
+        val confirmPopupVisible = remember { mutableStateOf(false) }
+        val decision = remember { mutableStateOf(false) }
         Button(
             onClick = {
-                SessionDBService(context).deleteSessionByID(session.id)
-                popupVisible.value = false
-                MainActivity.historyDataUpdate.value = true
-                MainActivity.activitiesDataUpdate.value = true
+                confirmPopupVisible.value = true
             },
             modifier = Modifier.padding(10.dp),
             shape = RoundedCornerShape(16.dp),
@@ -85,6 +86,20 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center
             )
+        }
+
+        if (confirmPopupVisible.value) {
+            ConfirmPopup(context).GeneratePopup(
+                popupVisible = confirmPopupVisible,
+                decision = decision,
+                otherPopupVisible = popupVisible
+            )
+        }
+        if (decision.value) {
+            SessionDBService(context).deleteSessionByID(session.id)
+            popupVisible.value = false
+            MainActivity.historyDataUpdate.value = true
+            MainActivity.activitiesDataUpdate.value = true
         }
     }
 
@@ -158,7 +173,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
 
     @Composable
     private fun TagItem(tag: Tag) {
-        Row(modifier = Modifier.padding(5.dp)){
+        Row(modifier = Modifier.padding(5.dp)) {
             Text(
                 text = tag.tagName,
                 fontSize = 18.sp,
