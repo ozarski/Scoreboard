@@ -23,9 +23,9 @@ class StatsDBServiceTests {
     @Before
     fun setUp() {
         applicationContext = InstrumentationRegistry.getInstrumentation().targetContext
-        statsDBService = StatsDBService(applicationContext)
-        sessionDBService = SessionDBService(applicationContext)
-        tagDBService = TagDBService(applicationContext)
+        statsDBService = StatsDBService(applicationContext, DatabaseConstants.TEST_DATABASE_NAME)
+        sessionDBService = SessionDBService(applicationContext, DatabaseConstants.TEST_DATABASE_NAME)
+        tagDBService = TagDBService(applicationContext, DatabaseConstants.TEST_DATABASE_NAME)
     }
 
     @After
@@ -33,7 +33,7 @@ class StatsDBServiceTests {
         statsDBService.close()
         sessionDBService.close()
         tagDBService.close()
-        applicationContext.deleteDatabase(DatabaseConstants.DATABASE_NAME)
+        applicationContext.deleteDatabase(DatabaseConstants.TEST_DATABASE_NAME)
     }
 
     @Test
@@ -127,19 +127,18 @@ class StatsDBServiceTests {
 
         val tagsWithDurations = statsDBService.getAllTagsWithDurations()
         assert(tagsWithDurations.size == 2)
-        assertEquals(tagsWithDurations[0].first.tagName, tag1.tagName)
-        assertEquals(tagsWithDurations[0].first.id, tag1.id)
-        assertEquals(tagsWithDurations[0].second, 60L)
-        assertEquals(tagsWithDurations[1].first.tagName, tag2.tagName)
-        assertEquals(tagsWithDurations[1].first.id, tag2.id)
-        assertEquals(tagsWithDurations[1].second, 90L)
+        assertEquals(tagsWithDurations[1].first.tagName, tag1.tagName)
+        assertEquals(tagsWithDurations[1].first.id, tag1.id)
+        assertEquals(tagsWithDurations[1].second, 60L)
+        assertEquals(tagsWithDurations[0].first.tagName, tag2.tagName)
+        assertEquals(tagsWithDurations[0].first.id, tag2.id)
+        assertEquals(tagsWithDurations[0].second, 90L)
     }
 
-    fun createTag(name: String): Tag?{
+    private fun createTag(name: String): Tag? {
         val tag = Tag(name, 0)
         val id = tagDBService.addTag(tag)
-        val addedTag = tagDBService.getTagByID(id)
-        return addedTag
+        return tagDBService.getTagByID(id)
     }
 
 }

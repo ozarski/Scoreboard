@@ -18,13 +18,13 @@ class ScoreboardDatabaseTests {
     @Before
     fun setUp() {
         appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        dbService = ScoreboardDatabase(appContext)
+        dbService = ScoreboardDatabase(appContext, DatabaseConstants.TEST_DATABASE_NAME)
     }
 
     @After
     fun tearDown() {
         dbService.close()
-        appContext.deleteDatabase(DatabaseConstants.DATABASE_NAME)
+        appContext.deleteDatabase(DatabaseConstants.TEST_DATABASE_NAME)
     }
 
     @Test

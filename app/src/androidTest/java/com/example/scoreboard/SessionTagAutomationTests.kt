@@ -23,15 +23,15 @@ class SessionTagAutomationTests {
     @Before
     fun setUp() {
         applicationContext = InstrumentationRegistry.getInstrumentation().targetContext
-        sessionTagDBService = SessionTagDBService(applicationContext)
-        tagDBService = TagDBService(applicationContext)
-        sessionDBService = SessionDBService(applicationContext)
+        sessionTagDBService = SessionTagDBService(applicationContext, DatabaseConstants.TEST_DATABASE_NAME)
+        tagDBService = TagDBService(applicationContext, DatabaseConstants.TEST_DATABASE_NAME)
+        sessionDBService = SessionDBService(applicationContext, DatabaseConstants.TEST_DATABASE_NAME)
     }
 
     @After
     fun tearDown() {
         sessionTagDBService.close()
-        applicationContext.deleteDatabase(DatabaseConstants.DATABASE_NAME)
+        applicationContext.deleteDatabase(DatabaseConstants.TEST_DATABASE_NAME)
     }
 
     @Test

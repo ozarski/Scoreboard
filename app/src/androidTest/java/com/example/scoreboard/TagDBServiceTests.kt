@@ -19,13 +19,13 @@ class TagDBServiceTests {
     @Before
     fun setUp() {
         applicationContext = InstrumentationRegistry.getInstrumentation().targetContext
-        tagDBService = TagDBService(applicationContext)
+        tagDBService = TagDBService(applicationContext, DatabaseConstants.TEST_DATABASE_NAME)
     }
 
     @After
     fun tearDown() {
         tagDBService.close()
-        applicationContext.deleteDatabase(DatabaseConstants.DATABASE_NAME)
+        applicationContext.deleteDatabase(DatabaseConstants.TEST_DATABASE_NAME)
     }
 
     @Test

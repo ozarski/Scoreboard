@@ -4,12 +4,16 @@ import android.content.Context
 import android.provider.BaseColumns
 import com.example.scoreboard.Tag
 
-class StatsDBService(private val appContext: Context): ScoreboardDatabase(appContext) {
+class StatsDBService(
+    private val appContext: Context,
+    private val databaseName: String = DatabaseConstants.DATABASE_NAME
+) : ScoreboardDatabase(appContext, databaseName) {
 
-    fun getTotalDuration(): Long{
+    fun getTotalDuration(): Long {
         val db = this.readableDatabase
         val resultColumn = "total_duration"
-        val projection = arrayOf("SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn")
+        val projection =
+            arrayOf("SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn")
         val cursor = db.query(
             DatabaseConstants.SessionsTable.TABLE_NAME,
             projection,
@@ -19,7 +23,7 @@ class StatsDBService(private val appContext: Context): ScoreboardDatabase(appCon
             null,
             null
         )
-        if(cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             val duration = cursor.getLong(cursor.getColumnIndexOrThrow(resultColumn))
             cursor.close()
             db.close()
@@ -28,10 +32,11 @@ class StatsDBService(private val appContext: Context): ScoreboardDatabase(appCon
         return 0L
     }
 
-    fun getDurationForTag(tagID: Long): Long{
+    fun getDurationForTag(tagID: Long): Long {
         val db = this.readableDatabase
         val resultColumn = "total_duration"
-        val projection = arrayOf("SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn")
+        val projection =
+            arrayOf("SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn")
         val tableJoined = "${DatabaseConstants.SessionsTable.TABLE_NAME} " +
                 "INNER JOIN ${DatabaseConstants.SessionTagTable.TABLE_NAME} " +
                 "ON ${DatabaseConstants.SessionsTable.TABLE_NAME}.${BaseColumns._ID} = " +
@@ -47,7 +52,7 @@ class StatsDBService(private val appContext: Context): ScoreboardDatabase(appCon
             null,
             null
         )
-        if(cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             val duration = cursor.getLong(cursor.getColumnIndexOrThrow(resultColumn))
             cursor.close()
             db.close()
@@ -56,8 +61,8 @@ class StatsDBService(private val appContext: Context): ScoreboardDatabase(appCon
         return 0L
     }
 
-    fun getAllTagsWithDurations(): List<Pair<Tag, Long>>{
-        val tagList = TagDBService(appContext).getAllTags()
+    fun getAllTagsWithDurations(): List<Pair<Tag, Long>> {
+        val tagList = TagDBService(appContext, databaseName).getAllTags()
         var tagDurationList = tagList.map { tag ->
             Pair(tag, getDurationForTag(tag.id))
         }

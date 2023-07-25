@@ -8,7 +8,10 @@ import com.example.scoreboard.session.SessionData
 import com.example.scoreboard.setCalendarToDayEnd
 import java.util.Calendar
 
-class SessionDBService(private val appContext: Context) : ScoreboardDatabase(appContext) {
+class SessionDBService(
+    private val appContext: Context,
+    private val databaseName: String = DatabaseConstants.DATABASE_NAME
+) : ScoreboardDatabase(appContext, databaseName) {
 
     fun addSession(session: Session): Long {
         if (session.getDuration() < 0) {
@@ -29,7 +32,7 @@ class SessionDBService(private val appContext: Context) : ScoreboardDatabase(app
         val sessionID = db.insert(DatabaseConstants.SessionsTable.TABLE_NAME, null, contentValues)
 
         session.tags.forEach {
-            SessionTagDBService(appContext).addTagToSession(it.id, sessionID)
+            SessionTagDBService(appContext, databaseName).addTagToSession(it.id, sessionID)
         }
 
         db.close()
@@ -59,9 +62,9 @@ class SessionDBService(private val appContext: Context) : ScoreboardDatabase(app
             selection,
             selectionArgs
         )
-        SessionTagDBService(appContext).deleteSessionTagsOnSessionDelete(session.id)
+        SessionTagDBService(appContext, databaseName).deleteSessionTagsOnSessionDelete(session.id)
         session.tags.forEach {
-            SessionTagDBService(appContext).addTagToSession(it.id, session.id)
+            SessionTagDBService(appContext, databaseName).addTagToSession(it.id, session.id)
         }
         db.close()
     }
@@ -75,7 +78,7 @@ class SessionDBService(private val appContext: Context) : ScoreboardDatabase(app
             selection,
             selectionArgs
         )
-        SessionTagDBService(appContext).deleteSessionTagsOnSessionDelete(id)
+        SessionTagDBService(appContext, databaseName).deleteSessionTagsOnSessionDelete(id)
         db.close()
     }
 
@@ -131,14 +134,20 @@ class SessionDBService(private val appContext: Context) : ScoreboardDatabase(app
                 cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DURATION_COLUMN))
             val date =
                 cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
-            val session = Session(duration, Calendar.getInstance().apply{ timeInMillis = date }, id, mutableListOf())
-            val sessionTagIDs = SessionTagDBService(appContext).getTagIDsForSession(id)
+            val session = Session(
+                duration,
+                Calendar.getInstance().apply { timeInMillis = date },
+                id,
+                mutableListOf()
+            )
+            val sessionTagIDs = SessionTagDBService(appContext, databaseName).getTagIDsForSession(id)
             sessionTagIDs.forEach {
-                val tag = TagDBService(appContext).getTagByID(it)
-                if(tag!=null){
+                val tag = TagDBService(appContext, databaseName).getTagByID(it)
+                if (tag != null) {
                     session.tags.add(tag)
                 }
             }
+            println(session.tags.size)
             cursor.close()
             return session
         }
@@ -163,17 +172,22 @@ class SessionDBService(private val appContext: Context) : ScoreboardDatabase(app
             null
         )
         val sessions = mutableListOf<Session>()
-        while(cursor.moveToNext()){
+        while (cursor.moveToNext()) {
             val id = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID))
             val duration =
                 cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DURATION_COLUMN))
             val date =
                 cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
-            val session = Session(duration, Calendar.getInstance().apply{ timeInMillis = date }, id, mutableListOf())
-            val sessionTagIDs = SessionTagDBService(appContext).getTagIDsForSession(id)
+            val session = Session(
+                duration,
+                Calendar.getInstance().apply { timeInMillis = date },
+                id,
+                mutableListOf()
+            )
+            val sessionTagIDs = SessionTagDBService(appContext, databaseName).getTagIDsForSession(id)
             sessionTagIDs.forEach {
-                val tag = TagDBService(appContext).getTagByID(it)
-                if(tag!=null){
+                val tag = TagDBService(appContext, databaseName).getTagByID(it)
+                if (tag != null) {
                     session.tags.add(tag)
                 }
             }

@@ -2,12 +2,17 @@ package com.example.scoreboard.database
 
 import android.content.ContentValues
 import android.content.Context
+import android.provider.BaseColumns
+import com.example.scoreboard.session.Session
 
-class SessionTagDBService(context: Context) : ScoreboardDatabase(context) {
+class SessionTagDBService(
+    context: Context,
+    databaseName: String = DatabaseConstants.DATABASE_NAME
+) : ScoreboardDatabase(context, databaseName) {
 
     fun addTagToSession(tagID: Long, sessionID: Long) {
         val db = this.writableDatabase
-        if(tagID<0 || sessionID<0){
+        if (tagID < 0 || sessionID < 0) {
             return
         }
         val contentValues = ContentValues().apply {
@@ -45,7 +50,8 @@ class SessionTagDBService(context: Context) : ScoreboardDatabase(context) {
         val sessionIDs = mutableListOf<Long>()
         with(cursor) {
             while (moveToNext()) {
-                val sessionID = getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
+                val sessionID =
+                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
                 sessionIDs.add(sessionID)
             }
         }
@@ -71,7 +77,8 @@ class SessionTagDBService(context: Context) : ScoreboardDatabase(context) {
         val tagIDs = mutableListOf<Long>()
         with(cursor) {
             while (moveToNext()) {
-                val tagID = getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.TAG_ID_COLUMN))
+                val tagID =
+                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.TAG_ID_COLUMN))
                 tagIDs.add(tagID)
             }
         }

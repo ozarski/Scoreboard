@@ -7,9 +7,12 @@ import com.example.scoreboard.Tag
 import com.example.scoreboard.session.Session
 import java.util.Calendar
 
-open class ScoreboardDatabase(val context: Context) : SQLiteOpenHelper(
+open class ScoreboardDatabase(
+    val context: Context,
+    databaseName: String = DatabaseConstants.DATABASE_NAME
+) : SQLiteOpenHelper(
     context,
-    DatabaseConstants.DATABASE_NAME,
+    databaseName,
     null,
     DatabaseConstants.DATABASE_VERSION
 ) {
@@ -37,7 +40,7 @@ open class ScoreboardDatabase(val context: Context) : SQLiteOpenHelper(
         db.execSQL(DatabaseConstants.CREATE_SESSION_TAG_TABLE)
     }
 
-    fun generateMockData(){
+    fun generateMockData() {
         val tagDBService = TagDBService(context)
         val sessionDBService = SessionDBService(context)
         val tag1 = Tag("tag1", -1)

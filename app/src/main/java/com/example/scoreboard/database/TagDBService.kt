@@ -5,7 +5,8 @@ import android.content.Context
 import android.provider.BaseColumns
 import com.example.scoreboard.Tag
 
-class TagDBService(context: Context) : ScoreboardDatabase(context) {
+class TagDBService(context: Context, databaseName: String = DatabaseConstants.DATABASE_NAME) :
+    ScoreboardDatabase(context, databaseName) {
 
     fun addTag(tag: Tag): Long {
         if (tag.tagName.isEmpty()) {
@@ -45,7 +46,7 @@ class TagDBService(context: Context) : ScoreboardDatabase(context) {
         val selectionArgs = arrayOf(id.toString())
         db.delete(DatabaseConstants.TagsTable.TABLE_NAME, selection, selectionArgs)
         db.close()
-        SessionTagDBService(context).deleteSessionTagsOnTagDelete(id)
+        SessionTagDBService(context, databaseName).deleteSessionTagsOnTagDelete(id)
     }
 
     fun getTagByID(id: Long): Tag? {
@@ -72,7 +73,7 @@ class TagDBService(context: Context) : ScoreboardDatabase(context) {
         return null
     }
 
-    fun getAllTags(): List<Tag>{
+    fun getAllTags(): List<Tag> {
         val db = this.readableDatabase
         val projection = arrayOf(
             BaseColumns._ID,
@@ -88,7 +89,7 @@ class TagDBService(context: Context) : ScoreboardDatabase(context) {
             null
         )
         val tags = mutableListOf<Tag>()
-        while(cursor.moveToNext()){
+        while (cursor.moveToNext()) {
             val id = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID))
             val tagName =
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseConstants.TagsTable.NAME_COLUMN))
@@ -117,14 +118,15 @@ class TagDBService(context: Context) : ScoreboardDatabase(context) {
         val sessionIDs = mutableListOf<Long>()
         with(cursor) {
             while (moveToNext()) {
-                val sessionID = getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
+                val sessionID =
+                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
                 sessionIDs.add(sessionID)
             }
         }
         cursor.close()
         db.close()
-        for(sessionID in sessionIDs){
-            SessionDBService(context).deleteSessionByID(sessionID)
+        for (sessionID in sessionIDs) {
+            SessionDBService(context, databaseName).deleteSessionByID(sessionID)
         }
     }
 }

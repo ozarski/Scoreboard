@@ -23,13 +23,13 @@ class SessionDBServiceTests {
     @Before
     fun setUp() {
         applicationContext = InstrumentationRegistry.getInstrumentation().targetContext
-        sessionDBService = SessionDBService(applicationContext)
+        sessionDBService = SessionDBService(applicationContext, DatabaseConstants.TEST_DATABASE_NAME)
     }
 
     @After
     fun tearDown() {
         sessionDBService.close()
-        applicationContext.deleteDatabase(DatabaseConstants.DATABASE_NAME)
+        applicationContext.deleteDatabase(DatabaseConstants.TEST_DATABASE_NAME)
     }
 
     @Test
@@ -98,8 +98,9 @@ class SessionDBServiceTests {
         val calendar = Calendar.getInstance()
         val tags = mutableListOf<Tag>(Tag("tag1", 1), Tag("tag2", 2))
         tags.forEach {
-            TagDBService(applicationContext).addTag(it)
+            TagDBService(applicationContext, DatabaseConstants.TEST_DATABASE_NAME).addTag(it)
         }
+
         val session = Session(0, calendar, 0, tags)
         val id = sessionDBService.addSession(session)
 

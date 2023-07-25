@@ -6,6 +6,7 @@ import android.provider.BaseColumns
 object DatabaseConstants {
 
     const val DATABASE_NAME = "scoreboard.db"
+    const val TEST_DATABASE_NAME = "scoreboard_tests.db"
     const val DATABASE_VERSION = 1
 
     const val CREATE_SESSIONS_TABLE = "CREATE TABLE ${SessionsTable.TABLE_NAME} (" +
