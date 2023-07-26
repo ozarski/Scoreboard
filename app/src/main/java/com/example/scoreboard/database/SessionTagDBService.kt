@@ -87,6 +87,10 @@ class SessionTagDBService(
         return tagIDs
     }
 
+    fun getSessionsForTagIDs(tagIDs: List<Long>): List<Session> {
+        TODO("Not implemented yet")
+    }
+
     fun deleteSessionTagsOnSessionDelete(sessionID: Long) {
         val db = this.writableDatabase
         val selection = "${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} = ?"

@@ -249,6 +249,111 @@ class SessionTagDBServiceTests {
         assertSessionTagCreated(sessionID, tagID)
     }
 
+    @Test
+    fun getSessionsForTagIDsTestOneTag(){
+        val tag = Tag("tag_name", -1)
+        tag.id = tagDBService.addTag(tag)
+        val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
+        val session2 = Session(0, Calendar.getInstance(), -1, mutableListOf())
+        val sessionID = sessionDBService.addSession(session)
+        sessionDBService.addSession(session2)
+
+        val sessions = sessionTagDBService.getSessionsForTagIDs(listOf(tag.id))
+        assertEquals(1, sessions.size)
+        assertEquals(sessionID, sessions[0].id)
+        assertEquals(session.getDate(), sessions[0].getDate())
+        assertEquals(session.tags.size, sessions[0].tags.size)
+        assertEquals(session.getDuration(), sessions[0].getDuration())
+    }
+
+    @Test
+    fun getSessionsForTagIDsTestTwoTags(){
+        val tag = Tag("tag_name", -1)
+        tag.id = tagDBService.addTag(tag)
+        val tag2 = Tag("tag_name2", -1)
+        tag2.id = tagDBService.addTag(tag2)
+
+        val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag2))
+        val session2 = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
+
+        val sessionID = sessionDBService.addSession(session)
+        val sessionID2 = sessionDBService.addSession(session2)
+
+        val sessionsTag = sessionTagDBService.getSessionsForTagIDs(listOf(tag.id))
+        assertEquals(1, sessionsTag.size)
+        assertEquals(sessionID2, sessionsTag[0].id)
+        assertEquals(session2.getDate(), sessionsTag[0].getDate())
+        assertEquals(session2.tags.size, sessionsTag[0].tags.size)
+        assertEquals(session2.getDuration(), sessionsTag[0].getDuration())
+
+        val sessionsTag2 = sessionTagDBService.getSessionsForTagIDs(listOf(tag2.id))
+        assertEquals(1, sessionsTag2.size)
+        assertEquals(sessionID, sessionsTag2[0].id)
+        assertEquals(session.getDate(), sessionsTag2[0].getDate())
+        assertEquals(session.tags.size, sessionsTag2[0].tags.size)
+        assertEquals(session.getDuration(), sessionsTag2[0].getDuration())
+    }
+
+    @Test
+    fun getSessionsForTagIDsTestTwoTagsOneSession(){
+        val tag = Tag("tag_name", -1)
+        tag.id = tagDBService.addTag(tag)
+        val tag2 = Tag("tag_name2", -1)
+        tag2.id = tagDBService.addTag(tag2)
+
+        val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag, tag2))
+        val sessionID = sessionDBService.addSession(session)
+        val sessionsBothTags = sessionTagDBService.getSessionsForTagIDs(listOf(tag.id, tag2.id))
+        assertEquals(1, sessionsBothTags.size)
+        assertEquals(sessionID, sessionsBothTags[0].id)
+        assertEquals(session.getDate(), sessionsBothTags[0].getDate())
+        assertEquals(session.tags.size, sessionsBothTags[0].tags.size)
+        assertEquals(session.getDuration(), sessionsBothTags[0].getDuration())
+
+        val sessionsOneTag = sessionTagDBService.getSessionsForTagIDs(listOf(tag.id))
+        assertEquals(1, sessionsBothTags.size)
+        assertEquals(sessionID, sessionsBothTags[0].id)
+        assertEquals(session.getDate(), sessionsBothTags[0].getDate())
+        assertEquals(session.tags.size, sessionsBothTags[0].tags.size)
+        assertEquals(session.getDuration(), sessionsBothTags[0].getDuration())
+    }
+
+    @Test
+    fun getSessionsForTagIDsTwoTagsTwoSessions(){
+        val tag = Tag("tag_name", -1)
+        tag.id = tagDBService.addTag(tag)
+        val tag2 = Tag("tag_name2", -1)
+        tag2.id = tagDBService.addTag(tag2)
+
+        val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
+        val session2 = Session(0, Calendar.getInstance(), -1, mutableListOf(tag, tag2))
+
+        sessionDBService.addSession(session)
+        val sessionID2 = sessionDBService.addSession(session2)
+
+        val sessionsBothTags = sessionTagDBService.getSessionsForTagIDs(listOf(tag.id, tag2.id))
+        assertEquals(1, sessionsBothTags.size)
+        assertEquals(sessionID2, sessionsBothTags[0].id)
+        assertEquals(session2.getDate(), sessionsBothTags[0].getDate())
+        assertEquals(session2.tags.size, sessionsBothTags[0].tags.size)
+        assertEquals(session2.getDuration(), sessionsBothTags[0].getDuration())
+    }
+
+    @Test
+    fun getSessionsForTagIDsNoSessionsForTag(){
+        val tag = Tag("tag_name", -1)
+        tag.id = tagDBService.addTag(tag)
+        val tag2 = Tag("tag_name2", -1)
+        tag2.id = tagDBService.addTag(tag2)
+
+        val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag2))
+        val sessionID = sessionDBService.addSession(session)
+
+        val sessions = sessionTagDBService.getSessionsForTagIDs(listOf(tag.id))
+        assertEquals(0, sessions.size)
+    }
+
+
     private fun assertSessionTagCreated(sessionID: Long, tagID: Long) {
         val cursor = sessionTagDBService.readableDatabase.rawQuery(
             "SELECT * FROM ${DatabaseConstants.SessionTagTable.TABLE_NAME}",
