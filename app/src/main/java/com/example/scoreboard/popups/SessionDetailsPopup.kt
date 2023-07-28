@@ -45,7 +45,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = { popupVisible.value = false },
-            properties = PopupProperties(focusable = false, dismissOnClickOutside = false)
+            properties = PopupProperties(focusable = true)
         ) {
             SessionDetailsPopupLayout()
         }
