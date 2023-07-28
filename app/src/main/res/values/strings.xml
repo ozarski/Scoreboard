@@ -17,4 +17,6 @@
     <string name="session_details_tag_list_label">Tags:</string>
     <string name="yes_button_text">YES</string>
     <string name="no_button_text">NO</string>
+    <string name="filter_history_tag_selection_popup_title">Filter sessions</string>
+    <string name="filter_history_tag_selection_popup_apply_button_text">APPLY</string>
 </resources>
