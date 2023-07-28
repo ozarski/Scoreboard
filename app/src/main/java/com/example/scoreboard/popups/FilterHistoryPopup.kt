@@ -33,21 +33,28 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.scoreboard.R
 import com.example.scoreboard.Tag
+import com.example.scoreboard.database.SessionTagDBService
 import com.example.scoreboard.database.TagDBService
+import com.example.scoreboard.session.Session
 import org.apache.commons.lang3.tuple.MutablePair
 
 class FilterHistoryPopup(val context: Context) {
     private lateinit var popupVisible: MutableState<Boolean>
     private lateinit var tagListPick: SnapshotStateList<MutablePair<Tag, Boolean>>
+    private lateinit var sessions: SnapshotStateList<Session>
 
     @Composable
-    fun GeneratePopup(popupVisible: MutableState<Boolean>) {
+    fun GeneratePopup(
+        popupVisible: MutableState<Boolean>,
+        sessions: SnapshotStateList<Session>
+    ) {
         this.popupVisible = popupVisible
+        this.sessions = sessions
         tagListPick = remember { mutableStateListOf() }
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = { popupVisible.value = false },
-            properties = PopupProperties(focusable = false, dismissOnClickOutside = false)
+            properties = PopupProperties(focusable = true)
         ) {
             FilterHistoryPopupLayout()
         }
@@ -78,6 +85,7 @@ class FilterHistoryPopup(val context: Context) {
             Button(
                 onClick = {
                     popupVisible.value = false
+                    filterTag()
                 },
                 modifier = Modifier
                     .padding(10.dp)
@@ -140,14 +148,9 @@ class FilterHistoryPopup(val context: Context) {
 
     private fun filterTag() {
         val selectedTags = tagListPick.filter { it.right }.map { it.left }
-        TODO("Filter and return list of sessions for selected tags")
-    }
-}
+        val selectedTagsIDs = selectedTags.map { it.id }
 
-@Preview
-@Composable
-fun FilterHistoryPopupLayoutPreview() {
-    val popupVisible = remember { mutableStateOf(true) }
-    val context = LocalContext.current
-    FilterHistoryPopup(context).GeneratePopup(popupVisible)
+        sessions.clear()
+        sessions.addAll(SessionTagDBService(context).getSessionsForTagIDs(selectedTagsIDs))
+    }
 }
