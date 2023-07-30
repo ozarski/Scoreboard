@@ -1,17 +1,23 @@
 package com.example.scoreboard
 
 import android.content.Context
+import android.graphics.fonts.FontFamily
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -25,6 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,7 +64,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
             AddSessionPopup(context).GeneratePopup(popupVisible)
         }
 
-        if(MainActivity.activitiesDataUpdate.value){
+        if (MainActivity.activitiesDataUpdate.value) {
             totalDuration.value = StatsDBService(context).getTotalDuration()
             tagsWithDurations.value = StatsDBService(context).getAllTagsWithDurations()
             MainActivity.activitiesDataUpdate.value = false
@@ -121,13 +129,12 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(tagsWithDurations.value.size) { index ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp, bottom = 10.dp)
-                ) {
-                    ActivityItem(tagsWithDurations.value[index])
-                }
+                ActivityItem(tagsWithDurations.value[index])
+                Divider(
+                    color = Color.LightGray,
+                    thickness = 0.7.dp,
+                    modifier = Modifier.fillMaxWidth(0.95f)
+                )
             }
         }
     }
@@ -142,7 +149,9 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                 .fillMaxWidth()
                 .clickable {
                     sessionPopupVisible.value = true
-                }, horizontalArrangement = Arrangement.SpaceBetween
+                }
+                .padding(top = 10.dp, bottom = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = activityItem.first.tagName,
@@ -153,12 +162,14 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )
+
+
             val duration = durationInSecondsToDaysAndHoursAndMinutes(activityItem.second)
             Text(
                 text = duration,
                 fontSize = 20.sp,
                 modifier = Modifier
-                    .padding(end = 10.dp, start = 10.dp)
+                    .padding(end = 10.dp, start = 3.dp)
                     .widthIn(min = 0.dp, max = 300.dp),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1

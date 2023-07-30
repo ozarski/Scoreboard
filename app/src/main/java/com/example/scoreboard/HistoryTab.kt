@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -27,6 +28,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,7 +36,6 @@ import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.popups.FilterHistoryPopup
 import com.example.scoreboard.popups.SessionDetailsPopup
 import com.example.scoreboard.session.Session
-import org.apache.commons.lang3.tuple.MutablePair
 
 class HistoryTab(val context: Context) : ComponentActivity() {
 
@@ -113,9 +114,14 @@ class HistoryTab(val context: Context) : ComponentActivity() {
 
     @Composable
     fun SessionsHistoryList() {
-        LazyColumn {
+        LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
             items(sessions.size) {
                 SessionItem(sessions[it])
+                Divider(
+                    color = Color.LightGray,
+                    thickness = 0.7.dp,
+                    modifier = Modifier.fillMaxWidth(0.95f)
+                )
             }
         }
     }
@@ -124,16 +130,45 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     fun SessionItem(session: Session) {
         Row(
             modifier = Modifier
-                .padding(start = 10.dp, end = 10.dp, bottom = 10.dp, top = 10.dp)
                 .fillMaxWidth()
                 .clickable {
                     sessionDetailsPopupVisible.value = !sessionDetailsPopupVisible.value
                     popupSessionID = session.id
-                },
-            horizontalArrangement = Arrangement.SpaceBetween
+                }
+                .padding(start = 10.dp, end = 10.dp, bottom = 10.dp, top = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            SessionTagsList(session.tags)
-            Text(text = durationInSecondsToHoursAndMinutes(session.getDuration()), fontSize = 20.sp)
+            SessionTagsText(session.tags)
+            Column(verticalArrangement = Arrangement.Center) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_date_range_24),
+                        contentDescription = "Session date icon",
+                        tint = Color(context.getColor(R.color.date_icon_tint)),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    val formattedDate = formatDate(session.getDate())
+                    Text(
+                        text = formattedDate,
+                        fontSize = 15.sp,
+                        modifier = Modifier.widthIn(max = 275.dp, min = 0.dp),
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_access_time_24),
+                        contentDescription = "Session duration icon",
+                        tint = Color(context.getColor(R.color.duration_icon_tint)),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Text(
+                        text = durationInSecondsToHoursAndMinutes(session.getDuration()),
+                        fontSize = 15.sp
+                    )
+                }
+            }
         }
         if (sessionDetailsPopupVisible.value && popupSessionID == session.id) {
             SessionDetailsPopup(context, session).GeneratePopup(sessionDetailsPopupVisible)
@@ -141,19 +176,29 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    fun SessionTagsList(tags: MutableList<Tag>) {
+    fun SessionTagsText(tags: MutableList<Tag>) {
         var tagsString = ""
         tags.forEach {
             tagsString += it.tagName + " "
         }
-        Text(
-            text = tagsString,
-            fontSize = 20.sp,
-            modifier = Modifier
-                .widthIn(max = 300.dp, min = 0.dp)
-                .padding(start = 10.dp, end = 10.dp),
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1
-        )
+        Column(verticalArrangement = Arrangement.Center){
+            Row(verticalAlignment = Alignment.CenterVertically){
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_tag_24),
+                    contentDescription = "Session tags icon",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(25.dp).padding(end = 3.dp)
+                )
+                Text(
+                    text = tagsString,
+                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .widthIn(max = 275.dp, min = 0.dp)
+                        .padding(end = 10.dp),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+            }
+        }
     }
 }

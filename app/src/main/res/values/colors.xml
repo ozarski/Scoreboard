@@ -8,4 +8,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="tag_item_background_session_details">#DEDEDE</color>
+    <color name="date_icon_tint">#579af7</color>
+    <color name="duration_icon_tint">#f75762</color>
 </resources>

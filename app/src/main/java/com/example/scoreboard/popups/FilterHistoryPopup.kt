@@ -53,7 +53,9 @@ class FilterHistoryPopup(val context: Context) {
         tagListPick = remember { mutableStateListOf() }
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
-            onDismissRequest = { popupVisible.value = false },
+            onDismissRequest = {
+                popupVisible.value = false
+            },
             properties = PopupProperties(focusable = true)
         ) {
             FilterHistoryPopupLayout()
@@ -152,5 +154,6 @@ class FilterHistoryPopup(val context: Context) {
 
         sessions.clear()
         sessions.addAll(SessionTagDBService(context).getSessionsForTagIDs(selectedTagsIDs))
+        sessions.sortByDescending { it.getDate().timeInMillis }
     }
 }
