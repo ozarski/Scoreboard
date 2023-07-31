@@ -2,6 +2,7 @@ package com.example.scoreboard
 
 import android.content.Context
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,10 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -64,7 +69,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             MainActivity.historyDataUpdate.value = false
         }
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().background(color = Color(context.getColor(R.color.tabs_background_color))),
             verticalArrangement = Arrangement.Top
         ) {
             FilterSessionsByTagsRow()
@@ -75,36 +80,55 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     @Composable
     fun FilterSessionsByTagsRow() {
         val filterPopupVisible = remember { mutableStateOf(false) }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Card(
+            modifier = Modifier.padding(10.dp),
+            elevation = 3.dp,
+            shape = RoundedCornerShape(25.dp)
         ) {
-            var selectedSessionsDuration = 0L
-            sessions.forEach { selectedSessionsDuration += it.getDuration() }
-            val selectedSessionsDurationString =
-                durationInSecondsToHoursAndMinutes(selectedSessionsDuration)
-            Text(
-                text = String.format(
-                    context.getString(R.string.selected_sessions_duration),
-                    selectedSessionsDurationString
-                ),
-                fontSize = 20.sp,
-                modifier = Modifier.padding(start = 10.dp)
-            )
-            Button(
-                onClick = {
-                    filterPopupVisible.value = !filterPopupVisible.value
-                },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
-                elevation = ButtonDefaults.elevation(0.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Color.White, shape = RoundedCornerShape(25.dp)),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Rounded.Settings,
-                    contentDescription = "Filter popup button",
-                    tint = Color.Black,
-                    modifier = Modifier.size(25.dp)
-                )
+                var selectedSessionsDuration = 0L
+                sessions.forEach { selectedSessionsDuration += it.getDuration() }
+                val selectedSessionsDurationString =
+                    durationInSecondsToHoursAndMinutes(selectedSessionsDuration)
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_access_time_24),
+                            contentDescription = "Sessions duration icon",
+                            tint = Color.Gray,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .padding(start = 10.dp, end = 3.dp)
+                        )
+                        Text(
+                            text = selectedSessionsDurationString,
+                            fontSize = 25.sp
+                        )
+                    }
+                }
+                Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)){
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_filter_list_24),
+                        contentDescription = "Filter popup button",
+                        tint = Color.Black,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clickable {
+                                filterPopupVisible.value = !filterPopupVisible.value
+                            }
+                            .background(shape = CircleShape, color = Color(context.getColor(R.color.main_ui_buttons_color)))
+                            .padding(5.dp)
+                    )
+                }
             }
         }
         if (filterPopupVisible.value) {
@@ -114,14 +138,26 @@ class HistoryTab(val context: Context) : ComponentActivity() {
 
     @Composable
     fun SessionsHistoryList() {
-        LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
-            items(sessions.size) {
-                SessionItem(sessions[it])
-                Divider(
-                    color = Color.LightGray,
-                    thickness = 0.7.dp,
-                    modifier = Modifier.fillMaxWidth(0.95f)
+        Card(
+            modifier = Modifier.padding(top = 5.dp, bottom = 10.dp, start = 10.dp, end = 10.dp),
+            elevation = 3.dp,
+            shape = RoundedCornerShape(25.dp)
+        ) {
+            LazyColumn(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(25.dp)
                 )
+            ) {
+                items(sessions.size) {
+                    SessionItem(sessions[it])
+                    Divider(
+                        color = Color.LightGray,
+                        thickness = 0.7.dp,
+                        modifier = Modifier.fillMaxWidth(0.95f)
+                    )
+                }
             }
         }
     }
@@ -181,19 +217,21 @@ class HistoryTab(val context: Context) : ComponentActivity() {
         tags.forEach {
             tagsString += it.tagName + " "
         }
-        Column(verticalArrangement = Arrangement.Center){
-            Row(verticalAlignment = Alignment.CenterVertically){
+        Column(verticalArrangement = Arrangement.Center) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_tag_24),
                     contentDescription = "Session tags icon",
                     tint = Color.Gray,
-                    modifier = Modifier.size(25.dp).padding(end = 3.dp)
+                    modifier = Modifier
+                        .size(25.dp)
+                        .padding(end = 3.dp)
                 )
                 Text(
                     text = tagsString,
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                     modifier = Modifier
-                        .widthIn(max = 275.dp, min = 0.dp)
+                        .widthIn(max = 260.dp, min = 0.dp)
                         .padding(end = 10.dp),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1

@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -24,15 +26,14 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.scoreboard.R
 import com.example.scoreboard.Tag
+import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.database.SessionTagDBService
 import com.example.scoreboard.database.TagDBService
 import com.example.scoreboard.session.Session
@@ -84,22 +85,38 @@ class FilterHistoryPopup(val context: Context) {
             tagListPick.addAll(tags.map { MutablePair(it, false) })
             TagSelectionList()
 
-            Button(
-                onClick = {
-                    popupVisible.value = false
-                    filterTag()
-                },
-                modifier = Modifier
-                    .padding(10.dp)
-                    .clickable {
-                        filterTag()
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Button(
+                    onClick = {
+                        popupVisible.value = false
+                        filterTags()
+                    },
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .clickable {
+                            filterTags()
+                            popupVisible.value = false
+                        },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                    elevation = ButtonDefaults.elevation(0.dp)
+                ) {
+                    Text(text = context.getString(R.string.filter_history_tag_selection_popup_apply_button_text))
+                }
+
+                Button(
+                    onClick = {
+                        resetTags()
                         popupVisible.value = false
                     },
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-                elevation = ButtonDefaults.elevation(0.dp)
-            ) {
-                Text(text = context.getString(R.string.filter_history_tag_selection_popup_apply_button_text))
+                    modifier = Modifier
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                    elevation = ButtonDefaults.elevation(0.dp)
+                ) {
+                    Text(text = context.getString(R.string.reset_filters_button_text))
+                }
             }
         }
     }
@@ -148,12 +165,18 @@ class FilterHistoryPopup(val context: Context) {
         )
     }
 
-    private fun filterTag() {
+    private fun filterTags() {
         val selectedTags = tagListPick.filter { it.right }.map { it.left }
         val selectedTagsIDs = selectedTags.map { it.id }
 
         sessions.clear()
         sessions.addAll(SessionTagDBService(context).getSessionsForTagIDs(selectedTagsIDs))
+        sessions.sortByDescending { it.getDate().timeInMillis }
+    }
+
+    private fun resetTags() {
+        sessions.clear()
+        sessions.addAll(SessionDBService(context).getAllSessions())
         sessions.sortByDescending { it.getDate().timeInMillis }
     }
 }

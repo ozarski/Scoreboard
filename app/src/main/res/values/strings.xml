@@ -20,4 +20,5 @@
     <string name="filter_history_tag_selection_popup_title">Filter sessions</string>
     <string name="filter_history_tag_selection_popup_apply_button_text">APPLY</string>
     <string name="selected_sessions_duration">Sessions duration: %s</string>
+    <string name="reset_filters_button_text">RESET</string>
 </resources>
