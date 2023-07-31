@@ -11,19 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -69,16 +64,18 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             MainActivity.historyDataUpdate.value = false
         }
         Column(
-            modifier = Modifier.fillMaxSize().background(color = Color(context.getColor(R.color.tabs_background_color))),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color(context.getColor(R.color.tabs_background_color))),
             verticalArrangement = Arrangement.Top
         ) {
-            FilterSessionsByTagsRow()
+            FilterSessionsHeader()
             SessionsHistoryList()
         }
     }
 
     @Composable
-    fun FilterSessionsByTagsRow() {
+    fun FilterSessionsHeader() {
         val filterPopupVisible = remember { mutableStateOf(false) }
         Card(
             modifier = Modifier.padding(10.dp),
@@ -92,47 +89,60 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                var selectedSessionsDuration = 0L
-                sessions.forEach { selectedSessionsDuration += it.getDuration() }
-                val selectedSessionsDurationString =
-                    durationInSecondsToHoursAndMinutes(selectedSessionsDuration)
-                Column(
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_access_time_24),
-                            contentDescription = "Sessions duration icon",
-                            tint = Color.Gray,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .padding(start = 10.dp, end = 3.dp)
-                        )
-                        Text(
-                            text = selectedSessionsDurationString,
-                            fontSize = 25.sp
-                        )
-                    }
-                }
-                Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)){
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_filter_list_24),
-                        contentDescription = "Filter popup button",
-                        tint = Color.Black,
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clickable {
-                                filterPopupVisible.value = !filterPopupVisible.value
-                            }
-                            .background(shape = CircleShape, color = Color(context.getColor(R.color.main_ui_buttons_color)))
-                            .padding(5.dp)
-                    )
-                }
+                FilterHeaderDurationColumn()
+                FilterHeaderFilterButtonColumn(filterPopupVisible = filterPopupVisible)
             }
         }
         if (filterPopupVisible.value) {
             FilterHistoryPopup(context).GeneratePopup(filterPopupVisible, sessions)
+        }
+    }
+
+    @Composable
+    fun FilterHeaderDurationColumn(){
+        var selectedSessionsDuration = 0L
+        sessions.forEach { selectedSessionsDuration += it.getDuration() }
+        val selectedSessionsDurationString =
+            durationInSecondsToHoursAndMinutes(selectedSessionsDuration)
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_access_time_24),
+                    contentDescription = "Sessions duration icon",
+                    tint = Color.Gray,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(start = 10.dp, end = 3.dp)
+                )
+                Text(
+                    text = selectedSessionsDurationString,
+                    fontSize = 25.sp
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun FilterHeaderFilterButtonColumn(filterPopupVisible: MutableState<Boolean>){
+        Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)){
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_filter_list_24),
+                contentDescription = "Filter popup button",
+                tint = Color.Black,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable {
+                        filterPopupVisible.value = !filterPopupVisible.value
+                    }
+                    .background(
+                        shape = CircleShape,
+                        color = Color(context.getColor(R.color.main_ui_buttons_color))
+                    )
+                    .padding(5.dp)
+            )
         }
     }
 
@@ -177,37 +187,46 @@ class HistoryTab(val context: Context) : ComponentActivity() {
         ) {
             SessionTagsText(session.tags)
             Column(verticalArrangement = Arrangement.Center) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_date_range_24),
-                        contentDescription = "Session date icon",
-                        tint = Color(context.getColor(R.color.date_icon_tint)),
-                        modifier = Modifier.size(20.dp)
-                    )
-                    val formattedDate = formatDate(session.getDate())
-                    Text(
-                        text = formattedDate,
-                        fontSize = 15.sp,
-                        modifier = Modifier.widthIn(max = 275.dp, min = 0.dp),
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_access_time_24),
-                        contentDescription = "Session duration icon",
-                        tint = Color(context.getColor(R.color.duration_icon_tint)),
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = durationInSecondsToHoursAndMinutes(session.getDuration()),
-                        fontSize = 15.sp
-                    )
-                }
+                SessionDateRow(session = session)
+                SessionDurationRow(session = session)
             }
         }
         if (sessionDetailsPopupVisible.value && popupSessionID == session.id) {
             SessionDetailsPopup(context, session).GeneratePopup(sessionDetailsPopupVisible)
+        }
+    }
+
+    @Composable
+    fun SessionDateRow(session: Session){
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_date_range_24),
+                contentDescription = "Session date icon",
+                tint = Color(context.getColor(R.color.date_icon_tint)),
+                modifier = Modifier.size(20.dp)
+            )
+            val formattedDate = formatDate(session.getDate())
+            Text(
+                text = formattedDate,
+                fontSize = 15.sp,
+                modifier = Modifier.widthIn(max = 275.dp, min = 0.dp),
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+    @Composable
+    fun SessionDurationRow(session: Session){
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_access_time_24),
+                contentDescription = "Session duration icon",
+                tint = Color(context.getColor(R.color.duration_icon_tint)),
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = durationInSecondsToHoursAndMinutes(session.getDuration()),
+                fontSize = 15.sp
+            )
         }
     }
 
