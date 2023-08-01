@@ -12,4 +12,5 @@
     <color name="duration_icon_tint">#f75762</color>
     <color name="main_ui_buttons_color">#68b37c</color>
     <color name="tabs_background_color">#ededed</color>
+    <color name="tab_indicator_color">#599969</color>
 </resources>

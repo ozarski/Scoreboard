@@ -4,10 +4,14 @@ import android.app.Fragment
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.TabRowDefaults
@@ -19,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.scoreboard.database.ScoreboardDatabase
@@ -56,25 +61,35 @@ class MainActivity : ComponentActivity() {
         val scope = rememberCoroutineScope()
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(this@MainActivity.getColor(R.color.tabs_background_color))),
             verticalArrangement = Arrangement.Bottom
         ) {
             val pagesModifier = Modifier.weight(1f)
             MainTabsPager(pagerState = pagerState, tabs = tabs, modifier = pagesModifier)
-            TabRow(
-                selectedTabIndex = tabIndex.value,
-                indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
-                        Modifier
-                            .pagerTabIndicatorOffset(pagerState, tabPositions)
-                            .offset(y = ((-46).dp)),
-                        color = Color.Green,
+            Row(modifier = Modifier.padding(horizontal = 10.dp)) {
+                TabRow(
+                    selectedTabIndex = tabIndex.value,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.Indicator(
+                            Modifier
+                                .pagerTabIndicatorOffset(pagerState, tabPositions)
+                                .offset(y = ((-46).dp)),
+                            color = Color(this@MainActivity.getColor((R.color.tab_indicator_color))),
 
+                            )
+                    },
+                    backgroundColor = Color(this@MainActivity.getColor(R.color.main_ui_buttons_color)),
+                    modifier = Modifier.clip(
+                        shape = RoundedCornerShape(
+                            topStart = 16.dp,
+                            topEnd = 16.dp
                         )
-                },
-                backgroundColor = Color.White
-            ) {
-                MainTabs(tabIndex, scope, pagerState, tabs)
+                    )
+                ) {
+                    MainTabs(tabIndex, scope, pagerState, tabs)
+                }
             }
         }
     }
@@ -88,7 +103,7 @@ class MainActivity : ComponentActivity() {
         tabs: List<String>
     ) {
         tabs.forEachIndexed { index, title ->
-            Tab(text = { Text(title) },
+            Tab(text = { Text(title, color = Color.White) },
                 selected = tabIndex.value == index,
                 onClick = {
                     scope.launch {
@@ -122,7 +137,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    companion object{
+    companion object {
         lateinit var activitiesDataUpdate: MutableState<Boolean>
         lateinit var historyDataUpdate: MutableState<Boolean>
     }
