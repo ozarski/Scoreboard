@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Tab
 import androidx.compose.material.TabRow
@@ -75,10 +77,12 @@ class MainActivity : ComponentActivity() {
                         TabRowDefaults.Indicator(
                             Modifier
                                 .pagerTabIndicatorOffset(pagerState, tabPositions)
-                                .offset(y = ((-46).dp)),
-                            color = Color(this@MainActivity.getColor((R.color.tab_indicator_color))),
-
-                            )
+                                .height(3.dp)
+                                .padding(horizontal = 60.dp)
+                                .offset(y = ((-6).dp))
+                                .clip(shape = RoundedCornerShape(16.dp)),
+                            color = Color(this@MainActivity.getColor((R.color.tabs_background_color))),
+                        )
                     },
                     backgroundColor = Color(this@MainActivity.getColor(R.color.main_ui_buttons_color)),
                     modifier = Modifier.clip(
