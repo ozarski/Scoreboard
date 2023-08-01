@@ -70,6 +70,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             verticalArrangement = Arrangement.Top
         ) {
             FilterSessionsHeader()
+            SessionsHeader()
             SessionsHistoryList()
         }
     }
@@ -99,6 +100,23 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     }
 
     @Composable
+    fun SessionsHeader(){
+        Row(verticalAlignment = Alignment.CenterVertically){
+            Text(
+                text = "Sessions",
+                fontSize = 25.sp,
+                modifier = Modifier.padding(start = 10.dp)
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_history_edu_24),
+                contentDescription = "Activities icon",
+                modifier = Modifier.size(30.dp).padding(start = 3.dp),
+                tint = Color(context.getColor(R.color.main_ui_buttons_color))
+            )
+        }
+    }
+
+    @Composable
     fun FilterHeaderDurationColumn(){
         var selectedSessionsDuration = 0L
         sessions.forEach { selectedSessionsDuration += it.getDuration() }
@@ -112,7 +130,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_access_time_24),
                     contentDescription = "Sessions duration icon",
-                    tint = Color.Gray,
+                    tint = Color.LightGray,
                     modifier = Modifier
                         .size(40.dp)
                         .padding(start = 10.dp, end = 3.dp)
@@ -131,7 +149,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_filter_list_24),
                 contentDescription = "Filter popup button",
-                tint = Color.Black,
+                tint = Color.White,
                 modifier = Modifier
                     .size(40.dp)
                     .clickable {
@@ -149,7 +167,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     @Composable
     fun SessionsHistoryList() {
         Card(
-            modifier = Modifier.padding(top = 5.dp, bottom = 10.dp, start = 10.dp, end = 10.dp),
+            modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, start = 10.dp, end = 10.dp),
             elevation = 3.dp,
             shape = RoundedCornerShape(25.dp)
         ) {
