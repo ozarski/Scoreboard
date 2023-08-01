@@ -148,7 +148,6 @@ class SessionDBService(
                     session.tags.add(tag)
                 }
             }
-            println(session.tags.size)
             cursor.close()
             return session
         }

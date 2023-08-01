@@ -94,7 +94,6 @@ class TagDBService(context: Context, databaseName: String = DatabaseConstants.DA
             val tagName =
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseConstants.TagsTable.NAME_COLUMN))
             tags.add(Tag(tagName, id))
-            println("Tag: $id, $tagName")
         }
         cursor.close()
         db.close()
