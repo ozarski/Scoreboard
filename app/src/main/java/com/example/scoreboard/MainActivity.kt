@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
         ) {
             val pagesModifier = Modifier.weight(1f)
             MainTabsPager(pagerState = pagerState, tabs = tabs, modifier = pagesModifier)
-            Row(modifier = Modifier.padding(horizontal = 10.dp)) {
+            Row(modifier = Modifier.padding(horizontal = 5.dp)) {
                 TabRow(
                     selectedTabIndex = tabIndex.value,
                     indicator = { tabPositions ->
@@ -87,8 +87,8 @@ class MainActivity : ComponentActivity() {
                     backgroundColor = Color(this@MainActivity.getColor(R.color.main_ui_buttons_color)),
                     modifier = Modifier.clip(
                         shape = RoundedCornerShape(
-                            topStart = 16.dp,
-                            topEnd = 16.dp
+                            topStart = 25.dp,
+                            topEnd = 25.dp
                         )
                     )
                 ) {

@@ -143,7 +143,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                         painter = painterResource(id = R.drawable.baseline_access_time_24),
                         contentDescription = "Total duration icon",
                         modifier = Modifier
-                            .padding(horizontal = 15.dp, vertical = 8.dp)
+                            .padding(horizontal = 10.dp, vertical = 8.dp)
                             .size(35.dp),
                         tint = Color.LightGray
                     )
