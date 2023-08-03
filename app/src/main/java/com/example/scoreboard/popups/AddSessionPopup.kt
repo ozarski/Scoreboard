@@ -264,7 +264,12 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.Bottom,
-            modifier = Modifier.padding(vertical = 5.dp, horizontal = 20.dp)
+            modifier = Modifier
+                .padding(vertical = 5.dp, horizontal = 20.dp)
+                .clickable {
+                    tagPicked.value = !tagPicked.value
+                    item.right = tagPicked.value
+                }
         ) {
             Icon(
                 painter = iconResource,
@@ -277,10 +282,6 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 fontSize = 20.sp,
                 color = textColor,
                 modifier = Modifier
-                    .clickable {
-                        tagPicked.value = !tagPicked.value
-                        item.right = tagPicked.value
-                    }
                     .padding(start = 5.dp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -379,12 +380,17 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                         }
                         dialogOpen.value = false
                     },
-                    modifier = Modifier.padding(bottom = 10.dp, start = 10.dp, end = 10.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
+                        .fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
                     elevation = ButtonDefaults.elevation(0.dp)
                 ) {
-                    Text(text = context.getString(R.string.simple_add_button_text), color = Color.White)
+                    Text(
+                        text = context.getString(R.string.simple_add_button_text),
+                        color = Color.White
+                    )
                 }
             }
         }

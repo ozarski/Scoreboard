@@ -2,6 +2,7 @@ package com.example.scoreboard.popups
 
 import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,7 +65,8 @@ class ConfirmPopup(val context: Context) {
         Column(
             modifier = Modifier
                 .width(300.dp)
-                .background(Color.LightGray, RoundedCornerShape(16.dp)),
+                .background(Color.White, RoundedCornerShape(25.dp))
+                .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(25.dp)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ){
@@ -74,10 +78,12 @@ class ConfirmPopup(val context: Context) {
     @Composable
     private fun PopupHeader() {
         Text(
-            text = "Are you sure",
+            text = stringResource(R.string.are_you_sure),
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
+            modifier = Modifier
+                .padding(top = 16.dp, bottom = 20.dp)
+                .fillMaxWidth()
         )
     }
 
@@ -112,7 +118,7 @@ class ConfirmPopup(val context: Context) {
             },
             modifier = modifier,
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
+            colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.delete_red)),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
             Text(text = context.getString(R.string.yes_button_text), color = Color.White)
@@ -131,10 +137,10 @@ class ConfirmPopup(val context: Context) {
             },
             modifier = modifier,
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+            colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.main_ui_buttons_color)),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
-            Text(text = context.getString(R.string.no_button_text))
+            Text(text = context.getString(R.string.no_button_text), color = Color.White)
         }
     }
 
