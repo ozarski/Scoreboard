@@ -259,7 +259,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_tag_24),
                     contentDescription = "Session tags icon",
-                    tint = Color.Gray,
+                    tint = Color.LightGray,
                     modifier = Modifier
                         .size(25.dp)
                         .padding(end = 3.dp)

@@ -356,8 +356,8 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                     onValueChange = { newTagName.value = it },
                     label = { Text(text = context.getString(R.string.add_new_tag_dialog_tag_name_label)) },
                     modifier = Modifier
-                        .padding(10.dp)
-                        .width(250.dp),
+                        .padding(vertical = 10.dp, horizontal = 20.dp)
+                        .fillMaxWidth(),
                     colors = TextFieldDefaults.textFieldColors(
                         backgroundColor = Color.White,
                         focusedIndicatorColor = Color(context.getColor(R.color.main_ui_buttons_color)),

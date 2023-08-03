@@ -138,7 +138,7 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
                     onValueChange = { newTagName.value = it },
                     label = { Text(text = context.getString(R.string.add_new_tag_dialog_tag_name_label)) },
                     modifier = Modifier
-                        .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
+                        .padding(start = 20.dp, end = 20.dp, bottom = 10.dp)
                         .fillMaxWidth(),
                     singleLine = true,
                     colors = TextFieldDefaults.textFieldColors(
@@ -160,7 +160,7 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
                         }
                         dialogOpen.value = false
                     },
-                    modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth(),
+                    modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
                     elevation = ButtonDefaults.elevation(0.dp)

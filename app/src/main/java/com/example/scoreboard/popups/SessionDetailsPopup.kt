@@ -3,17 +3,20 @@ package com.example.scoreboard.popups
 import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -22,7 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
@@ -55,9 +60,10 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
     private fun SessionDetailsPopupLayout() {
         Column(
             modifier = Modifier
-                .width(300.dp)
+                .width(350.dp)
                 .heightIn(min = 0.dp, max = 500.dp)
-                .background(Color.LightGray, RoundedCornerShape(16.dp)),
+                .background(Color.White, RoundedCornerShape(25.dp))
+                .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(25.dp)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -76,15 +82,16 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             onClick = {
                 confirmPopupVisible.value = true
             },
-            modifier = Modifier.padding(10.dp),
+            modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
             shape = RoundedCornerShape(16.dp),
             elevation = ButtonDefaults.elevation(0.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.delete_red)))
         ) {
             Text(
                 text = context.getString(R.string.simple_delete_button_text),
                 modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = Color.White
             )
         }
 
@@ -108,20 +115,22 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 10.dp, start = 20.dp, end = 20.dp, top = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(bottom = 10.dp, start = 20.dp, end = 20.dp, top = 10.dp),
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = context.getString(R.string.session_details_date_label),
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_date_range_24),
+                contentDescription = "Session details date icon",
+                tint = Color(context.getColor(R.color.date_icon_tint)),
+                modifier = Modifier.size(30.dp)
             )
             val formattedDate = formatDate(session.getDate())
             Text(
                 text = formattedDate,
                 fontSize = 20.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(start = 5.dp)
             )
         }
     }
@@ -132,19 +141,21 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = context.getString(R.string.session_details_duration_label),
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_access_time_24),
+                contentDescription = "Session details duration icon",
+                tint = Color(context.getColor(R.color.duration_icon_tint)),
+                modifier = Modifier.size(30.dp)
             )
             val durationString = durationInSecondsToHoursAndMinutes(session.getDuration())
             Text(
                 text = durationString,
                 fontSize = 20.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(start = 5.dp)
             )
         }
     }
@@ -153,7 +164,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
     private fun SessionTagsList() {
         Text(
             text = context.getString(R.string.session_details_tag_list_label),
-            fontSize = 20.sp,
+            fontSize = 19.sp,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
@@ -163,7 +174,12 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             Modifier
                 .fillMaxWidth()
                 .heightIn(min = 0.dp, max = 300.dp)
-                .padding(start = 30.dp, end = 30.dp, bottom = 10.dp)
+                .padding(start = 20.dp, end = 20.dp)
+                .border(
+                    width = 1.dp,
+                    color = Color(context.getColor(R.color.main_ui_buttons_color)),
+                    shape = RoundedCornerShape(25.dp)
+                )
         ) {
             items(session.tags.size) {
                 TagItem(session.tags[it])
@@ -173,18 +189,22 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
 
     @Composable
     private fun TagItem(tag: Tag) {
-        Row(modifier = Modifier.padding(5.dp)) {
+        Row(modifier = Modifier.padding(top = 5.dp, start = 15.dp, bottom = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_tag_24),
+                contentDescription = "Session details tag icon",
+                tint = Color.LightGray,
+                modifier = Modifier.size(25.dp)
+            )
             Text(
                 text = tag.tagName,
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        color = Color(context.getColor(R.color.tag_item_background_session_details)),
-                        shape = RoundedCornerShape(16.dp)
-                    )
                     .padding(vertical = 2.dp),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
