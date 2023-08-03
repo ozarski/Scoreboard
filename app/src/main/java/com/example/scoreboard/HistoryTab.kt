@@ -2,6 +2,7 @@ package com.example.scoreboard
 
 import android.content.Context
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,12 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -27,6 +28,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,7 +36,6 @@ import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.popups.FilterHistoryPopup
 import com.example.scoreboard.popups.SessionDetailsPopup
 import com.example.scoreboard.session.Session
-import org.apache.commons.lang3.tuple.MutablePair
 
 class HistoryTab(val context: Context) : ComponentActivity() {
 
@@ -63,47 +64,34 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             MainActivity.historyDataUpdate.value = false
         }
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color(context.getColor(R.color.tabs_background_color))),
             verticalArrangement = Arrangement.Top
         ) {
-            FilterSessionsByTagsRow()
+            FilterSessionsHeader()
+            SessionsHeader()
             SessionsHistoryList()
         }
     }
 
     @Composable
-    fun FilterSessionsByTagsRow() {
+    fun FilterSessionsHeader() {
         val filterPopupVisible = remember { mutableStateOf(false) }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Card(
+            modifier = Modifier.padding(10.dp),
+            elevation = 3.dp,
+            shape = RoundedCornerShape(25.dp)
         ) {
-            var selectedSessionsDuration = 0L
-            sessions.forEach { selectedSessionsDuration += it.getDuration() }
-            val selectedSessionsDurationString =
-                durationInSecondsToHoursAndMinutes(selectedSessionsDuration)
-            Text(
-                text = String.format(
-                    context.getString(R.string.selected_sessions_duration),
-                    selectedSessionsDurationString
-                ),
-                fontSize = 20.sp,
-                modifier = Modifier.padding(start = 10.dp)
-            )
-            Button(
-                onClick = {
-                    filterPopupVisible.value = !filterPopupVisible.value
-                },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
-                elevation = ButtonDefaults.elevation(0.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Color.White, shape = RoundedCornerShape(25.dp)),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Rounded.Settings,
-                    contentDescription = "Filter popup button",
-                    tint = Color.Black,
-                    modifier = Modifier.size(25.dp)
-                )
+                FilterHeaderDurationColumn()
+                FilterHeaderFilterButtonColumn(filterPopupVisible = filterPopupVisible)
             }
         }
         if (filterPopupVisible.value) {
@@ -112,10 +100,92 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     }
 
     @Composable
+    fun SessionsHeader(){
+        Row(verticalAlignment = Alignment.CenterVertically){
+            Text(
+                text = "Sessions",
+                fontSize = 25.sp,
+                modifier = Modifier.padding(start = 10.dp)
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_history_edu_24),
+                contentDescription = "Activities icon",
+                modifier = Modifier.size(30.dp).padding(start = 3.dp),
+                tint = Color(context.getColor(R.color.main_ui_buttons_color))
+            )
+        }
+    }
+
+    @Composable
+    fun FilterHeaderDurationColumn(){
+        var selectedSessionsDuration = 0L
+        sessions.forEach { selectedSessionsDuration += it.getDuration() }
+        val selectedSessionsDurationString =
+            durationInSecondsToHoursAndMinutes(selectedSessionsDuration)
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_access_time_24),
+                    contentDescription = "Sessions duration icon",
+                    tint = Color.LightGray,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(start = 10.dp, end = 3.dp)
+                )
+                Text(
+                    text = selectedSessionsDurationString,
+                    fontSize = 25.sp
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun FilterHeaderFilterButtonColumn(filterPopupVisible: MutableState<Boolean>){
+        Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)){
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_filter_list_24),
+                contentDescription = "Filter popup button",
+                tint = Color.White,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable {
+                        filterPopupVisible.value = !filterPopupVisible.value
+                    }
+                    .background(
+                        shape = CircleShape,
+                        color = Color(context.getColor(R.color.main_ui_buttons_color))
+                    )
+                    .padding(5.dp)
+            )
+        }
+    }
+
+    @Composable
     fun SessionsHistoryList() {
-        LazyColumn {
-            items(sessions.size) {
-                SessionItem(sessions[it])
+        Card(
+            modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, start = 10.dp, end = 10.dp),
+            elevation = 3.dp,
+            shape = RoundedCornerShape(25.dp)
+        ) {
+            LazyColumn(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(25.dp)
+                )
+            ) {
+                items(sessions.size) {
+                    SessionItem(sessions[it])
+                    Divider(
+                        color = Color.LightGray,
+                        thickness = 0.7.dp,
+                        modifier = Modifier.fillMaxWidth(0.95f)
+                    )
+                }
             }
         }
     }
@@ -124,16 +194,20 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     fun SessionItem(session: Session) {
         Row(
             modifier = Modifier
-                .padding(start = 10.dp, end = 10.dp, bottom = 10.dp, top = 10.dp)
                 .fillMaxWidth()
                 .clickable {
                     sessionDetailsPopupVisible.value = !sessionDetailsPopupVisible.value
                     popupSessionID = session.id
-                },
-            horizontalArrangement = Arrangement.SpaceBetween
+                }
+                .padding(start = 10.dp, end = 10.dp, bottom = 10.dp, top = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            SessionTagsList(session.tags)
-            Text(text = durationInSecondsToHoursAndMinutes(session.getDuration()), fontSize = 20.sp)
+            SessionTagsText(session.tags)
+            Column(verticalArrangement = Arrangement.Center) {
+                SessionDateRow(session = session)
+                SessionDurationRow(session = session)
+            }
         }
         if (sessionDetailsPopupVisible.value && popupSessionID == session.id) {
             SessionDetailsPopup(context, session).GeneratePopup(sessionDetailsPopupVisible)
@@ -141,19 +215,65 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    fun SessionTagsList(tags: MutableList<Tag>) {
+    fun SessionDateRow(session: Session){
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_date_range_24),
+                contentDescription = "Session date icon",
+                tint = Color(context.getColor(R.color.date_icon_tint)),
+                modifier = Modifier.size(20.dp)
+            )
+            val formattedDate = formatDate(session.getDate())
+            Text(
+                text = formattedDate,
+                fontSize = 15.sp,
+                modifier = Modifier.widthIn(max = 275.dp, min = 0.dp),
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+    @Composable
+    fun SessionDurationRow(session: Session){
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_access_time_24),
+                contentDescription = "Session duration icon",
+                tint = Color(context.getColor(R.color.duration_icon_tint)),
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = durationInSecondsToHoursAndMinutes(session.getDuration()),
+                fontSize = 15.sp
+            )
+        }
+    }
+
+    @Composable
+    fun SessionTagsText(tags: MutableList<Tag>) {
         var tagsString = ""
         tags.forEach {
             tagsString += it.tagName + " "
         }
-        Text(
-            text = tagsString,
-            fontSize = 20.sp,
-            modifier = Modifier
-                .widthIn(max = 300.dp, min = 0.dp)
-                .padding(start = 10.dp, end = 10.dp),
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1
-        )
+        Column(verticalArrangement = Arrangement.Center) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_tag_24),
+                    contentDescription = "Session tags icon",
+                    tint = Color.LightGray,
+                    modifier = Modifier
+                        .size(25.dp)
+                        .padding(end = 3.dp)
+                )
+                Text(
+                    text = tagsString,
+                    fontSize = 18.sp,
+                    modifier = Modifier
+                        .widthIn(max = 260.dp, min = 0.dp)
+                        .padding(end = 10.dp),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+            }
+        }
     }
 }

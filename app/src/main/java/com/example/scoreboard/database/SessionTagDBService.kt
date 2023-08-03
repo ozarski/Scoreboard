@@ -95,10 +95,8 @@ class SessionTagDBService(
         val projection = arrayOf(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)
         val selection =
             "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} IN (${tagIDs.joinToString(", ")})"
-        println(selection)
         val having =
             "COUNT(${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN}) = ${tagIDs.size}"
-        println(having)
 
         val cursor = db.query(
             DatabaseConstants.SessionTagTable.TABLE_NAME,

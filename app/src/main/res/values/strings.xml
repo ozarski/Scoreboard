@@ -13,11 +13,13 @@
     <string name="tag_details_popup_header">Tag details</string>
     <string name="tag_rename_dialog_header">Rename tag</string>
     <string name="session_details_date_label">Date:</string>
-    <string name="session_details_duration_label">Duration:</string>
-    <string name="session_details_tag_list_label">Tags:</string>
+    <string name="session_details_tag_list_label">Tags</string>
     <string name="yes_button_text">YES</string>
     <string name="no_button_text">NO</string>
     <string name="filter_history_tag_selection_popup_title">Filter sessions</string>
     <string name="filter_history_tag_selection_popup_apply_button_text">APPLY</string>
     <string name="selected_sessions_duration">Sessions duration: %s</string>
+    <string name="reset_filters_button_text">RESET</string>
+    <string name="tag_details_name_header">Name</string>
+    <string name="are_you_sure">Are you sure?</string>
 </resources>
