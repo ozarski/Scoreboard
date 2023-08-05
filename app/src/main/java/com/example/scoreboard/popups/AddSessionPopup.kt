@@ -13,12 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Divider
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.FloatingActionButtonDefaults
 import androidx.compose.material.Icon
@@ -48,7 +46,6 @@ import androidx.compose.ui.window.PopupProperties
 import com.chargemap.compose.numberpicker.FullHours
 import com.chargemap.compose.numberpicker.Hours
 import com.chargemap.compose.numberpicker.HoursNumberPicker
-import com.chargemap.compose.numberpicker.NumberPicker
 import com.example.scoreboard.MainActivity
 import com.example.scoreboard.R
 import com.example.scoreboard.Tag
@@ -88,20 +85,12 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         val tagList = TagDBService(context).getAllTags()
         tagListPick.addAll(tagList.map { MutablePair(it, false) })
 
-        Column(
-            modifier = Modifier
-                .widthIn(max = 375.dp, min = 0.dp)
-                .background(Color.White, RoundedCornerShape(25.dp))
-                .border(
-                    width = 2.dp,
-                    color = Color.LightGray,
-                    shape = RoundedCornerShape(25.dp)
-                ),
+        GenericPopupContent.GenerateContent(
+            widthMin = 0,
+            widthMax = 375,
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            //PopupHeader()
-
             DurationLabel()
             HourPicker24hMax()
 
@@ -110,6 +99,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
 
             AddSessionButton()
         }
+
     }
 
     @Composable

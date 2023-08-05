@@ -2,16 +2,13 @@ package com.example.scoreboard.popups
 
 import android.content.Context
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -58,14 +55,10 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
 
     @Composable
     private fun SessionDetailsPopupLayout() {
-        Column(
-            modifier = Modifier
-                .width(350.dp)
-                .heightIn(min = 0.dp, max = 500.dp)
-                .background(Color.White, RoundedCornerShape(25.dp))
-                .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(25.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
+        GenericPopupContent.GenerateContent(
+            width = 350,
+            heightMin = 0,
+            heightMax = 500
         ) {
             SessionDate()
             SessionDuration()
@@ -189,7 +182,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
 
     @Composable
     private fun TagItem(tag: Tag) {
-        Row(modifier = Modifier.padding(top = 5.dp, start = 15.dp, bottom = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.padding(top = 5.dp, start = 15.dp, bottom = 5.dp, end = 15.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_tag_24),
                 contentDescription = "Session details tag icon",

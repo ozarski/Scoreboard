@@ -58,14 +58,13 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
 
     @Composable
     private fun TagDetailsPopupLayout() {
-        Column(
-            modifier = Modifier
-                .widthIn(min = 0.200.dp, max = 300.dp)
-                .background(Color.White, RoundedCornerShape(25.dp))
-                .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(25.dp)),
+        GenericPopupContent.GenerateContent(
+            widthMin = 200,
+            widthMax = 300,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
-        ) {
+        ){
+
             NameHeader()
             TagName()
             val buttonsModifier = Modifier

@@ -38,7 +38,7 @@ class ConfirmPopup(val context: Context) {
     @Composable
     fun GeneratePopup(
         popupVisible: MutableState<Boolean>,
-        decision : MutableState<Boolean>,
+        decision: MutableState<Boolean>,
         otherPopupVisible: MutableState<Boolean>? = null,
         hideOtherPopup: Boolean = true,
     ) {
@@ -62,14 +62,11 @@ class ConfirmPopup(val context: Context) {
 
     @Composable
     private fun ConfirmPopupLayout() {
-        Column(
-            modifier = Modifier
-                .width(300.dp)
-                .background(Color.White, RoundedCornerShape(25.dp))
-                .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(25.dp)),
+        GenericPopupContent.GenerateContent(
+            width = 300,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
-        ){
+        ) {
             PopupHeader()
             YesNoButtons()
         }
@@ -88,11 +85,11 @@ class ConfirmPopup(val context: Context) {
     }
 
     @Composable
-    private fun YesNoButtons(){
+    private fun YesNoButtons() {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
-        ){
+        ) {
             val buttonsModifier = Modifier
                 .padding(horizontal = 10.dp)
                 .widthIn(100.dp)

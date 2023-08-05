@@ -69,16 +69,13 @@ class FilterHistoryPopup(val context: Context) {
 
     @Composable
     private fun FilterHistoryPopupLayout() {
-        Column(
-            modifier = Modifier
-                .width(375.dp)
-                .heightIn(min = 0.dp, max = 500.dp)
-                .background(Color.White, RoundedCornerShape(25.dp))
-                .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(25.dp)),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
+        GenericPopupContent.GenerateContent(
+            width = 375,
+            heightMin = 0,
+            heightMax = 500,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ){
             Text(
                 text = context.getString(R.string.filter_history_tag_selection_popup_title),
                 fontSize = 20.sp,
