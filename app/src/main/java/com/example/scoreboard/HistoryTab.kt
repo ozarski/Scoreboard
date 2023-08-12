@@ -33,15 +33,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.scoreboard.database.SessionDBService
+import com.example.scoreboard.database.TagDBService
 import com.example.scoreboard.popups.FilterHistoryPopup
 import com.example.scoreboard.popups.SessionDetailsPopup
 import com.example.scoreboard.session.Session
+import org.apache.commons.lang3.tuple.MutablePair
 
 class HistoryTab(val context: Context) : ComponentActivity() {
 
     private lateinit var sessions: SnapshotStateList<Session>
     private lateinit var sessionDetailsPopupVisible: MutableState<Boolean>
     private var popupSessionID = 0L
+    private lateinit var tagListPick: SnapshotStateList<MutablePair<MutableState<Tag>, MutableState<Boolean>>>
 
     @Composable
     fun GenerateLayout() {
@@ -49,6 +52,10 @@ class HistoryTab(val context: Context) : ComponentActivity() {
         sessionDetailsPopupVisible = remember { mutableStateOf(false) }
         var tempSessions = SessionDBService(context).getAllSessions()
         tempSessions = tempSessions.sortedByDescending { it.getDate().timeInMillis }
+        tagListPick = remember { mutableStateListOf() }
+        val tags = TagDBService(context).getAllTags()
+        tagListPick.clear()
+        tagListPick.addAll(tags.map { MutablePair(mutableStateOf(it), mutableStateOf(false)) })
         sessions.clear()
         sessions.addAll(tempSessions)
         HistoryTabLayout()
@@ -95,13 +102,13 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             }
         }
         if (filterPopupVisible.value) {
-            FilterHistoryPopup(context).GeneratePopup(filterPopupVisible, sessions)
+            FilterHistoryPopup(context).GeneratePopup(filterPopupVisible, sessions, tagListPick)
         }
     }
 
     @Composable
-    fun SessionsHeader(){
-        Row(verticalAlignment = Alignment.CenterVertically){
+    fun SessionsHeader() {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "Sessions",
                 fontSize = 25.sp,
@@ -110,14 +117,16 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_history_edu_24),
                 contentDescription = "Activities icon",
-                modifier = Modifier.size(30.dp).padding(start = 3.dp),
+                modifier = Modifier
+                    .size(30.dp)
+                    .padding(start = 3.dp),
                 tint = Color(context.getColor(R.color.main_ui_buttons_color))
             )
         }
     }
 
     @Composable
-    fun FilterHeaderDurationColumn(){
+    fun FilterHeaderDurationColumn() {
         var selectedSessionsDuration = 0L
         sessions.forEach { selectedSessionsDuration += it.getDuration() }
         val selectedSessionsDurationString =
@@ -144,8 +153,8 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    fun FilterHeaderFilterButtonColumn(filterPopupVisible: MutableState<Boolean>){
-        Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)){
+    fun FilterHeaderFilterButtonColumn(filterPopupVisible: MutableState<Boolean>) {
+        Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_filter_list_24),
                 contentDescription = "Filter popup button",
@@ -215,7 +224,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    fun SessionDateRow(session: Session){
+    fun SessionDateRow(session: Session) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_date_range_24),
@@ -232,8 +241,9 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             )
         }
     }
+
     @Composable
-    fun SessionDurationRow(session: Session){
+    fun SessionDurationRow(session: Session) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_access_time_24),
