@@ -271,6 +271,42 @@ class SessionDBServiceTests {
         assertEquals(0, sessions.size)
     }
 
+    @Test
+    fun getAllSessionsPagingTest(){
+        val calendar = Calendar.getInstance()
+        val session1 = Session(0, calendar, 0, mutableListOf())
+        val session2 = Session(0, calendar, 0, mutableListOf())
+        val session3 = Session(0, calendar, 0, mutableListOf())
+
+        val session1ID = sessionDBService.addSession(session1)
+        val session2ID = sessionDBService.addSession(session2)
+        val session3ID = sessionDBService.addSession(session3)
+
+        val session1Added = Session(session1.getDuration(), calendar, session1ID, mutableListOf())
+        val session2Added = Session(session2.getDuration(), calendar, session2ID, mutableListOf())
+        val session3Added = Session(session3.getDuration(), calendar, session3ID, mutableListOf())
+
+        assertSessionAdded(session1Added)
+        assertSessionAdded(session2Added)
+        assertSessionAdded(session3Added)
+
+        val sessions = sessionDBService.getAllSessions(1, 2)
+        assertEquals(2, sessions.size)
+        assertEquals(session1ID, sessions[0].id)
+        assertEquals(session1.getDuration(), sessions[0].getDuration())
+        assertEquals(session1.getDate().timeInMillis, sessions[0].getDate().timeInMillis)
+        assertEquals(session2ID, sessions[1].id)
+        assertEquals(session2.getDuration(), sessions[1].getDuration())
+        assertEquals(session2.getDate().timeInMillis, sessions[1].getDate().timeInMillis)
+    }
+
+    @Test
+    fun getAllSessionsPagingTestNoSessions(){
+        val sessions = sessionDBService.getAllSessions(1, 2)
+        assertEquals(0, sessions.size)
+    }
+
+
     private fun assertSessionAdded(session: Session) {
         val getSession = sessionDBService.getSessionDataByID(session.id)
         assertNotNull(getSession)
