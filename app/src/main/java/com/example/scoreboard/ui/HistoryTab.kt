@@ -1,4 +1,4 @@
-package com.example.scoreboard
+package com.example.scoreboard.ui
 
 import android.content.Context
 import androidx.activity.ComponentActivity
@@ -32,8 +32,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.scoreboard.MainActivity
+import com.example.scoreboard.R
+import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.database.TagDBService
+import com.example.scoreboard.durationInSecondsToHoursAndMinutes
+import com.example.scoreboard.formatDate
 import com.example.scoreboard.popups.FilterHistoryPopup
 import com.example.scoreboard.popups.SessionDetailsPopup
 import com.example.scoreboard.session.Session

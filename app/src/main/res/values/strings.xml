@@ -22,4 +22,6 @@
     <string name="reset_filters_button_text">RESET</string>
     <string name="tag_details_name_header">Name</string>
     <string name="are_you_sure">Are you sure?</string>
+    <string name="add_session_popup_adding_text">saving</string>
+    <string name="activities_tab_header">Activities</string>
 </resources>

@@ -71,7 +71,8 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         Popup(
             onDismissRequest = {
                 popupVisible.value = false
-                MainActivity.activitiesDataUpdate.value = true
+                MainActivity.sessionsDataUpdate.value = true
+                MainActivity.tagsDataUpdate.value = true
             },
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             properties = PopupProperties(focusable = true)
@@ -151,8 +152,9 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             selectedTags.toMutableList()
         )
         popupVisible.value = false
-        MainActivity.activitiesDataUpdate.value = true
+        MainActivity.sessionsDataUpdate.value = true
         MainActivity.historyDataUpdate.value = true
+        MainActivity.tagsDataUpdate.value = true
         SessionDBService(context).addSession(session)
     }
 

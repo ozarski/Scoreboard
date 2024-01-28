@@ -1,4 +1,4 @@
-package com.example.scoreboard
+package com.example.scoreboard.ui
 
 import android.content.Context
 import androidx.activity.ComponentActivity
@@ -11,21 +11,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.Card
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,131 +32,128 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.scoreboard.MainActivity
+import com.example.scoreboard.R
+import com.example.scoreboard.Tag
 import com.example.scoreboard.database.StatsDBService
+import com.example.scoreboard.durationInSecondsToDaysAndHoursAndMinutes
 import com.example.scoreboard.popups.AddSessionPopup
 import com.example.scoreboard.popups.TagDetailsPopup
 
 class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
-    private lateinit var totalDuration: MutableState<Long>
-    private lateinit var tagsWithDurations: MutableState<List<Pair<Tag, Long>>>
-    private lateinit var popupDismissed: MutableState<Boolean>
-
     @Composable
     fun GenerateLayout() {
-        val popupVisible = remember { mutableStateOf(false) }
-        totalDuration = remember { mutableStateOf(StatsDBService(context).getTotalDuration()) }
-        tagsWithDurations =
-            remember { mutableStateOf(StatsDBService(context).getAllTagsWithDurations()) }
-        popupDismissed = remember { mutableStateOf(false) }
-        ActivitiesTabLayout(popupVisible)
-    }
-
-    @Composable
-    fun ActivitiesTabLayout(
-        popupVisible: MutableState<Boolean>
-    ) {
-        if (popupVisible.value) {
-            AddSessionPopup(context).GeneratePopup(popupVisible)
-        }
-
-        if (MainActivity.activitiesDataUpdate.value) {
-            totalDuration.value = StatsDBService(context).getTotalDuration()
-            tagsWithDurations.value = StatsDBService(context).getAllTagsWithDurations()
-            MainActivity.activitiesDataUpdate.value = false
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = Color(context.getColor(R.color.tabs_background_color))),
             verticalArrangement = Arrangement.Top
         ) {
-            TotalDurationTextView(totalDuration)
+            TotalDurationTextView()
             ActivitiesHeader()
-            ActivitiesDurationLazyColumn(tagsWithDurations)
+            ActivitiesDurationLazyColumn()
         }
 
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                FloatingActionButton(
-                    onClick = {
-                        popupVisible.value = true
-                    },
-                    containerColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                    shape = CircleShape,
-                    modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = "Add button",
-                        tint = Color.White
-                    )
-                }
+        AddSessionButton()
+    }
+
+    @Composable
+    fun AddSessionButton() {
+        val popupVisible = remember { mutableStateOf(false) }
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            FloatingActionButton(
+                onClick = {
+                    popupVisible.value = true
+                },
+                containerColor = Color(context.getColor(R.color.main_ui_buttons_color)),
+                shape = CircleShape,
+                modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = "Add button",
+                    tint = Color.White
+                )
             }
+        }
+        if (popupVisible.value) {
+            AddSessionPopup(context).GeneratePopup(popupVisible)
         }
     }
 
     @Composable
-    fun ActivitiesHeader(){
-        Row(verticalAlignment = Alignment.CenterVertically){
+    fun ActivitiesHeader() {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "Activities",
+                text = context.getString(R.string.activities_tab_header),
                 fontSize = 25.sp,
                 modifier = Modifier.padding(start = 10.dp)
             )
             Icon(
                 painter = painterResource(id = R.drawable.baseline_directions_run_24),
                 contentDescription = "Activities icon",
-                modifier = Modifier.size(30.dp).padding(start = 3.dp),
+                modifier = Modifier
+                    .size(30.dp)
+                    .padding(start = 3.dp),
                 tint = Color(context.getColor(R.color.main_ui_buttons_color))
             )
         }
     }
 
     @Composable
-    fun TotalDurationTextView(totalDuration: MutableState<Long>) {
+    fun TotalDurationTextView() {
+        val totalDuration = remember { mutableStateOf(StatsDBService(context).getTotalDuration()) }
+        if (MainActivity.sessionsDataUpdate.value) {
+            totalDuration.value = StatsDBService(context).getTotalDuration()
+            MainActivity.sessionsDataUpdate.value = false
+        }
         val totalDurationString = durationInSecondsToDaysAndHoursAndMinutes(totalDuration.value)
-
         Card(
             modifier = Modifier.padding(10.dp),
             elevation = 3.dp,
             shape = RoundedCornerShape(25.dp)
         ) {
-            Column(
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = Color.White, shape = RoundedCornerShape(25.dp)),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .background(
+                        color = Color.White, shape = RoundedCornerShape(25.dp)
+                    )
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    //Total duration icon
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_access_time_24),
-                        contentDescription = "Total duration icon",
-                        modifier = Modifier
-                            .padding(horizontal = 10.dp, vertical = 8.dp)
-                            .size(35.dp),
-                        tint = Color.LightGray
-                    )
-                    //Total duration text value
-                    Text(
-                        text = totalDurationString,
-                        fontSize = 25.sp,
-                        modifier = Modifier.padding(end = 15.dp)
-                    )
-                }
+                //Total duration icon
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_access_time_24),
+                    contentDescription = "Total duration icon",
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp, vertical = 8.dp)
+                        .size(35.dp),
+                    tint = Color.LightGray
+                )
+                //Total duration text value
+                Text(
+                    text = totalDurationString,
+                    fontSize = 25.sp,
+                    modifier = Modifier.padding(end = 15.dp)
+                )
             }
         }
     }
 
     @Composable
-    fun ActivitiesDurationLazyColumn(tagsWithDurations: MutableState<List<Pair<Tag, Long>>>) {
+    fun ActivitiesDurationLazyColumn() {
+        val tagsWithDurations =
+            remember { mutableStateOf(StatsDBService(context).getAllTagsWithDurations()) }
+        if (MainActivity.tagsDataUpdate.value) {
+            tagsWithDurations.value = StatsDBService(context).getAllTagsWithDurations()
+            MainActivity.tagsDataUpdate.value = false
+        }
 
         Card(
             modifier = Modifier.padding(10.dp),
@@ -226,6 +220,4 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
             TagDetailsPopup(context, activityItem.first).GeneratePopup(tagPopupVisible)
         }
     }
-
-
 }

@@ -99,7 +99,8 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             SessionDBService(context).deleteSessionByID(session.id)
             popupVisible.value = false
             MainActivity.historyDataUpdate.value = true
-            MainActivity.activitiesDataUpdate.value = true
+            MainActivity.sessionsDataUpdate.value = true
+            MainActivity.tagsDataUpdate.value = true
         }
     }
 
