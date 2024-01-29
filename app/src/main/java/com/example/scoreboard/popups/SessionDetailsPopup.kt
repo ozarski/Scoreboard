@@ -98,9 +98,9 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
         if (decision.value) {
             SessionDBService(context).deleteSessionByID(session.id)
             popupVisible.value = false
-            MainActivity.historyDataUpdate.value = true
-            MainActivity.sessionsDataUpdate.value = true
-            MainActivity.tagsDataUpdate.value = true
+            MainActivity.sessionsListUpdate.value = true
+            MainActivity.totalDurationUpdate.value = true
+            MainActivity.tagsListUpdate.value = true
         }
     }
 

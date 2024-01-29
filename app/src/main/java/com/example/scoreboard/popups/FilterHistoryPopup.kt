@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.example.scoreboard.MainActivity
 import com.example.scoreboard.R
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionDBService
@@ -40,16 +41,13 @@ import org.apache.commons.lang3.tuple.MutablePair
 class FilterHistoryPopup(val context: Context) {
     private lateinit var popupVisible: MutableState<Boolean>
     private lateinit var tagPickList: SnapshotStateList<MutablePair<MutableState<Tag>, MutableState<Boolean>>>
-    private lateinit var sessions: SnapshotStateList<Session>
 
     @Composable
     fun GeneratePopup(
         popupVisible: MutableState<Boolean>,
-        sessions: SnapshotStateList<Session>,
         tagPickList: SnapshotStateList<MutablePair<MutableState<Tag>, MutableState<Boolean>>>
     ) {
         this.popupVisible = popupVisible
-        this.sessions = sessions
         this.tagPickList = tagPickList
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
@@ -207,18 +205,11 @@ class FilterHistoryPopup(val context: Context) {
     }
 
     private fun filterTags() {
-        val selectedTags = tagPickList.filter { it.right.value }.map { it.left }
-        val selectedTagsIDs = selectedTags.map { it.value.id }
-
-        sessions.clear()
-        sessions.addAll(SessionTagDBService(context).getSessionsForTagIDs(selectedTagsIDs))
-        sessions.sortByDescending { it.getDate().timeInMillis }
+        MainActivity.sessionsListUpdate.value = true
     }
 
     private fun resetTags() {
         tagPickList.forEach { it.right.value = false }
-        sessions.clear()
-        sessions.addAll(SessionDBService(context).getAllSessions())
-        sessions.sortByDescending { it.getDate().timeInMillis }
+        MainActivity.sessionsListUpdate.value = true
     }
 }

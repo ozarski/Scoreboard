@@ -108,9 +108,9 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
     @Composable
     fun TotalDurationTextView() {
         val totalDuration = remember { mutableStateOf(StatsDBService(context).getTotalDuration()) }
-        if (MainActivity.sessionsDataUpdate.value) {
+        if (MainActivity.totalDurationUpdate.value) {
             totalDuration.value = StatsDBService(context).getTotalDuration()
-            MainActivity.sessionsDataUpdate.value = false
+            MainActivity.totalDurationUpdate.value = false
         }
         val totalDurationString = durationInSecondsToDaysAndHoursAndMinutes(totalDuration.value)
         Card(
@@ -150,9 +150,9 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
     fun ActivitiesDurationLazyColumn() {
         val tagsWithDurations =
             remember { mutableStateOf(StatsDBService(context).getAllTagsWithDurations()) }
-        if (MainActivity.tagsDataUpdate.value) {
+        if (MainActivity.tagsListUpdate.value) {
             tagsWithDurations.value = StatsDBService(context).getAllTagsWithDurations()
-            MainActivity.tagsDataUpdate.value = false
+            MainActivity.tagsListUpdate.value = false
         }
 
         Card(

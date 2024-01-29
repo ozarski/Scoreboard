@@ -41,9 +41,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            sessionsDataUpdate = remember { mutableStateOf(false) }
-            historyDataUpdate = remember { mutableStateOf(false) }
-            tagsDataUpdate = remember { mutableStateOf(false) }
+            totalDurationUpdate = remember { mutableStateOf(true) }
+            sessionsListUpdate = remember { mutableStateOf(true) }
+            tagsListUpdate = remember { mutableStateOf(true) }
             LayoutMain()
         }
     }
@@ -141,8 +141,8 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        lateinit var sessionsDataUpdate: MutableState<Boolean>
-        lateinit var tagsDataUpdate: MutableState<Boolean>
-        lateinit var historyDataUpdate: MutableState<Boolean>
+        lateinit var totalDurationUpdate: MutableState<Boolean>
+        lateinit var tagsListUpdate: MutableState<Boolean>
+        lateinit var sessionsListUpdate: MutableState<Boolean>
     }
 }

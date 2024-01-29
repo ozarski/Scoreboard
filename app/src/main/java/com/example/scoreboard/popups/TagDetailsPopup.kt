@@ -192,8 +192,8 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
         if (decision.value) {
             TagDBService(context).deleteTagByID(tag.id)
             decision.value = false
-            MainActivity.sessionsDataUpdate.value = true
-            MainActivity.tagsDataUpdate.value = true
+            MainActivity.totalDurationUpdate.value = true
+            MainActivity.tagsListUpdate.value = true
         }
 
     }
