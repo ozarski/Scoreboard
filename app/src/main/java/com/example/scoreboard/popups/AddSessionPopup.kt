@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -37,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,14 +48,18 @@ import androidx.compose.ui.window.PopupProperties
 import com.chargemap.compose.numberpicker.FullHours
 import com.chargemap.compose.numberpicker.Hours
 import com.chargemap.compose.numberpicker.HoursNumberPicker
+import com.example.scoreboard.MINUTES_IN_HOUR
 import com.example.scoreboard.MainActivity
 import com.example.scoreboard.R
+import com.example.scoreboard.SECONDS_IN_MINUTE
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.database.TagDBService
 import com.example.scoreboard.session.Session
 import org.apache.commons.lang3.tuple.MutablePair
 import java.util.Calendar
+import java.util.Locale
+import kotlin.concurrent.thread
 
 class AddSessionPopup(val context: Context) : ComponentActivity() {
 
@@ -64,10 +70,6 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     @Composable
     fun GeneratePopup(popupVisible: MutableState<Boolean>) {
         this.popupVisible = popupVisible
-        tagListPick = remember {
-            SnapshotStateList()
-        }
-        hourPickerValue = remember { mutableStateOf(FullHours(0, 0)) }
         Popup(
             onDismissRequest = {
                 popupVisible.value = false
@@ -83,8 +85,6 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
 
     @Composable
     private fun AddSessionPopupLayout() {
-        val tagList = TagDBService(context).getAllTags()
-        tagListPick.addAll(tagList.map { MutablePair(it, false) })
 
         GenericPopupContent.GenerateContent(
             widthMin = 0,
@@ -117,10 +117,12 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
 
     @Composable
     private fun AddSessionButton() {
-
         Button(
             onClick = {
-                addNewSession()
+                thread {
+                    addNewSession()
+                    popupVisible.value = false
+                }
             },
             modifier = Modifier
                 .padding(start = 20.dp, end = 20.dp, bottom = 10.dp)
@@ -139,11 +141,10 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
 
 
     private fun addNewSession() {
-
         val selectedTags = tagListPick.filter { it.right }.map { it.left }
         val durationMinutes =
-            hourPickerValue.value.hours * 60 + hourPickerValue.value.minutes
-        val durationSeconds = durationMinutes * 60
+            hourPickerValue.value.hours * MINUTES_IN_HOUR + hourPickerValue.value.minutes
+        val durationSeconds = durationMinutes * SECONDS_IN_MINUTE
         val sessionDate = Calendar.getInstance()
         val session = Session(
             durationSeconds.toLong(),
@@ -151,11 +152,10 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             -1,
             selectedTags.toMutableList()
         )
-        popupVisible.value = false
+        SessionDBService(context).addSession(session)
         MainActivity.totalDurationUpdate.value = true
         MainActivity.sessionsListUpdate.value = true
         MainActivity.tagsListUpdate.value = true
-        SessionDBService(context).addSession(session)
     }
 
     @Composable
@@ -178,6 +178,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
 
     @Composable
     private fun HourPicker24hMax() {
+        hourPickerValue = remember { mutableStateOf(FullHours(0, 0)) }
         HoursNumberPicker(
             value = hourPickerValue.value,
             leadingZero = true,
@@ -209,7 +210,14 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
 
     @Composable
     private fun TagPickList() {
-        tagListPick.sortedBy { it.left.tagName }
+        tagListPick = remember {
+            mutableStateListOf()
+        }
+        //necessary to avoid duplicating the whole list due to recomposition when adding a new tag
+        if(tagListPick.isEmpty()){
+            tagListPick.addAll(TagDBService(context).getAllTags().map { MutablePair(it, false) })
+            tagListPick.sortBy{ it.left.tagName.lowercase() }
+        }
         LazyColumn(
             modifier = Modifier
                 .height(200.dp)
@@ -286,105 +294,39 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         val dialogOpen = remember { mutableStateOf(false) }
         AddNewTagButton(dialogOpen)
         if (dialogOpen.value) {
-            AddNewTagDialog(dialogOpen)
+            AddTagDialog(dialogOpen, context, tagListPick).GenerateDialog()
         }
     }
 
     @Composable
     private fun AddNewTagButton(dialogOpen: MutableState<Boolean>) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(end = 20.dp)
+        FloatingActionButton(
+            onClick = {
+                dialogOpen.value = true
+            },
+            shape = RoundedCornerShape(50.dp),
+            backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color)),
+            elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
+            modifier = Modifier.height(25.dp).padding(end=20.dp)
         ) {
-            FloatingActionButton(
-                onClick = {
-                    dialogOpen.value = true
-                },
-                shape = RoundedCornerShape(50.dp),
-                backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
-                modifier = Modifier.height(25.dp)
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "ADD",
-                        fontSize = 12.sp,
-                        color = Color.White,
-                        modifier = Modifier.padding(start = 3.dp)
-                    )
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = "Add button",
-                        tint = Color.White,
-                        modifier = Modifier.size(12.dp)
-                    )
-                }
-
-            }
-        }
-    }
-
-    @Composable
-    private fun AddNewTagDialog(dialogOpen: MutableState<Boolean>) {
-
-        val newTagName = remember { mutableStateOf("") }
-        Dialog(onDismissRequest = { dialogOpen.value = false }) {
-            Column(
-                modifier = Modifier
-                    .width(280.dp)
-                    .background(Color.White, RoundedCornerShape(25.dp))
-                    .border(
-                        width = 2.dp,
-                        color = Color.LightGray,
-                        shape = RoundedCornerShape(25.dp)
-                    ),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                OutlinedTextField(
-                    value = newTagName.value,
-                    onValueChange = { newTagName.value = it },
-                    label = { Text(text = context.getString(R.string.add_new_tag_dialog_tag_name_label)) },
-                    modifier = Modifier
-                        .padding(vertical = 10.dp, horizontal = 20.dp)
-                        .fillMaxWidth(),
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.White,
-                        focusedIndicatorColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                        unfocusedIndicatorColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                        cursorColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                        textColor = Color.Black,
-                        focusedLabelColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                        unfocusedLabelColor = Color(context.getColor(R.color.main_ui_buttons_color))
-                    ),
-                    shape = RoundedCornerShape(16.dp)
+                Text(
+                    text = "ADD",
+                    fontSize = 12.sp,
+                    color = Color.White,
+                    modifier = Modifier.padding(start = 3.dp)
                 )
-                Button(
-                    onClick = {
-                        if (newTagName.value != "") {
-                            val newTag = Tag(tagName = newTagName.value, id = -1)
-                            newTag.id = TagDBService(context).addTag(newTag)
-                            tagListPick.add(MutablePair(newTag, false))
-                            newTagName.value = ""
-                        }
-                        dialogOpen.value = false
-                    },
-                    modifier = Modifier
-                        .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
-                    elevation = ButtonDefaults.elevation(0.dp)
-                ) {
-                    Text(
-                        text = context.getString(R.string.simple_add_button_text),
-                        color = Color.White
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Rounded.Add,
+                    contentDescription = "Add button",
+                    tint = Color.White,
+                    modifier = Modifier.size(12.dp)
+                )
             }
+
         }
     }
 }
