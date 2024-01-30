@@ -15,7 +15,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,7 +35,7 @@ class ConfirmPopup(val context: Context) {
         popupVisible: MutableState<Boolean>,
         decision: MutableState<Boolean>,
         otherPopupVisible: MutableState<Boolean>? = null,
-        hideOtherPopup: Boolean = true,
+        hideOtherPopup: Boolean = true
     ) {
         this.popupVisible = popupVisible
         this.otherPopupVisible = otherPopupVisible
@@ -45,10 +44,7 @@ class ConfirmPopup(val context: Context) {
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = {
-                popupVisible.value = false
-                if (otherPopupVisible != null) {
-                    otherPopupVisible.value = hideOtherPopup
-                }
+                closePopup(false)
             },
             properties = PopupProperties(focusable = true)
         ) {
@@ -63,13 +59,13 @@ class ConfirmPopup(val context: Context) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            PopupHeader()
-            YesNoButtons()
+            PopupQuestion()
+            DecisionButtons()
         }
     }
 
     @Composable
-    private fun PopupHeader() {
+    private fun PopupQuestion() {
         Text(
             text = stringResource(R.string.are_you_sure),
             fontSize = 25.sp,
@@ -81,60 +77,48 @@ class ConfirmPopup(val context: Context) {
     }
 
     @Composable
-    private fun YesNoButtons() {
+    private fun DecisionButtons() {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(horizontal = 10.dp, vertical = 10.dp)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            val buttonsModifier = Modifier
-                .padding(horizontal = 10.dp)
-                .widthIn(100.dp)
-            Row(
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                YesButton(buttonsModifier)
-                NoButton(buttonsModifier)
-            }
+            DecisionButton(
+                text = context.getString(R.string.yes_button_text),
+                color = Color(context.getColor(R.color.delete_red)),
+                decision = true
+            )
+            DecisionButton(
+                text = context.getString(R.string.no_button_text),
+                color = Color(context.getColor(R.color.main_ui_buttons_color)),
+                decision = false
+            )
         }
     }
 
     @Composable
-    private fun YesButton(modifier: Modifier) {
+    fun DecisionButton(text: String, color: Color, decision: Boolean) {
         Button(
             onClick = {
-                decision.value = true
-                popupVisible.value = false
-                if (otherPopupVisible != null) {
-                    otherPopupVisible!!.value = hideOtherPopup
-                }
+                closePopup(decision)
             },
-            modifier = modifier,
+            modifier = Modifier
+            .padding(horizontal = 10.dp)
+            .widthIn(100.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.delete_red)),
+            colors = ButtonDefaults.buttonColors(backgroundColor = color),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
-            Text(text = context.getString(R.string.yes_button_text), color = Color.White)
+            Text(text = text, color = Color.White)
         }
     }
 
-    @Composable
-    private fun NoButton(modifier: Modifier) {
-        Button(
-            onClick = {
-                decision.value = false
-                popupVisible.value = false
-                if (otherPopupVisible != null) {
-                    otherPopupVisible!!.value = hideOtherPopup
-                }
-            },
-            modifier = modifier,
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.main_ui_buttons_color)),
-            elevation = ButtonDefaults.elevation(0.dp)
-        ) {
-            Text(text = context.getString(R.string.no_button_text), color = Color.White)
+    private fun closePopup(decisionValue: Boolean) {
+        decision.value = decisionValue
+        popupVisible.value = false
+        if (otherPopupVisible != null) {
+            otherPopupVisible!!.value = hideOtherPopup
         }
     }
-
 }
