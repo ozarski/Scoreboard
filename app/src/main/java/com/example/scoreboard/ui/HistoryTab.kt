@@ -268,7 +268,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     @Composable
     fun SessionTagsText(tags: MutableList<Tag>) {
         var tagsString = ""
-        tags.forEach {
+        tags.sortedBy{ it.tagName.lowercase() }.forEach {
             tagsString += it.tagName + " "
         }
         Row(verticalAlignment = Alignment.CenterVertically) {

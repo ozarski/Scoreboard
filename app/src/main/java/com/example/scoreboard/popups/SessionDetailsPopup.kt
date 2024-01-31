@@ -156,6 +156,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
 
     @Composable
     private fun SessionTagsList() {
+        session.tags.sortBy { it.tagName.lowercase() }
         Text(
             text = context.getString(R.string.session_details_tag_list_label),
             fontSize = 19.sp,
