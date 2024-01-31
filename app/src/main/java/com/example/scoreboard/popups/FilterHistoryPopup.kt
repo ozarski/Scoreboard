@@ -49,6 +49,7 @@ class FilterHistoryPopup(val context: Context) {
     ) {
         this.popupVisible = popupVisible
         this.tagPickList = tagPickList
+        tagPickList.sortBy { it.left.value.tagName.lowercase() }
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = {
@@ -76,66 +77,39 @@ class FilterHistoryPopup(val context: Context) {
             )
 
             TagSelectionList()
-
             ApplyResetButtons()
         }
     }
 
     @Composable
     fun ApplyResetButtons() {
-
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-
-            val applyButtonModifier = Modifier
-                .padding(start = 20.dp, end = 10.dp, bottom = 10.dp, top = 10.dp)
-                .weight(1f)
-            ApplyButton(applyButtonModifier)
-
-            val resetButtonModifier = Modifier
-                .padding(start = 10.dp, end = 20.dp, bottom = 10.dp, top = 10.dp)
-                .weight(1f)
-
-            ResetButton(resetButtonModifier)
-        }
-    }
-
-    @Composable
-    fun ApplyButton(modifier: Modifier) {
-
-        Button(
-            onClick = {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            val buttonModifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp).weight(1f)
+            ApplyChangesButton(text = context.getString(R.string.filter_history_tag_selection_popup_apply_button_text), modifier = buttonModifier) {
                 popupVisible.value = false
                 filterTags()
-            },
-            modifier = modifier,
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
-            elevation = ButtonDefaults.elevation(0.dp)
-        ) {
-            Text(text = context.getString(R.string.filter_history_tag_selection_popup_apply_button_text))
+            }
+            ApplyChangesButton(text = context.getString(R.string.reset_filters_button_text), modifier = buttonModifier) {
+                resetTags()
+            }
         }
     }
 
     @Composable
-    fun ResetButton(modifier: Modifier) {
+    fun ApplyChangesButton(text: String, modifier: Modifier, onClick: () -> Unit) {
         Button(
-            onClick = {
-                resetTags()
-            },
+            onClick = onClick,
             modifier = modifier,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
-            Text(text = context.getString(R.string.reset_filters_button_text))
+            Text(text = text, color = Color.White)
         }
     }
-
 
     @Composable
     private fun TagSelectionList() {
-
         LazyColumn(
             modifier = Modifier
                 .heightIn(min = 0.dp, max = 300.dp)
