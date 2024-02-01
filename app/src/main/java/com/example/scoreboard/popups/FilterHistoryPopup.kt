@@ -84,12 +84,20 @@ class FilterHistoryPopup(val context: Context) {
     @Composable
     fun ApplyResetButtons() {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            val buttonModifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp).weight(1f)
-            ApplyChangesButton(text = context.getString(R.string.filter_history_tag_selection_popup_apply_button_text), modifier = buttonModifier) {
+            val buttonModifier = Modifier
+                .padding(vertical = 10.dp, horizontal = 20.dp)
+                .weight(1f)
+            ApplyChangesButton(
+                text = context.getString(R.string.filter_history_tag_selection_popup_apply_button_text),
+                modifier = buttonModifier
+            ) {
                 popupVisible.value = false
                 filterTags()
             }
-            ApplyChangesButton(text = context.getString(R.string.reset_filters_button_text), modifier = buttonModifier) {
+            ApplyChangesButton(
+                text = context.getString(R.string.reset_filters_button_text),
+                modifier = buttonModifier
+            ) {
                 resetTags()
             }
         }
@@ -154,7 +162,11 @@ class FilterHistoryPopup(val context: Context) {
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.Bottom,
-            modifier = Modifier.padding(vertical = 5.dp, horizontal = 20.dp)
+            modifier = Modifier
+                .padding(vertical = 5.dp, horizontal = 20.dp)
+                .clickable {
+                    item.right.value = !item.right.value
+                }
         ) {
             Icon(
                 painter = iconResource,
@@ -167,9 +179,6 @@ class FilterHistoryPopup(val context: Context) {
                 fontSize = 20.sp,
                 color = textColor,
                 modifier = Modifier
-                    .clickable {
-                        item.right.value = !item.right.value
-                    }
                     .padding(start = 5.dp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

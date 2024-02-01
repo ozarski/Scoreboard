@@ -70,23 +70,28 @@ class StatsDBService(
         return tagDurationList
     }
 
-    fun getDurationForSessionsWithTags(tagIDs: List<Long>): Long{
+    fun getDurationForSessionsWithTags(tagIDs: List<Long>): Long {
+        if (tagIDs.isEmpty()) return getTotalDuration()
         val db = this.readableDatabase
         val resultColumn = "total_duration"
         val projection =
             arrayOf("SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn")
 
-        val tableJoined = "${DatabaseConstants.SessionsTable.TABLE_NAME} " +
-                "INNER JOIN ${DatabaseConstants.SessionTagTable.TABLE_NAME} " +
-                "ON ${DatabaseConstants.SessionsTable.TABLE_NAME}.${BaseColumns._ID} = " +
-                "${DatabaseConstants.SessionTagTable.TABLE_NAME}.${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN}"
+        val sessionIDsTableQuery =
+            "SELECT ${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} " +
+                    "FROM ${DatabaseConstants.SessionTagTable.TABLE_NAME} " +
+                    "WHERE ${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} IN (${tagIDs.joinToString()}) " +
+                    "GROUP BY ${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} " +
+                    "HAVING COUNT(${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN}) = ${tagIDs.size}"
 
-        val selection = "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} IN (${tagIDs.joinToString()})"
+        val tableJoined = "($sessionIDsTableQuery) " +
+                "INNER JOIN ${DatabaseConstants.SessionsTable.TABLE_NAME} " +
+                "ON ${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} = ${BaseColumns._ID}"
 
         val cursor = db.query(
             tableJoined,
             projection,
-            selection,
+            null,
             null,
             null,
             null,

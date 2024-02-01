@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -36,6 +38,7 @@ import com.example.scoreboard.MainActivity
 import com.example.scoreboard.R
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionTagDBService
+import com.example.scoreboard.database.StatsDBService
 import com.example.scoreboard.database.TagDBService
 import com.example.scoreboard.durationInSecondsToHoursAndMinutes
 import com.example.scoreboard.formatDate
@@ -49,6 +52,8 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     private var popupSessionID = 0L
     private lateinit var tagListPick: SnapshotStateList<MutablePair<MutableState<Tag>, MutableState<Boolean>>>
     private lateinit var sessionsDuration: MutableState<Long>
+    private var page: Int = 1
+    private var pageSize: Int = 15
 
     @Composable
     fun GenerateLayout() {
@@ -185,19 +190,59 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth(0.95f)
                     )
                 }
+                item{
+                    LoadMoreSessionsButton {
+                        loadMoreSessions(sessions)
+                    }
+                }
             }
         }
     }
 
+    @Composable
+    fun LoadMoreSessionsButton(loadRunnable: () -> Unit){
+        Button(
+            onClick = {
+                loadRunnable()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            shape = RoundedCornerShape(25.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))
+            )
+        ) {
+            Text(
+                text = "Load more",
+                fontSize = 20.sp,
+                color = Color.White
+            )
+        }
+    }
+
     private fun updateSessions(sessions: SnapshotStateList<Session>) {
+        page = 1
+        println("page number is $page")
+        val pickedIDs = tagListPick.filter { it.right.value }.map { it.left.value.id }
         var tempSessions =
-            SessionTagDBService(context).getSessionsForTagIDs(tagListPick.filter { it.right.value }
-                .map { it.left.value.id })
+            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page, pageSize)
+        page++
         tempSessions = tempSessions.sortedByDescending { it.getDate().timeInMillis }
         sessions.clear()
         sessions.addAll(tempSessions)
-        sessionsDuration.value = sessions.sumOf { it.getDuration() }
+        sessionsDuration.value = StatsDBService(context).getDurationForSessionsWithTags(pickedIDs)
         MainActivity.sessionsListUpdate.value = false
+    }
+
+    private fun loadMoreSessions(sessions: SnapshotStateList<Session>){
+        val pickedIDs = tagListPick.filter { it.right.value }.map { it.left.value.id }
+        var tempSessions =
+            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page, pageSize)
+        page++
+        tempSessions = tempSessions.sortedByDescending { it.getDate().timeInMillis }
+        sessions.addAll(tempSessions)
+        sessionsDuration.value = StatsDBService(context).getDurationForSessionsWithTags(pickedIDs)
     }
 
     private fun reloadTags() {
