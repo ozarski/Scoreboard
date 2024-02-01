@@ -69,4 +69,36 @@ class StatsDBService(
         tagDurationList = tagDurationList.sortedByDescending { it.second }
         return tagDurationList
     }
+
+    fun getDurationForSessionsWithTags(tagIDs: List<Long>): Long{
+        val db = this.readableDatabase
+        val resultColumn = "total_duration"
+        val projection =
+            arrayOf("SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn")
+
+        val tableJoined = "${DatabaseConstants.SessionsTable.TABLE_NAME} " +
+                "INNER JOIN ${DatabaseConstants.SessionTagTable.TABLE_NAME} " +
+                "ON ${DatabaseConstants.SessionsTable.TABLE_NAME}.${BaseColumns._ID} = " +
+                "${DatabaseConstants.SessionTagTable.TABLE_NAME}.${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN}"
+
+        val selection = "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} IN (${tagIDs.joinToString()})"
+
+        val cursor = db.query(
+            tableJoined,
+            projection,
+            selection,
+            null,
+            null,
+            null,
+            null
+        )
+        if (cursor.moveToFirst()) {
+            val duration = cursor.getLong(cursor.getColumnIndexOrThrow(resultColumn))
+            cursor.close()
+            db.close()
+            return duration
+        }
+        db.close()
+        return 0L
+    }
 }

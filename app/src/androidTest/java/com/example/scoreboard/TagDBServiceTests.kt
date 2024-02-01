@@ -192,4 +192,39 @@ class TagDBServiceTests {
         assertEquals(0, tags.size)
     }
 
+    @Test
+    fun getAllTagsPagingTest(){
+        val tag1 = Tag("tag_name1", -1)
+        val id1 = tagDBService.addTag(tag1)
+        val addedTag1 = Tag("tag_name1", id1)
+        assertTagAdded(addedTag1)
+
+        val tag2 = Tag("tag_name2", -1)
+        val id2 = tagDBService.addTag(tag2)
+        val addedTag2 = Tag("tag_name2", id2)
+        assertTagAdded(addedTag2)
+
+        val tag3 = Tag("tag_name3", -1)
+        val id3 = tagDBService.addTag(tag3)
+        val addedTag3 = Tag("tag_name3", id3)
+        assertTagAdded(addedTag3)
+
+        val tags = tagDBService.getAllTags(1, 2)
+        assertEquals(2, tags.size)
+        assertEquals(addedTag1.tagName, tags[0].tagName)
+        assertEquals(addedTag2.tagName, tags[1].tagName)
+        assertEquals(addedTag1.id, tags[0].id)
+        assertEquals(addedTag2.id, tags[1].id)
+    }
+
+    @Test
+    fun getAllTagsPagingTestInvalidPaging(){
+        val tag1 = Tag("tag_name1", -1)
+        val id1 = tagDBService.addTag(tag1)
+        val addedTag1 = Tag("tag_name1", id1)
+        assertTagAdded(addedTag1)
+
+        val tags = tagDBService.getAllTags(2, 2)
+        assertEquals(0, tags.size)
+    }
 }
