@@ -9,16 +9,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextFieldColors
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -26,9 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -123,21 +118,17 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
         newTagName: MutableState<String>
     ) {
         Dialog(onDismissRequest = { dialogOpen.value = false }) {
-            Column(
-                modifier = Modifier
-                    .width(300.dp)
-                    .background(Color.White, RoundedCornerShape(25.dp))
-                    .border(width = 2.dp, color = Color.LightGray, shape = RoundedCornerShape(25.dp))
-                    .padding(top = 10.dp, bottom = 10.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
+            GenericPopupContent.GenerateContent(
+                width = 300,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
             ) {
                 OutlinedTextField(
                     value = newTagName.value,
                     onValueChange = { newTagName.value = it },
                     label = { Text(text = context.getString(R.string.add_new_tag_dialog_tag_name_label)) },
                     modifier = Modifier
-                        .padding(start = 20.dp, end = 20.dp, bottom = 10.dp)
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
                         .fillMaxWidth(),
                     singleLine = true,
                     colors = TextFieldDefaults.textFieldColors(
@@ -159,7 +150,9 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
                         }
                         dialogOpen.value = false
                     },
-                    modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
+                        .fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
                     elevation = ButtonDefaults.elevation(0.dp)
@@ -197,8 +190,8 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
         if (decision.value) {
             TagDBService(context).deleteTagByID(tag.id)
             decision.value = false
-            MainActivity.activitiesDataUpdate.value = true
+            MainActivity.totalDurationUpdate.value = true
+            MainActivity.tagsListUpdate.value = true
         }
-
     }
 }

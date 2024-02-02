@@ -1,6 +1,5 @@
 package com.example.scoreboard
 
-import android.app.Fragment
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Tab
 import androidx.compose.material.TabRow
@@ -23,12 +21,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.scoreboard.database.ScoreboardDatabase
+import com.example.scoreboard.ui.ActivitiesTab
+import com.example.scoreboard.ui.HistoryTab
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -43,8 +41,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            activitiesDataUpdate = remember { mutableStateOf(false) }
-            historyDataUpdate = remember { mutableStateOf(false) }
+            totalDurationUpdate = remember { mutableStateOf(true) }
+            sessionsListUpdate = remember { mutableStateOf(true) }
+            tagsListUpdate = remember { mutableStateOf(true) }
             LayoutMain()
         }
     }
@@ -142,7 +141,8 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        lateinit var activitiesDataUpdate: MutableState<Boolean>
-        lateinit var historyDataUpdate: MutableState<Boolean>
+        lateinit var totalDurationUpdate: MutableState<Boolean>
+        lateinit var tagsListUpdate: MutableState<Boolean>
+        lateinit var sessionsListUpdate: MutableState<Boolean>
     }
 }

@@ -100,32 +100,33 @@ class TagDBService(context: Context, databaseName: String = DatabaseConstants.DA
         return tags
     }
 
-    private fun deleteSessionsOnTagDelete(tagID: Long){
-        val db = this.writableDatabase
-        val projection = arrayOf(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)
-        val selection = "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} = ?"
-        val selectionArgs = arrayOf(tagID.toString())
-        val cursor = db.query(
-            DatabaseConstants.SessionTagTable.TABLE_NAME,
-            projection,
-            selection,
-            selectionArgs,
-            null,
-            null,
-            null
+    fun getAllTags(page: Int, pageSize: Int): List<Tag> {
+        val db = this.readableDatabase
+        val projection = arrayOf(
+            BaseColumns._ID,
+            DatabaseConstants.TagsTable.NAME_COLUMN
         )
-        val sessionIDs = mutableListOf<Long>()
-        with(cursor) {
-            while (moveToNext()) {
-                val sessionID =
-                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
-                sessionIDs.add(sessionID)
-            }
+        val orderBy = BaseColumns._ID
+        val limit = "${(page - 1) * pageSize}, $pageSize"
+        val cursor = db.query(
+            DatabaseConstants.TagsTable.TABLE_NAME,
+            projection,
+            null,
+            null,
+            null,
+            null,
+            orderBy,
+            limit
+        )
+        val tags = mutableListOf<Tag>()
+        while (cursor.moveToNext()) {
+            val id = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID))
+            val tagName =
+                cursor.getString(cursor.getColumnIndexOrThrow(DatabaseConstants.TagsTable.NAME_COLUMN))
+            tags.add(Tag(tagName, id))
         }
         cursor.close()
         db.close()
-        for (sessionID in sessionIDs) {
-            SessionDBService(context, databaseName).deleteSessionByID(sessionID)
-        }
+        return tags
     }
 }

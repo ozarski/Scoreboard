@@ -381,6 +381,28 @@ class SessionTagDBServiceTests {
         assertEquals(2, sessions.size)
     }
 
+    @Test
+    fun getSessionsForTagIDsPagingTest(){
+        val tag = Tag("tag_name", -1)
+        tag.id = tagDBService.addTag(tag)
+        val tag2 = Tag("tag_name2", -1)
+        tag2.id = tagDBService.addTag(tag2)
+
+        val session = Session(0, Calendar.getInstance(), -1, mutableListOf(tag2))
+        val sessionID = sessionDBService.addSession(session)
+        val session2 = Session(0, Calendar.getInstance(), -1, mutableListOf(tag))
+        val sessionID2 = sessionDBService.addSession(session2)
+        assertSessionTagCreated(sessionID, tag2.id)
+        assertSessionTagCreated(sessionID2, tag.id)
+
+        val sessions = sessionTagDBService.getSessionsForTagIDs(listOf(), 1, 1)
+        assertEquals(1, sessions.size)
+        assertEquals(sessionID2, sessions[0].id)
+        assertEquals(session2.getDate(), sessions[0].getDate())
+        assertEquals(session2.tags.size, sessions[0].tags.size)
+        assertEquals(session2.getDuration(), sessions[0].getDuration())
+    }
+
 
     private fun assertSessionTagCreated(sessionID: Long, tagID: Long) {
         val cursor = sessionTagDBService.readableDatabase.rawQuery(

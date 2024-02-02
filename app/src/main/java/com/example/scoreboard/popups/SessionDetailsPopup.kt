@@ -98,8 +98,9 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
         if (decision.value) {
             SessionDBService(context).deleteSessionByID(session.id)
             popupVisible.value = false
-            MainActivity.historyDataUpdate.value = true
-            MainActivity.activitiesDataUpdate.value = true
+            MainActivity.sessionsListUpdate.value = true
+            MainActivity.totalDurationUpdate.value = true
+            MainActivity.tagsListUpdate.value = true
         }
     }
 
@@ -155,6 +156,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
 
     @Composable
     private fun SessionTagsList() {
+        session.tags.sortBy { it.tagName.lowercase() }
         Text(
             text = context.getString(R.string.session_details_tag_list_label),
             fontSize = 19.sp,

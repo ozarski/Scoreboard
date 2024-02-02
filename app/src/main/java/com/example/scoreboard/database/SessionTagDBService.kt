@@ -13,6 +13,8 @@ class SessionTagDBService(
     fun addTagToSession(tagID: Long, sessionID: Long) {
         val db = this.writableDatabase
         if (tagID < 0 || sessionID < 0) {
+            print("Failed to add tag to session: Invalid tagID or sessionID")
+            db.close()
             return
         }
         val contentValues = ContentValues().apply {
@@ -119,6 +121,40 @@ class SessionTagDBService(
         cursor.close()
         db.close()
         return SessionDBService(context, databaseName).getSessionsByIDs(sessionIDs)
+    }
+
+    fun getSessionsForTagIDs(tagIDs: List<Long>, page: Int, pageSize: Int): List<Session>{
+        if(tagIDs.isEmpty()){
+            return SessionDBService(context, databaseName).getAllSessions(page, pageSize)
+        }
+        val db = this.readableDatabase
+        val projection = arrayOf(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)
+        val selection =
+            "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} IN (${tagIDs.joinToString(", ")})"
+        val having =
+            "COUNT(${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN}) = ${tagIDs.size}"
+
+        val cursor = db.query(
+            DatabaseConstants.SessionTagTable.TABLE_NAME,
+            projection,
+            selection,
+            null,
+            DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN,
+            having,
+            null
+        )
+
+        val sessionIDs = mutableListOf<Long>()
+        with(cursor) {
+            while (moveToNext()) {
+                val sessionID =
+                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
+                sessionIDs.add(sessionID)
+            }
+        }
+        cursor.close()
+        db.close()
+        return SessionDBService(context, databaseName).getSessionsByIDs(sessionIDs, page, pageSize)
     }
 
 

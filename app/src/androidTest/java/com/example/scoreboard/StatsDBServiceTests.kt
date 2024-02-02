@@ -45,13 +45,13 @@ class StatsDBServiceTests {
         sessionDBService.addSession(session2)
         sessionDBService.addSession(session3)
         val duration = statsDBService.getTotalDuration()
-        assert(duration == 60L)
+        assertEquals(60L, duration)
     }
 
     @Test
     fun getTotalDurationNoSessionsInDatabase(){
         val duration = statsDBService.getTotalDuration()
-        assert(duration == 0L)
+        assertEquals(0L, duration)
     }
 
     @Test
@@ -69,8 +69,8 @@ class StatsDBServiceTests {
         sessionDBService.addSession(session3)
         val durationTag1 = statsDBService.getDurationForTag(tag1.id)
         val durationTag2 = statsDBService.getDurationForTag(tag2.id)
-        assert(durationTag1 == 60L)
-        assert(durationTag2 == 20L)
+        assertEquals(60L, durationTag1)
+        assertEquals(20L, durationTag2)
     }
 
     @Test
@@ -88,7 +88,7 @@ class StatsDBServiceTests {
         sessionDBService.addSession(session3)
 
         val duration = statsDBService.getDurationForTag(tag2!!.id)
-        assert(duration == 0L)
+        assertEquals(0L, duration)
     }
 
     @Test
@@ -104,7 +104,7 @@ class StatsDBServiceTests {
         sessionDBService.addSession(session3)
 
         val duration = statsDBService.getDurationForTag(-1)
-        assert(duration == 0L)
+        assertEquals(0L, duration)
     }
 
     @Test
@@ -126,13 +126,136 @@ class StatsDBServiceTests {
         sessionDBService.addSession(session5)
 
         val tagsWithDurations = statsDBService.getAllTagsWithDurations()
-        assert(tagsWithDurations.size == 2)
+        assertEquals(2, tagsWithDurations.size)
         assertEquals(tagsWithDurations[1].first.tagName, tag1.tagName)
         assertEquals(tagsWithDurations[1].first.id, tag1.id)
         assertEquals(tagsWithDurations[1].second, 60L)
         assertEquals(tagsWithDurations[0].first.tagName, tag2.tagName)
         assertEquals(tagsWithDurations[0].first.id, tag2.id)
         assertEquals(tagsWithDurations[0].second, 90L)
+    }
+
+    @Test
+    fun getDurationForSessionsWithTagsTest(){
+        val tag1 = createTag("tag1")
+        val tag2 = createTag("tag2")
+        val tag3 = createTag("tag3")
+        assert(tag1 != null)
+        assert(tag2 != null)
+        assert(tag3 != null)
+
+        val session1 = Session(10, Calendar.getInstance(), 0, mutableListOf(tag1!!))
+        val session2 = Session(20, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session3 = Session(30, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session4 = Session(40, Calendar.getInstance(), 0, mutableListOf(tag2!!))
+        val session5 = Session(50, Calendar.getInstance(), 0, mutableListOf(tag2))
+        val session6 = Session(60, Calendar.getInstance(), 0, mutableListOf(tag3!!))
+        val session7 = Session(70, Calendar.getInstance(), 0, mutableListOf(tag3))
+        sessionDBService.addSession(session1)
+        sessionDBService.addSession(session2)
+        sessionDBService.addSession(session3)
+        sessionDBService.addSession(session4)
+        sessionDBService.addSession(session5)
+        sessionDBService.addSession(session6)
+        sessionDBService.addSession(session7)
+
+        val duration = statsDBService.getDurationForSessionsWithTags(listOf(tag1.id, tag3.id))
+        assertEquals(190L, duration)
+    }
+
+    @Test
+    fun getDurationForSessionsWithTagsTestNoSessionsWithTagIDs(){
+        val tag1 = createTag("tag1")
+        val tag2 = createTag("tag2")
+        val tag3 = createTag("tag3")
+        assert(tag1 != null)
+        assert(tag2 != null)
+        assert(tag3 != null)
+
+        val session1 = Session(10, Calendar.getInstance(), 0, mutableListOf(tag1!!))
+        val session2 = Session(20, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session3 = Session(30, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session4 = Session(40, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session5 = Session(50, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session6 = Session(60, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session7 = Session(70, Calendar.getInstance(), 0, mutableListOf(tag1))
+        sessionDBService.addSession(session1)
+        sessionDBService.addSession(session2)
+        sessionDBService.addSession(session3)
+        sessionDBService.addSession(session4)
+        sessionDBService.addSession(session5)
+        sessionDBService.addSession(session6)
+        sessionDBService.addSession(session7)
+
+        val duration = statsDBService.getDurationForSessionsWithTags(listOf(tag2!!.id, tag3!!.id))
+        assertEquals(0L, duration)
+    }
+
+    @Test
+    fun getDurationsForSessionsWithTagIDsTestNoTagsPassed(){
+        val tag1 = createTag("tag1")
+        val tag2 = createTag("tag2")
+        val tag3 = createTag("tag3")
+        assert(tag1 != null)
+        assert(tag2 != null)
+        assert(tag3 != null)
+
+        val session1 = Session(10, Calendar.getInstance(), 0, mutableListOf(tag1!!))
+        val session2 = Session(20, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session3 = Session(30, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session4 = Session(40, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session5 = Session(50, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session6 = Session(60, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session7 = Session(70, Calendar.getInstance(), 0, mutableListOf(tag1))
+        sessionDBService.addSession(session1)
+        sessionDBService.addSession(session2)
+        sessionDBService.addSession(session3)
+        sessionDBService.addSession(session4)
+        sessionDBService.addSession(session5)
+        sessionDBService.addSession(session6)
+        sessionDBService.addSession(session7)
+
+        val duration = statsDBService.getDurationForSessionsWithTags(listOf())
+        assertEquals(280, duration)
+    }
+
+    @Test
+    fun getAllTagsWithDurationsPagingTest(){
+        val tag1 = createTag("tag1")
+        val tag2 = createTag("tag2")
+        val tag3 = createTag("tag3")
+        val tag4 = createTag("tag4")
+        assert(tag1 != null)
+        assert(tag2 != null)
+        assert(tag3 != null)
+        assert(tag4 != null)
+
+        val session1 = Session(10, Calendar.getInstance(), 0, mutableListOf(tag1!!, tag4!!))
+        val session2 = Session(20, Calendar.getInstance(), 0, mutableListOf(tag1, tag3!!))
+        val session3 = Session(30, Calendar.getInstance(), 0, mutableListOf(tag1, tag4))
+        val session4 = Session(40, Calendar.getInstance(), 0, mutableListOf(tag2!!))
+        val session5 = Session(50, Calendar.getInstance(), 0, mutableListOf(tag2))
+        sessionDBService.addSession(session1)
+        sessionDBService.addSession(session2)
+        sessionDBService.addSession(session3)
+        sessionDBService.addSession(session4)
+        sessionDBService.addSession(session5)
+
+        val tagsWithDurations = statsDBService.getAllTagsWithDurations(2, 2)
+
+        assertEquals(2, tagsWithDurations.size)
+        assertEquals(tagsWithDurations[0].first.tagName, tag4.tagName)
+        assertEquals(tagsWithDurations[0].first.id, tag4.id)
+        assertEquals(tagsWithDurations[0].second, 40L)
+        assertEquals(tagsWithDurations[1].first.tagName, tag3.tagName)
+        assertEquals(tagsWithDurations[1].first.id, tag3.id)
+        assertEquals(tagsWithDurations[1].second, 20L)
+    }
+
+    @Test
+    fun getAllTagsWithDurationsPagingTestNoTags(){
+        val tagsWithDurations = statsDBService.getAllTagsWithDurations(1, 2)
+        assertEquals(0, tagsWithDurations.size)
     }
 
     private fun createTag(name: String): Tag? {

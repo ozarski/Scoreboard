@@ -19,13 +19,11 @@ class SessionDBService(
 
     fun addSession(session: Session): Long {
         if (session.getDuration() < 0) {
-            return -1L
+            throw Exception("Session duration cannot be negative")
         }
-        val today = Calendar.getInstance()
-        setCalendarToDayEnd(today)
-        if (session.getDate().after(today)) {
-            return -1L
-        }
+
+        validateSessionDate(session.getDate())
+
         val db = this.writableDatabase
         val contentValues = ContentValues().apply {
             put(DatabaseConstants.SessionsTable.DURATION_COLUMN, session.getDuration())
@@ -42,13 +40,10 @@ class SessionDBService(
 
     fun updateSession(session: Session) {
         if (session.getDuration() < 0) {
-            return
+            throw Exception("Session duration cannot be negative")
         }
-        val today = Calendar.getInstance()
-        setCalendarToDayEnd(today)
-        if (session.getDate().after(today)) {
-            return
-        }
+
+        validateSessionDate(session.getDate())
 
         val db = this.writableDatabase
         val contentValues = ContentValues().apply {
@@ -243,6 +238,54 @@ class SessionDBService(
         return sessions
     }
 
+    fun getSessionsByIDs(sessionIDs: List<Long>, page: Int, pageSize: Int): List<Session>{
+        val projection = arrayOf(
+            BaseColumns._ID,
+            DatabaseConstants.SessionsTable.DURATION_COLUMN,
+            DatabaseConstants.SessionsTable.DATE_COLUMN
+        )
+        val selection = "${BaseColumns._ID} IN (${sessionIDs.joinToString(",")})"
+        val orderBy = "${DatabaseConstants.SessionsTable.DATE_COLUMN} DESC"
+        val limit = "${(page - 1) * pageSize}, $pageSize"
+        val cursor = this.readableDatabase.query(
+            DatabaseConstants.SessionsTable.TABLE_NAME,
+            projection,
+            selection,
+            null,
+            null,
+            null,
+            orderBy,
+            limit
+        )
+        val sessions = mutableListOf<Session>()
+        with(cursor){
+            while(moveToNext()){
+                val id = getLong(getColumnIndexOrThrow(BaseColumns._ID))
+                val duration =
+                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DURATION_COLUMN))
+                val date =
+                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
+                val session = Session(
+                    duration,
+                    Calendar.getInstance().apply { timeInMillis = date },
+                    id,
+                    mutableListOf()
+                )
+                val sessionTagIDs =
+                    SessionTagDBService(appContext, databaseName).getTagIDsForSession(id)
+                sessionTagIDs.forEach {
+                    val tag = TagDBService(appContext, databaseName).getTagByID(it)
+                    if (tag != null) {
+                        session.tags.add(tag)
+                    }
+                }
+                sessions.add(session)
+
+            }
+        }
+        return sessions
+    }
+
     fun getAllSessions(page: Int, pageSize: Int = 10): List<Session> {
         val db = this.readableDatabase
         val projection = arrayOf(
@@ -289,5 +332,13 @@ class SessionDBService(
         }
         cursor.close()
         return sessions
+    }
+
+    fun validateSessionDate(date: Calendar){
+        val today = Calendar.getInstance()
+        setCalendarToDayEnd(today)
+        if (date.after(today)) {
+            throw Exception("Session date cannot be in the future")
+        }
     }
 }

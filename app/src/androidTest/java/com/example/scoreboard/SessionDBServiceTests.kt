@@ -11,6 +11,7 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import java.util.Calendar
@@ -59,8 +60,9 @@ class SessionDBServiceTests {
     fun addSessionFailNegativeDuration() {
         val calendar = Calendar.getInstance()
         val session = Session(-1, calendar, 0, mutableListOf())
-        val id = sessionDBService.addSession(session)
-        assertEquals(-1L, id)
+        assertThrows("Session duration cannot be negative", Exception::class.java) {
+            sessionDBService.addSession(session)
+        }
     }
 
     @Test
@@ -68,8 +70,9 @@ class SessionDBServiceTests {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_MONTH, 1)
         val session = Session(0, calendar, 0, mutableListOf())
-        val id = sessionDBService.addSession(session)
-        assertEquals(-1L, id)
+        assertThrows("Session date cannot be in the future", Exception::class.java) {
+            sessionDBService.addSession(session)
+        }
     }
 
     @Test
@@ -190,8 +193,9 @@ class SessionDBServiceTests {
         val newCalendar = Calendar.getInstance()
         newCalendar.add(Calendar.DAY_OF_MONTH, -1)
         val newSession = Session(-1, newCalendar, id, mutableListOf())
-        sessionDBService.updateSession(newSession)
-
+        assertThrows("Session duration cannot be negative", Exception::class.java) {
+            sessionDBService.updateSession(newSession)
+        }
         val updated = sessionDBService.getSessionDataByID(sessionID)
         assertEquals(0L, updated?.duration)
         assertEquals(calendar.timeInMillis, updated?.date)
@@ -210,7 +214,10 @@ class SessionDBServiceTests {
         val newCalendar = Calendar.getInstance()
         newCalendar.add(Calendar.DAY_OF_MONTH, 1)
         val newSession = Session(1, newCalendar, id, mutableListOf())
-        sessionDBService.updateSession(newSession)
+
+        assertThrows("Session date cannot be in the future", Exception::class.java) {
+            sessionDBService.updateSession(newSession)
+        }
 
         val updated = sessionDBService.getSessionDataByID(sessionID)
         assertEquals(0L, updated?.duration)
@@ -303,6 +310,64 @@ class SessionDBServiceTests {
     @Test
     fun getAllSessionsPagingTestNoSessions(){
         val sessions = sessionDBService.getAllSessions(1, 2)
+        assertEquals(0, sessions.size)
+    }
+
+    @Test
+    fun getSessionsByIDsPagingTest(){
+        val calendar = Calendar.getInstance()
+        val session1 = Session(0, calendar, 0, mutableListOf())
+        val session2 = Session(0, calendar, 0, mutableListOf())
+        val session3 = Session(0, calendar, 0, mutableListOf())
+
+        val session1ID = sessionDBService.addSession(session1)
+        val session2ID = sessionDBService.addSession(session2)
+        val session3ID = sessionDBService.addSession(session3)
+
+        val session1Added = Session(session1.getDuration(), calendar, session1ID, mutableListOf())
+        val session2Added = Session(session2.getDuration(), calendar, session2ID, mutableListOf())
+        val session3Added = Session(session3.getDuration(), calendar, session3ID, mutableListOf())
+
+        assertSessionAdded(session1Added)
+        assertSessionAdded(session2Added)
+        assertSessionAdded(session3Added)
+
+        val sessions = sessionDBService.getSessionsByIDs(listOf(session1ID, session2ID), 1, 2)
+        assertEquals(2, sessions.size)
+        assertEquals(session1ID, sessions[0].id)
+        assertEquals(session1.getDuration(), sessions[0].getDuration())
+        assertEquals(session1.getDate().timeInMillis, sessions[0].getDate().timeInMillis)
+        assertEquals(session2ID, sessions[1].id)
+        assertEquals(session2.getDuration(), sessions[1].getDuration())
+        assertEquals(session2.getDate().timeInMillis, sessions[1].getDate().timeInMillis)
+    }
+
+    @Test
+    fun getSessionsByIDsPagingTestNoSessions(){
+        val sessions = sessionDBService.getSessionsByIDs(listOf(1, 2), 1, 2)
+        assertEquals(0, sessions.size)
+    }
+
+    @Test
+    fun getSessionsByIDsPagingTestInvalidPaging(){
+        val calendar = Calendar.getInstance()
+        val session1 = Session(0, calendar, 0, mutableListOf())
+        val session2 = Session(0, calendar, 0, mutableListOf())
+        val session3 = Session(0, calendar, 0, mutableListOf())
+
+        val session1ID = sessionDBService.addSession(session1)
+        val session2ID = sessionDBService.addSession(session2)
+        val session3ID = sessionDBService.addSession(session3)
+
+        val session1Added = Session(session1.getDuration(), calendar, session1ID, mutableListOf())
+        val session2Added = Session(session2.getDuration(), calendar, session2ID, mutableListOf())
+        val session3Added = Session(session3.getDuration(), calendar, session3ID, mutableListOf())
+
+        assertSessionAdded(session1Added)
+        assertSessionAdded(session2Added)
+        assertSessionAdded(session3Added)
+
+        val sessions = sessionDBService.getSessionsByIDs(listOf(session1ID, session2ID), 3, 2)
         assertEquals(0, sessions.size)
     }
 

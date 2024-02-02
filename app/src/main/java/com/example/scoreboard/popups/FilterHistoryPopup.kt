@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.example.scoreboard.MainActivity
 import com.example.scoreboard.R
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionDBService
@@ -40,17 +41,15 @@ import org.apache.commons.lang3.tuple.MutablePair
 class FilterHistoryPopup(val context: Context) {
     private lateinit var popupVisible: MutableState<Boolean>
     private lateinit var tagPickList: SnapshotStateList<MutablePair<MutableState<Tag>, MutableState<Boolean>>>
-    private lateinit var sessions: SnapshotStateList<Session>
 
     @Composable
     fun GeneratePopup(
         popupVisible: MutableState<Boolean>,
-        sessions: SnapshotStateList<Session>,
         tagPickList: SnapshotStateList<MutablePair<MutableState<Tag>, MutableState<Boolean>>>
     ) {
         this.popupVisible = popupVisible
-        this.sessions = sessions
         this.tagPickList = tagPickList
+        tagPickList.sortBy { it.left.value.tagName.lowercase() }
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = {
@@ -78,66 +77,47 @@ class FilterHistoryPopup(val context: Context) {
             )
 
             TagSelectionList()
-
             ApplyResetButtons()
         }
     }
 
     @Composable
     fun ApplyResetButtons() {
-
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-
-            val applyButtonModifier = Modifier
-                .padding(start = 20.dp, end = 10.dp, bottom = 10.dp, top = 10.dp)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            val buttonModifier = Modifier
+                .padding(vertical = 10.dp, horizontal = 20.dp)
                 .weight(1f)
-            ApplyButton(applyButtonModifier)
-
-            val resetButtonModifier = Modifier
-                .padding(start = 10.dp, end = 20.dp, bottom = 10.dp, top = 10.dp)
-                .weight(1f)
-
-            ResetButton(resetButtonModifier)
-        }
-    }
-
-    @Composable
-    fun ApplyButton(modifier: Modifier) {
-
-        Button(
-            onClick = {
+            ApplyChangesButton(
+                text = context.getString(R.string.filter_history_tag_selection_popup_apply_button_text),
+                modifier = buttonModifier
+            ) {
                 popupVisible.value = false
                 filterTags()
-            },
-            modifier = modifier,
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
-            elevation = ButtonDefaults.elevation(0.dp)
-        ) {
-            Text(text = context.getString(R.string.filter_history_tag_selection_popup_apply_button_text))
+            }
+            ApplyChangesButton(
+                text = context.getString(R.string.reset_filters_button_text),
+                modifier = buttonModifier
+            ) {
+                resetTags()
+            }
         }
     }
 
     @Composable
-    fun ResetButton(modifier: Modifier) {
+    fun ApplyChangesButton(text: String, modifier: Modifier, onClick: () -> Unit) {
         Button(
-            onClick = {
-                resetTags()
-            },
+            onClick = onClick,
             modifier = modifier,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
-            Text(text = context.getString(R.string.reset_filters_button_text))
+            Text(text = text, color = Color.White)
         }
     }
-
 
     @Composable
     private fun TagSelectionList() {
-
         LazyColumn(
             modifier = Modifier
                 .heightIn(min = 0.dp, max = 300.dp)
@@ -182,7 +162,11 @@ class FilterHistoryPopup(val context: Context) {
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.Bottom,
-            modifier = Modifier.padding(vertical = 5.dp, horizontal = 20.dp)
+            modifier = Modifier
+                .padding(vertical = 5.dp, horizontal = 20.dp)
+                .clickable {
+                    item.right.value = !item.right.value
+                }
         ) {
             Icon(
                 painter = iconResource,
@@ -195,9 +179,6 @@ class FilterHistoryPopup(val context: Context) {
                 fontSize = 20.sp,
                 color = textColor,
                 modifier = Modifier
-                    .clickable {
-                        item.right.value = !item.right.value
-                    }
                     .padding(start = 5.dp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -207,18 +188,11 @@ class FilterHistoryPopup(val context: Context) {
     }
 
     private fun filterTags() {
-        val selectedTags = tagPickList.filter { it.right.value }.map { it.left }
-        val selectedTagsIDs = selectedTags.map { it.value.id }
-
-        sessions.clear()
-        sessions.addAll(SessionTagDBService(context).getSessionsForTagIDs(selectedTagsIDs))
-        sessions.sortByDescending { it.getDate().timeInMillis }
+        MainActivity.sessionsListUpdate.value = true
     }
 
     private fun resetTags() {
         tagPickList.forEach { it.right.value = false }
-        sessions.clear()
-        sessions.addAll(SessionDBService(context).getAllSessions())
-        sessions.sortByDescending { it.getDate().timeInMillis }
+        MainActivity.sessionsListUpdate.value = true
     }
 }
