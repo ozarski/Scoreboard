@@ -1,6 +1,7 @@
 package com.example.scoreboard.ui
 
 import android.content.Context
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material.Text
@@ -23,8 +26,10 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.Card
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,6 +46,9 @@ import com.example.scoreboard.popups.AddSessionPopup
 import com.example.scoreboard.popups.TagDetailsPopup
 
 class ActivitiesTab(private val context: Context) : ComponentActivity() {
+
+    private var page = 1
+    private val pageSize = 15
 
     @Composable
     fun GenerateLayout() {
@@ -149,9 +157,12 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
     @Composable
     fun ActivitiesDurationLazyColumn() {
         val tagsWithDurations =
-            remember { mutableStateOf(StatsDBService(context).getAllTagsWithDurations()) }
+            remember { mutableStateListOf<Pair<Tag, Long>>() }
         if (MainActivity.tagsListUpdate.value) {
-            tagsWithDurations.value = StatsDBService(context).getAllTagsWithDurations()
+            tagsWithDurations.clear()
+            page = 1
+            val newTags = StatsDBService(context).getAllTagsWithDurations(page, pageSize)
+            tagsWithDurations.addAll(newTags)
             MainActivity.tagsListUpdate.value = false
         }
 
@@ -167,18 +178,54 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(tagsWithDurations.value.size) { index ->
-                    ActivityItem(tagsWithDurations.value[index])
+                items(tagsWithDurations.size) { index ->
+                    ActivityItem(tagsWithDurations[index])
                     Divider(
                         color = Color.LightGray,
                         thickness = 0.7.dp,
                         modifier = Modifier.fillMaxWidth(0.95f)
                     )
                 }
+                item{
+                    LoadMoreTagsButton {
+                        loadMoreTags(tagsWithDurations)
+                    }
+                }
             }
         }
     }
 
+    private fun loadMoreTags(tags: SnapshotStateList<Pair<Tag, Long>>){
+        page++
+        val newTags = StatsDBService(context).getAllTagsWithDurations(page, pageSize)
+        if(newTags.isEmpty()){
+            Toast.makeText(context, "No more tags to load", Toast.LENGTH_SHORT).show()
+            return
+        }
+        tags.addAll(newTags)
+    }
+
+    @Composable
+    fun LoadMoreTagsButton(loadRunnable: () -> Unit){
+        Button(
+            onClick = {
+                loadRunnable()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            shape = RoundedCornerShape(25.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))
+            )
+        ) {
+            Text(
+                text = "Load more",
+                fontSize = 20.sp,
+                color = Color.White
+            )
+        }
+    }
     @Composable
     fun ActivityItem(
         activityItem: Pair<Tag, Long>

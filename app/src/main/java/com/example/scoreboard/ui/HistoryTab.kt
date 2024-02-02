@@ -1,6 +1,7 @@
 package com.example.scoreboard.ui
 
 import android.content.Context
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -227,6 +228,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
         val pickedIDs = tagListPick.filter { it.right.value }.map { it.left.value.id }
         var tempSessions =
             SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page, pageSize)
+        print(tempSessions.size)
         page++
         tempSessions = tempSessions.sortedByDescending { it.getDate().timeInMillis }
         sessions.clear()
@@ -239,6 +241,10 @@ class HistoryTab(val context: Context) : ComponentActivity() {
         val pickedIDs = tagListPick.filter { it.right.value }.map { it.left.value.id }
         var tempSessions =
             SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page, pageSize)
+        if(tempSessions.isEmpty()){
+            Toast.makeText(context, "All sessions loaded", Toast.LENGTH_SHORT).show()
+            return
+        }
         page++
         tempSessions = tempSessions.sortedByDescending { it.getDate().timeInMillis }
         sessions.addAll(tempSessions)

@@ -70,6 +70,64 @@ class StatsDBService(
         return tagDurationList
     }
 
+    fun getAllTagsWithDurations(page: Int, pageSize: Int): List<Pair<Tag, Long>> {
+        val resultColumn = "total_duration"
+        val db = this.readableDatabase
+
+        val sessionIDalt = "id_from_sessions"
+        val sessionDurationsSubQuery =
+            "SELECT ${BaseColumns._ID} as $sessionIDalt, " +
+                    "${DatabaseConstants.SessionsTable.DURATION_COLUMN} " +
+                    "FROM ${DatabaseConstants.SessionsTable.TABLE_NAME} "
+
+        val tagsDurationsSubquery = "SELECT ${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN}, " +
+                "SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn " +
+                "FROM ($sessionDurationsSubQuery) " +
+                "INNER JOIN ${DatabaseConstants.SessionTagTable.TABLE_NAME} " +
+                "ON $sessionIDalt = ${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} " +
+                "GROUP BY ${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} " +
+                "ORDER BY $resultColumn DESC "
+
+        val finalQuery = "(SELECT ${DatabaseConstants.TagsTable.NAME_COLUMN}, $resultColumn, ${BaseColumns._ID} " +
+                "FROM ($tagsDurationsSubquery) " +
+                "INNER JOIN ${DatabaseConstants.TagsTable.TABLE_NAME} " +
+                "ON ${DatabaseConstants.TagsTable.TABLE_NAME}.${BaseColumns._ID} = ${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN}) "
+
+        val projection = arrayOf(
+            DatabaseConstants.TagsTable.NAME_COLUMN,
+            resultColumn,
+            BaseColumns._ID
+        )
+        val offset = (page - 1) * pageSize
+        val limit = "$offset, $pageSize"
+
+        val tagsWithDuration = mutableListOf<Pair<Tag, Long>>()
+
+        val cursor = db.query(
+            finalQuery,
+            projection,
+            null,
+            null,
+            null,
+            null,
+            null,
+            limit
+        )
+
+        with(cursor){
+            while(moveToNext()){
+                val id = getLong(getColumnIndexOrThrow(BaseColumns._ID))
+                val tagName = getString(getColumnIndexOrThrow(DatabaseConstants.TagsTable.NAME_COLUMN))
+                val duration = getLong(getColumnIndexOrThrow(resultColumn))
+
+
+                val tag = Tag(tagName, id)
+                tagsWithDuration.add(Pair(tag, duration))
+            }
+        }
+        return tagsWithDuration
+    }
+
     fun getDurationForSessionsWithTags(tagIDs: List<Long>): Long {
         if (tagIDs.isEmpty()) return getTotalDuration()
         val db = this.readableDatabase
