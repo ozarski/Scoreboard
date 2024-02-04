@@ -36,6 +36,14 @@ import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.durationInSecondsToHoursAndMinutes
 import com.example.scoreboard.formatDate
 import com.example.scoreboard.session.Session
+import com.example.scoreboard.ui.theme.Typography
+import com.example.scoreboard.ui.theme.errorContainerDark
+import com.example.scoreboard.ui.theme.errorDark
+import com.example.scoreboard.ui.theme.onErrorContainerDark
+import com.example.scoreboard.ui.theme.onErrorDark
+import com.example.scoreboard.ui.theme.onPrimaryContainerDark
+import com.example.scoreboard.ui.theme.onPrimaryDark
+import com.example.scoreboard.ui.theme.primaryContainerDark
 
 class SessionDetailsPopup(val context: Context, val session: Session) : ComponentActivity() {
 
@@ -78,13 +86,14 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
             shape = RoundedCornerShape(16.dp),
             elevation = ButtonDefaults.elevation(0.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.delete_red)))
+            colors = ButtonDefaults.buttonColors(backgroundColor = errorDark)
         ) {
             Text(
                 text = context.getString(R.string.simple_delete_button_text),
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center,
-                color = Color.White
+                color = onErrorDark,
+                style = Typography.titleLarge
             )
         }
 
@@ -116,7 +125,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             Icon(
                 painter = painterResource(id = R.drawable.baseline_date_range_24),
                 contentDescription = "Session details date icon",
-                tint = Color(context.getColor(R.color.date_icon_tint)),
+                tint = primaryContainerDark,
                 modifier = Modifier.size(30.dp)
             )
             val formattedDate = formatDate(session.getDate())
@@ -124,7 +133,8 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
                 text = formattedDate,
                 fontSize = 20.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(start = 5.dp)
+                modifier = Modifier.padding(start = 5.dp),
+                style = Typography.labelLarge
             )
         }
     }
@@ -141,7 +151,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             Icon(
                 painter = painterResource(id = R.drawable.baseline_access_time_24),
                 contentDescription = "Session details duration icon",
-                tint = Color(context.getColor(R.color.duration_icon_tint)),
+                tint = errorContainerDark,
                 modifier = Modifier.size(30.dp)
             )
             val durationString = durationInSecondsToHoursAndMinutes(session.getDuration())
@@ -149,7 +159,8 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
                 text = durationString,
                 fontSize = 20.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(start = 5.dp)
+                modifier = Modifier.padding(start = 5.dp),
+                style = Typography.labelLarge
             )
         }
     }
@@ -163,7 +174,9 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
-            textAlign = TextAlign.Start
+            textAlign = TextAlign.Start,
+            style = Typography.titleLarge,
+            color = onPrimaryDark
         )
         LazyColumn(
             Modifier
@@ -172,7 +185,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
                 .padding(start = 20.dp, end = 20.dp)
                 .border(
                     width = 1.dp,
-                    color = Color(context.getColor(R.color.main_ui_buttons_color)),
+                    color = onPrimaryDark,
                     shape = RoundedCornerShape(25.dp)
                 )
         ) {
@@ -188,7 +201,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
             Icon(
                 painter = painterResource(id = R.drawable.baseline_tag_24),
                 contentDescription = "Session details tag icon",
-                tint = Color.LightGray,
+                tint = onPrimaryDark,
                 modifier = Modifier.size(25.dp)
             )
             Text(
@@ -199,7 +212,8 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
                     .padding(vertical = 2.dp),
                 textAlign = TextAlign.Start,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                style = Typography.titleMedium
             )
         }
     }

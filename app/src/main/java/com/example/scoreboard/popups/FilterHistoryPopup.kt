@@ -36,6 +36,13 @@ import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.database.SessionTagDBService
 import com.example.scoreboard.session.Session
+import com.example.scoreboard.ui.theme.Typography
+import com.example.scoreboard.ui.theme.onPrimaryContainerDark
+import com.example.scoreboard.ui.theme.onPrimaryDark
+import com.example.scoreboard.ui.theme.onTertiaryContainerDark
+import com.example.scoreboard.ui.theme.onTertiaryDark
+import com.example.scoreboard.ui.theme.primaryDark
+import com.example.scoreboard.ui.theme.tertiaryDark
 import org.apache.commons.lang3.tuple.MutablePair
 
 class FilterHistoryPopup(val context: Context) {
@@ -73,7 +80,9 @@ class FilterHistoryPopup(val context: Context) {
             Text(
                 text = context.getString(R.string.filter_history_tag_selection_popup_title),
                 fontSize = 20.sp,
-                modifier = Modifier.padding(vertical = 10.dp)
+                modifier = Modifier.padding(vertical = 10.dp),
+                style = Typography.titleLarge,
+                color = onPrimaryDark
             )
 
             TagSelectionList()
@@ -109,10 +118,10 @@ class FilterHistoryPopup(val context: Context) {
             onClick = onClick,
             modifier = modifier,
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
+            colors = ButtonDefaults.buttonColors(backgroundColor = onPrimaryDark),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
-            Text(text = text, color = Color.White)
+            Text(text = text, color = primaryDark, style = Typography.titleLarge)
         }
     }
 
@@ -125,7 +134,7 @@ class FilterHistoryPopup(val context: Context) {
                 .padding(horizontal = 20.dp)
                 .border(
                     width = 1.dp,
-                    color = Color(context.getColor(R.color.main_ui_buttons_color)),
+                    color = onPrimaryDark,
                     shape = RoundedCornerShape(25.dp)
                 )
         ) {
@@ -142,15 +151,15 @@ class FilterHistoryPopup(val context: Context) {
     ) {
 
         val textColor: Color = if (item.right.value) {
-            Color(context.getColor(R.color.main_ui_buttons_color))
+            onPrimaryDark
         } else {
-            Color.Black
+            onTertiaryContainerDark
         }
 
         val iconColor = if (item.right.value) {
-            Color(context.getColor(R.color.tag_icon_color))
+            onPrimaryDark
         } else {
-            Color.LightGray
+            onTertiaryContainerDark
         }
 
         val iconResource = if (item.right.value) {

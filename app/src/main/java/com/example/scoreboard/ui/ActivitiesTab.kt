@@ -24,6 +24,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
@@ -44,6 +45,17 @@ import com.example.scoreboard.database.StatsDBService
 import com.example.scoreboard.durationInSecondsToDaysAndHoursAndMinutes
 import com.example.scoreboard.popups.AddSessionPopup
 import com.example.scoreboard.popups.TagDetailsPopup
+import com.example.scoreboard.ui.theme.Typography
+import com.example.scoreboard.ui.theme.backgroundDark
+import com.example.scoreboard.ui.theme.onBackgroundDark
+import com.example.scoreboard.ui.theme.onPrimaryContainerDark
+import com.example.scoreboard.ui.theme.onPrimaryDark
+import com.example.scoreboard.ui.theme.onSecondaryDark
+import com.example.scoreboard.ui.theme.onTertiaryContainerDark
+import com.example.scoreboard.ui.theme.primaryContainerDark
+import com.example.scoreboard.ui.theme.primaryDark
+import com.example.scoreboard.ui.theme.secondaryDark
+import com.example.scoreboard.ui.theme.tertiaryDark
 
 class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
@@ -55,14 +67,13 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color(context.getColor(R.color.tabs_background_color))),
+                .background(color = backgroundDark),
             verticalArrangement = Arrangement.Top
         ) {
             TotalDurationTextView()
             ActivitiesHeader()
             ActivitiesDurationLazyColumn()
         }
-
         AddSessionButton()
     }
 
@@ -78,14 +89,14 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                 onClick = {
                     popupVisible.value = true
                 },
-                containerColor = Color(context.getColor(R.color.main_ui_buttons_color)),
+                containerColor = onPrimaryDark,
                 shape = CircleShape,
                 modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
                     contentDescription = "Add button",
-                    tint = Color.White
+                    tint = primaryDark
                 )
             }
         }
@@ -100,7 +111,9 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
             Text(
                 text = context.getString(R.string.activities_tab_header),
                 fontSize = 25.sp,
-                modifier = Modifier.padding(start = 10.dp)
+                modifier = Modifier.padding(start = 10.dp),
+                style = Typography.bodyLarge,
+                color = onTertiaryContainerDark
             )
             Icon(
                 painter = painterResource(id = R.drawable.baseline_directions_run_24),
@@ -108,7 +121,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                 modifier = Modifier
                     .size(30.dp)
                     .padding(start = 3.dp),
-                tint = Color(context.getColor(R.color.main_ui_buttons_color))
+                tint = onTertiaryContainerDark
             )
         }
     }
@@ -132,7 +145,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = Color.White, shape = RoundedCornerShape(25.dp)
+                        color = primaryDark, shape = RoundedCornerShape(25.dp)
                     )
             ) {
                 //Total duration icon
@@ -142,13 +155,14 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                     modifier = Modifier
                         .padding(horizontal = 10.dp, vertical = 8.dp)
                         .size(35.dp),
-                    tint = Color.LightGray
+                    tint = onPrimaryDark
                 )
                 //Total duration text value
                 Text(
                     text = totalDurationString,
                     fontSize = 25.sp,
-                    modifier = Modifier.padding(end = 15.dp)
+                    modifier = Modifier.padding(end = 15.dp),
+                    style = Typography.labelLarge
                 )
             }
         }
@@ -165,6 +179,10 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
             tagsWithDurations.addAll(newTags)
             MainActivity.tagsListUpdate.value = false
         }
+        if(tagsWithDurations.isEmpty()){
+            page = 0
+            loadMoreTags(tagsWithDurations)
+        }
 
         Card(
             modifier = Modifier.padding(10.dp),
@@ -174,19 +192,19 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = Color.White, shape = RoundedCornerShape(25.dp)),
+                    .background(color = primaryDark, shape = RoundedCornerShape(25.dp)),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(tagsWithDurations.size) { index ->
                     ActivityItem(tagsWithDurations[index])
                     Divider(
-                        color = Color.LightGray,
+                        color = onPrimaryDark,
                         thickness = 0.7.dp,
                         modifier = Modifier.fillMaxWidth(0.95f)
                     )
                 }
-                item{
+                item {
                     LoadMoreTagsButton {
                         loadMoreTags(tagsWithDurations)
                     }
@@ -195,10 +213,10 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
         }
     }
 
-    private fun loadMoreTags(tags: SnapshotStateList<Pair<Tag, Long>>){
+    private fun loadMoreTags(tags: SnapshotStateList<Pair<Tag, Long>>) {
         page++
         val newTags = StatsDBService(context).getAllTagsWithDurations(page, pageSize)
-        if(newTags.isEmpty()){
+        if (newTags.isEmpty()) {
             Toast.makeText(context, "No more tags to load", Toast.LENGTH_SHORT).show()
             return
         }
@@ -206,7 +224,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    fun LoadMoreTagsButton(loadRunnable: () -> Unit){
+    fun LoadMoreTagsButton(loadRunnable: () -> Unit) {
         Button(
             onClick = {
                 loadRunnable()
@@ -216,16 +234,18 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                 .padding(10.dp),
             shape = RoundedCornerShape(25.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))
+                backgroundColor = onPrimaryDark
             )
         ) {
             Text(
                 text = "Load more",
                 fontSize = 20.sp,
-                color = Color.White
+                style = Typography.titleLarge,
+                color = primaryDark
             )
         }
     }
+
     @Composable
     fun ActivityItem(
         activityItem: Pair<Tag, Long>
@@ -247,7 +267,9 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                     .padding(start = 10.dp, end = 10.dp)
                     .widthIn(min = 0.dp, max = 250.dp),
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1
+                maxLines = 1,
+                color = onPrimaryDark,
+                style = Typography.bodyLarge
             )
 
 
@@ -259,7 +281,9 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                     .padding(end = 10.dp, start = 3.dp)
                     .widthIn(min = 0.dp, max = 300.dp),
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1
+                maxLines = 1,
+                color = onPrimaryDark,
+                style = Typography.bodyLarge
             )
         }
 

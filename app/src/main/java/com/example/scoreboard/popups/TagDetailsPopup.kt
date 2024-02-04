@@ -34,6 +34,11 @@ import com.example.scoreboard.MainActivity
 import com.example.scoreboard.R
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.TagDBService
+import com.example.scoreboard.ui.theme.Typography
+import com.example.scoreboard.ui.theme.errorDark
+import com.example.scoreboard.ui.theme.onErrorDark
+import com.example.scoreboard.ui.theme.onPrimaryDark
+import com.example.scoreboard.ui.theme.primaryDark
 
 class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() {
 
@@ -81,7 +86,8 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
         Text(
             text = context.getString(R.string.tag_details_name_header),
             fontSize = 15.sp,
-            modifier = Modifier.padding(top = 10.dp)
+            modifier = Modifier.padding(top = 10.dp),
+            style = Typography.labelLarge
         )
     }
 
@@ -91,7 +97,8 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
             text = tag.tagName,
             fontSize = 20.sp,
             modifier = Modifier.padding(top = 5.dp, start = 10.dp, end = 10.dp),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            style = Typography.labelLarge
         )
     }
 
@@ -102,10 +109,10 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
         Button(
             onClick = { dialogOpen.value = true }, modifier = modifier,
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
+            colors = ButtonDefaults.buttonColors(backgroundColor = onPrimaryDark),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
-            Text(text = context.getString(R.string.simple_rename_button_text), color = Color.White)
+            Text(text = context.getString(R.string.simple_rename_button_text), color = primaryDark, style = Typography.titleLarge)
         }
         if (dialogOpen.value) {
             ChangeNameDialog(dialogOpen, newTagName)
@@ -132,13 +139,13 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
                         .fillMaxWidth(),
                     singleLine = true,
                     colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.White,
-                        focusedIndicatorColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                        unfocusedIndicatorColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                        cursorColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                        textColor = Color.Black,
-                        focusedLabelColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                        unfocusedLabelColor = Color(context.getColor(R.color.main_ui_buttons_color))
+                        backgroundColor = primaryDark,
+                        focusedIndicatorColor = onPrimaryDark,
+                        unfocusedIndicatorColor = onPrimaryDark,
+                        cursorColor = onPrimaryDark,
+                        textColor = onPrimaryDark,
+                        focusedLabelColor = onPrimaryDark,
+                        unfocusedLabelColor = onPrimaryDark
                     ),
                     shape = RoundedCornerShape(16.dp)
                 )
@@ -154,10 +161,10 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                         .fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = onPrimaryDark),
                     elevation = ButtonDefaults.elevation(0.dp)
                 ) {
-                    Text(text = context.getString(R.string.simple_rename_button_text), color = Color.White)
+                    Text(text = context.getString(R.string.simple_rename_button_text), color = primaryDark, style = Typography.titleLarge)
                 }
             }
         }
@@ -173,10 +180,10 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
             },
             modifier = modifier,
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.delete_red))),
+            colors = ButtonDefaults.buttonColors(backgroundColor = errorDark),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
-            Text(text = context.getString(R.string.simple_delete_button_text), color = Color.White)
+            Text(text = context.getString(R.string.simple_delete_button_text), color = onErrorDark, style = Typography.titleLarge)
         }
 
         if (confirmPopupVisible.value) {

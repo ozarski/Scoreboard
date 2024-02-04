@@ -15,6 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.scoreboard.ui.theme.onPrimaryContainerDark
+import com.example.scoreboard.ui.theme.onPrimaryDark
+import com.example.scoreboard.ui.theme.onSecondaryDark
+import com.example.scoreboard.ui.theme.onTertiaryDark
+import com.example.scoreboard.ui.theme.primaryContainerDark
+import com.example.scoreboard.ui.theme.primaryDark
+import com.example.scoreboard.ui.theme.secondaryDark
+import com.example.scoreboard.ui.theme.tertiaryDark
 
 class GenericPopupContent {
 
@@ -46,10 +54,10 @@ class GenericPopupContent {
                         min = minHeight.dp,
                         max = if (maxHeight == 0) Int.MAX_VALUE.dp else maxHeight.dp
                     )
-                    .background(Color.White, RoundedCornerShape(25.dp))
+                    .background(primaryDark, RoundedCornerShape(25.dp))
                     .border(
                         width = 2.dp,
-                        color = Color.LightGray,
+                        color = onPrimaryDark,
                         shape = RoundedCornerShape(25.dp)
                     ),
                 horizontalAlignment = horizontalAlignment,

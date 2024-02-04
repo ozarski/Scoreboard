@@ -68,6 +68,8 @@ class TagDBService(context: Context, databaseName: String = DatabaseConstants.DA
         if (cursor.moveToFirst()) {
             val tagName =
                 cursor.getString(cursor.getColumnIndexOrThrow(DatabaseConstants.TagsTable.NAME_COLUMN))
+            cursor.close()
+            db.close()
             return Tag(tagName, id)
         }
         return null

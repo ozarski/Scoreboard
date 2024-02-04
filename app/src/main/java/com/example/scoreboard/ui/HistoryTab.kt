@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -46,6 +48,18 @@ import com.example.scoreboard.formatDate
 import com.example.scoreboard.popups.FilterHistoryPopup
 import com.example.scoreboard.popups.SessionDetailsPopup
 import com.example.scoreboard.session.Session
+import com.example.scoreboard.ui.theme.Typography
+import com.example.scoreboard.ui.theme.backgroundDark
+import com.example.scoreboard.ui.theme.errorContainerDark
+import com.example.scoreboard.ui.theme.errorDark
+import com.example.scoreboard.ui.theme.onPrimaryContainerDark
+import com.example.scoreboard.ui.theme.onPrimaryDark
+import com.example.scoreboard.ui.theme.onSecondaryDark
+import com.example.scoreboard.ui.theme.onTertiaryContainerDark
+import com.example.scoreboard.ui.theme.primaryContainerDark
+import com.example.scoreboard.ui.theme.primaryDark
+import com.example.scoreboard.ui.theme.secondaryDark
+import com.example.scoreboard.ui.theme.tertiaryDark
 import org.apache.commons.lang3.tuple.MutablePair
 
 class HistoryTab(val context: Context) : ComponentActivity() {
@@ -68,7 +82,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color(context.getColor(R.color.tabs_background_color))),
+                .background(color = backgroundDark),
             verticalArrangement = Arrangement.Top
         ) {
             FilterSessionsHeader()
@@ -87,7 +101,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = Color.White, shape = RoundedCornerShape(25.dp)),
+                    .background(color = primaryDark, shape = RoundedCornerShape(25.dp)),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -103,7 +117,9 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             Text(
                 text = "Sessions",
                 fontSize = 25.sp,
-                modifier = Modifier.padding(start = 10.dp)
+                modifier = Modifier.padding(start = 10.dp),
+                style = Typography.bodyLarge,
+                color = onTertiaryContainerDark
             )
             Icon(
                 painter = painterResource(id = R.drawable.baseline_history_edu_24),
@@ -111,7 +127,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                 modifier = Modifier
                     .size(30.dp)
                     .padding(start = 3.dp),
-                tint = Color(context.getColor(R.color.main_ui_buttons_color))
+                tint = onTertiaryContainerDark
             )
         }
     }
@@ -126,14 +142,15 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_access_time_24),
                 contentDescription = "Sessions duration icon",
-                tint = Color.LightGray,
+                tint = onPrimaryDark,
                 modifier = Modifier
                     .size(40.dp)
                     .padding(start = 10.dp, end = 3.dp)
             )
             Text(
                 text = durationInSecondsToHoursAndMinutes(sessionsDuration.value),
-                fontSize = 25.sp
+                fontSize = 25.sp,
+                style = Typography.labelLarge
             )
         }
     }
@@ -141,23 +158,36 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     @Composable
     fun FilterButton() {
         val filterPopupVisible = remember { mutableStateOf(false) }
-        Icon(
-            painter = painterResource(id = R.drawable.baseline_filter_list_24),
-            contentDescription = "Filter popup button",
-            tint = Color.White,
-            modifier = Modifier
-                .padding(end = 10.dp)
-                .padding(vertical = 5.dp)
-                .size(40.dp)
-                .clickable {
-                    filterPopupVisible.value = !filterPopupVisible.value
-                }
-                .background(
-                    shape = CircleShape,
-                    color = Color(context.getColor(R.color.main_ui_buttons_color))
-                )
-                .padding(5.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_filter_list_24),
+                contentDescription = "Filter popup button",
+                tint = primaryDark,
+                modifier = Modifier
+                    .padding(end = 10.dp)
+                    .padding(vertical = 5.dp)
+                    .size(40.dp)
+                    .background(
+                        shape = CircleShape,
+                        color = onPrimaryDark
+                    )
+                    .clickable(
+                        indication = rememberRipple(
+                            bounded = false,
+                            color = onTertiaryContainerDark,
+                            radius = 40.dp
+                        ),
+                        interactionSource = MutableInteractionSource(),
+                        onClick = {
+                            filterPopupVisible.value = !filterPopupVisible.value
+                        })
+                    .padding(5.dp)
+            )
+        }
         if (filterPopupVisible.value) {
             FilterHistoryPopup(context).GeneratePopup(filterPopupVisible, tagListPick)
         }
@@ -179,19 +209,19 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.background(
-                    color = Color.White,
+                    color = primaryDark,
                     shape = RoundedCornerShape(25.dp)
                 )
             ) {
                 items(sessions.size) {
                     SessionItem(sessions[it], sessionDetailsPopupVisible)
                     Divider(
-                        color = Color.LightGray,
+                        color = onPrimaryDark,
                         thickness = 0.7.dp,
                         modifier = Modifier.fillMaxWidth(0.95f)
                     )
                 }
-                item{
+                item {
                     LoadMoreSessionsButton {
                         loadMoreSessions(sessions)
                     }
@@ -201,7 +231,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    fun LoadMoreSessionsButton(loadRunnable: () -> Unit){
+    fun LoadMoreSessionsButton(loadRunnable: () -> Unit) {
         Button(
             onClick = {
                 loadRunnable()
@@ -211,13 +241,14 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                 .padding(10.dp),
             shape = RoundedCornerShape(25.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))
+                backgroundColor = onPrimaryDark
             )
         ) {
             Text(
                 text = "Load more",
                 fontSize = 20.sp,
-                color = Color.White
+                style = Typography.titleLarge,
+                color = primaryDark
             )
         }
     }
@@ -237,11 +268,11 @@ class HistoryTab(val context: Context) : ComponentActivity() {
         MainActivity.sessionsListUpdate.value = false
     }
 
-    private fun loadMoreSessions(sessions: SnapshotStateList<Session>){
+    private fun loadMoreSessions(sessions: SnapshotStateList<Session>) {
         val pickedIDs = tagListPick.filter { it.right.value }.map { it.left.value.id }
         var tempSessions =
             SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page, pageSize)
-        if(tempSessions.isEmpty()){
+        if (tempSessions.isEmpty()) {
             Toast.makeText(context, "All sessions loaded", Toast.LENGTH_SHORT).show()
             return
         }
@@ -287,7 +318,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_date_range_24),
                 contentDescription = "Session date icon",
-                tint = Color(context.getColor(R.color.date_icon_tint)),
+                tint = secondaryDark,
                 modifier = Modifier.size(20.dp)
             )
             val formattedDate = formatDate(session.getDate())
@@ -295,7 +326,8 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                 text = formattedDate,
                 fontSize = 15.sp,
                 modifier = Modifier.widthIn(max = 275.dp, min = 0.dp),
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                style = Typography.labelLarge
             )
         }
     }
@@ -306,12 +338,13 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_access_time_24),
                 contentDescription = "Session duration icon",
-                tint = Color(context.getColor(R.color.duration_icon_tint)),
+                tint = errorContainerDark,
                 modifier = Modifier.size(20.dp)
             )
             Text(
                 text = durationInSecondsToHoursAndMinutes(session.getDuration()),
-                fontSize = 15.sp
+                fontSize = 15.sp,
+                style = Typography.labelLarge
             )
         }
     }
@@ -319,14 +352,14 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     @Composable
     fun SessionTagsText(tags: MutableList<Tag>) {
         var tagsString = ""
-        tags.sortedBy{ it.tagName.lowercase() }.forEach {
+        tags.sortedBy { it.tagName.lowercase() }.forEach {
             tagsString += it.tagName + " "
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_tag_24),
                 contentDescription = "Session tags icon",
-                tint = Color.LightGray,
+                tint = onPrimaryDark,
                 modifier = Modifier
                     .size(25.dp)
                     .padding(end = 3.dp)
@@ -338,7 +371,8 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                     .widthIn(max = 260.dp, min = 0.dp)
                     .padding(end = 10.dp),
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1
+                maxLines = 1,
+                style = Typography.labelLarge
             )
         }
     }

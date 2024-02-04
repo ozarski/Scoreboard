@@ -27,6 +27,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.scoreboard.ui.ActivitiesTab
 import com.example.scoreboard.ui.HistoryTab
+import com.example.scoreboard.ui.theme.ScoreboardTheme
+import com.example.scoreboard.ui.theme.Typography
+import com.example.scoreboard.ui.theme.backgroundDark
+import com.example.scoreboard.ui.theme.onPrimaryContainerDark
+import com.example.scoreboard.ui.theme.onPrimaryDark
+import com.example.scoreboard.ui.theme.onSecondaryDark
+import com.example.scoreboard.ui.theme.primaryContainerDark
+import com.example.scoreboard.ui.theme.primaryDark
+import com.example.scoreboard.ui.theme.secondaryDark
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -44,7 +53,9 @@ class MainActivity : ComponentActivity() {
             totalDurationUpdate = remember { mutableStateOf(true) }
             sessionsListUpdate = remember { mutableStateOf(true) }
             tagsListUpdate = remember { mutableStateOf(true) }
-            LayoutMain()
+            ScoreboardTheme {
+                LayoutMain()
+            }
         }
     }
 
@@ -64,7 +75,7 @@ class MainActivity : ComponentActivity() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(this@MainActivity.getColor(R.color.tabs_background_color))),
+                .background(color = backgroundDark),
             verticalArrangement = Arrangement.Bottom
         ) {
             val pagesModifier = Modifier.weight(1f)
@@ -80,10 +91,10 @@ class MainActivity : ComponentActivity() {
                                 .padding(horizontal = 60.dp)
                                 .offset(y = ((-6).dp))
                                 .clip(shape = RoundedCornerShape(16.dp)),
-                            color = Color(this@MainActivity.getColor((R.color.tabs_background_color))),
+                            color = primaryDark,
                         )
                     },
-                    backgroundColor = Color(this@MainActivity.getColor(R.color.main_ui_buttons_color)),
+                    backgroundColor = onPrimaryDark,
                     modifier = Modifier.clip(
                         shape = RoundedCornerShape(
                             topStart = 25.dp,
@@ -106,7 +117,7 @@ class MainActivity : ComponentActivity() {
         tabs: List<String>
     ) {
         tabs.forEachIndexed { index, title ->
-            Tab(text = { Text(title, color = Color.White) },
+            Tab(text = { Text(title, style = Typography.titleLarge, color = primaryDark) },
                 selected = tabIndex.value == index,
                 onClick = {
                     scope.launch {
@@ -127,8 +138,6 @@ class MainActivity : ComponentActivity() {
             modifier = modifier
         ) {
             when (it) {
-                //0 -> MainBooksUI(context).GenerateLayout()
-                //1 -> MainStatsUI(context).GenerateLayout()
                 0 -> {
                     ActivitiesTab(this@MainActivity).GenerateLayout()
                 }

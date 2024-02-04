@@ -22,6 +22,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.scoreboard.R
+import com.example.scoreboard.ui.theme.Typography
+import com.example.scoreboard.ui.theme.errorDark
+import com.example.scoreboard.ui.theme.onErrorDark
+import com.example.scoreboard.ui.theme.onPrimaryDark
+import com.example.scoreboard.ui.theme.primaryDark
 
 class ConfirmPopup(val context: Context) {
 
@@ -72,7 +77,9 @@ class ConfirmPopup(val context: Context) {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(top = 16.dp, bottom = 20.dp)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            style = Typography.titleLarge,
+            color = onPrimaryDark
         )
     }
 
@@ -86,19 +93,21 @@ class ConfirmPopup(val context: Context) {
         ) {
             DecisionButton(
                 text = context.getString(R.string.yes_button_text),
-                color = Color(context.getColor(R.color.delete_red)),
+                buttonColor = errorDark,
+                textColor = onErrorDark,
                 decision = true
             )
             DecisionButton(
                 text = context.getString(R.string.no_button_text),
-                color = Color(context.getColor(R.color.main_ui_buttons_color)),
+                buttonColor = onPrimaryDark,
+                textColor = primaryDark,
                 decision = false
             )
         }
     }
 
     @Composable
-    fun DecisionButton(text: String, color: Color, decision: Boolean) {
+    fun DecisionButton(text: String, buttonColor: Color, textColor: Color, decision: Boolean) {
         Button(
             onClick = {
                 closePopup(decision)
@@ -107,10 +116,10 @@ class ConfirmPopup(val context: Context) {
             .padding(horizontal = 10.dp)
             .widthIn(100.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = color),
+            colors = ButtonDefaults.buttonColors(backgroundColor = buttonColor),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
-            Text(text = text, color = Color.White)
+            Text(text = text, color = textColor, style = Typography.titleLarge)
         }
     }
 

@@ -56,6 +56,10 @@ import com.example.scoreboard.Tag
 import com.example.scoreboard.database.SessionDBService
 import com.example.scoreboard.database.TagDBService
 import com.example.scoreboard.session.Session
+import com.example.scoreboard.ui.theme.Typography
+import com.example.scoreboard.ui.theme.onPrimaryDark
+import com.example.scoreboard.ui.theme.onTertiaryContainerDark
+import com.example.scoreboard.ui.theme.primaryDark
 import org.apache.commons.lang3.tuple.MutablePair
 import java.util.Calendar
 import java.util.Locale
@@ -107,11 +111,13 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     private fun DurationLabel() {
         Text(
             text = context.getString(R.string.add_session_popup_duration_header),
-            fontSize = 19.sp,
+            fontSize = 20.sp,
             modifier = Modifier
                 .padding(top = 10.dp, start = 20.dp)
                 .fillMaxWidth(),
-            textAlign = TextAlign.Start
+            textAlign = TextAlign.Start,
+            style = Typography.titleLarge,
+            color = onPrimaryDark
         )
     }
 
@@ -128,13 +134,13 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 .padding(start = 20.dp, end = 20.dp, bottom = 10.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
+            colors = ButtonDefaults.buttonColors(backgroundColor = onPrimaryDark),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
             Text(
                 text = context.getString(R.string.simple_add_button_text),
                 textAlign = TextAlign.Center,
-                color = Color.White
+                style = Typography.titleLarge
             )
         }
     }
@@ -167,10 +173,12 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         ) {
             Text(
                 text = context.getString(R.string.add_session_popup_tag_list_header),
-                fontSize = 19.sp,
+                fontSize = 20.sp,
                 modifier = Modifier
                     .padding(top = 5.dp, bottom = 5.dp, start = 20.dp),
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Start,
+                style = Typography.titleLarge,
+                color = onPrimaryDark
             )
             AddNewTag()
         }
@@ -190,7 +198,8 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 Text(
                     modifier = Modifier.padding(start = 8.dp, end = 20.dp),
                     textAlign = TextAlign.Center,
-                    text = "h"
+                    text = "h",
+                    style = Typography.labelLarge
                 )
             },
             minutesDivider = {
@@ -198,13 +207,11 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                     modifier = Modifier.padding(start = 8.dp),
                     textAlign = TextAlign.Center,
                     text = "m",
+                    style = Typography.labelLarge
                 )
             },
-            textStyle = androidx.compose.ui.text.TextStyle(
-                fontSize = 20.sp,
-                color = Color.Black
-            ),
-            dividersColor = Color(context.getColor(R.color.main_ui_buttons_color))
+            textStyle = Typography.labelLarge,
+            dividersColor = onPrimaryDark
         )
     }
 
@@ -220,12 +227,12 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         }
         LazyColumn(
             modifier = Modifier
-                .height(200.dp)
+                .height(300.dp)
                 .width(375.dp)
                 .padding(vertical = 10.dp, horizontal = 20.dp)
                 .border(
                     width = 1.dp,
-                    color = Color(context.getColor(R.color.main_ui_buttons_color)),
+                    color = onPrimaryDark,
                     shape = RoundedCornerShape(25.dp)
                 )
         ) {
@@ -243,16 +250,10 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         tagPicked: MutableState<Boolean>,
         item: MutablePair<Tag, Boolean>
     ) {
-        val textColor: Color = if (tagPicked.value) {
-            Color(context.getColor(R.color.main_ui_buttons_color))
+        val contentColor: Color = if (tagPicked.value) {
+            onPrimaryDark
         } else {
-            Color.Black
-        }
-
-        val iconColor = if (tagPicked.value) {
-            Color(context.getColor(R.color.tag_icon_color))
-        } else {
-            Color.LightGray
+            onTertiaryContainerDark
         }
 
         val iconResource = if (tagPicked.value) {
@@ -274,13 +275,13 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             Icon(
                 painter = iconResource,
                 contentDescription = "Tag icon",
-                tint = iconColor,
+                tint = contentColor,
                 modifier = Modifier.size(25.dp)
             )
             Text(
                 text = tag.tagName,
                 fontSize = 20.sp,
-                color = textColor,
+                color = contentColor,
                 modifier = Modifier
                     .padding(start = 5.dp),
                 maxLines = 1,
@@ -305,7 +306,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 dialogOpen.value = true
             },
             shape = RoundedCornerShape(50.dp),
-            backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color)),
+            backgroundColor = onPrimaryDark,
             elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
             modifier = Modifier.height(25.dp).padding(end=20.dp)
         ) {
@@ -314,15 +315,15 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "ADD",
+                    text = context.getString(R.string.simple_add_button_text),
                     fontSize = 12.sp,
-                    color = Color.White,
+                    color = primaryDark,
                     modifier = Modifier.padding(start = 3.dp)
                 )
                 Icon(
                     imageVector = Icons.Rounded.Add,
                     contentDescription = "Add button",
-                    tint = Color.White,
+                    tint = primaryDark,
                     modifier = Modifier.size(12.dp)
                 )
             }

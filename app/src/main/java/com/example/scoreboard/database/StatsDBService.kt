@@ -80,7 +80,7 @@ class StatsDBService(
                     "${DatabaseConstants.SessionsTable.DURATION_COLUMN} " +
                     "FROM ${DatabaseConstants.SessionsTable.TABLE_NAME} "
 
-        val tagsDurationsSubquery = "SELECT ${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN}, " +
+        val tagsDurationsSubQuery = "SELECT ${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN}, " +
                 "SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn " +
                 "FROM ($sessionDurationsSubQuery) " +
                 "INNER JOIN ${DatabaseConstants.SessionTagTable.TABLE_NAME} " +
@@ -89,7 +89,7 @@ class StatsDBService(
                 "ORDER BY $resultColumn DESC "
 
         val finalQuery = "(SELECT ${DatabaseConstants.TagsTable.NAME_COLUMN}, $resultColumn, ${BaseColumns._ID} " +
-                "FROM ($tagsDurationsSubquery) " +
+                "FROM ($tagsDurationsSubQuery) " +
                 "INNER JOIN ${DatabaseConstants.TagsTable.TABLE_NAME} " +
                 "ON ${DatabaseConstants.TagsTable.TABLE_NAME}.${BaseColumns._ID} = ${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN}) "
 

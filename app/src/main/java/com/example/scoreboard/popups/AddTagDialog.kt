@@ -27,6 +27,9 @@ import androidx.compose.ui.window.Dialog
 import com.example.scoreboard.R
 import com.example.scoreboard.Tag
 import com.example.scoreboard.database.TagDBService
+import com.example.scoreboard.ui.theme.Typography
+import com.example.scoreboard.ui.theme.onPrimaryDark
+import com.example.scoreboard.ui.theme.primaryDark
 import org.apache.commons.lang3.tuple.MutablePair
 import kotlin.concurrent.thread
 
@@ -41,18 +44,7 @@ class AddTagDialog(
     @Composable
     fun GenerateDialog() {
         Dialog(onDismissRequest = { dialogOpen.value = false }) {
-            Column(
-                modifier = Modifier
-                    .width(280.dp)
-                    .background(Color.White, RoundedCornerShape(25.dp))
-                    .border(
-                        width = 2.dp,
-                        color = Color.LightGray,
-                        shape = RoundedCornerShape(25.dp)
-                    ),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            GenericPopupContent.GenerateContent(width = 200) {
                 val newTagName = remember { mutableStateOf("") }
                 TagNameField(newTagName)
                 AddButton()
@@ -73,13 +65,13 @@ class AddTagDialog(
                 .padding(vertical = 10.dp, horizontal = 20.dp)
                 .fillMaxWidth(),
             colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color.White,
-                focusedIndicatorColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                unfocusedIndicatorColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                cursorColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                textColor = Color.Black,
-                focusedLabelColor = Color(context.getColor(R.color.main_ui_buttons_color)),
-                unfocusedLabelColor = Color(context.getColor(R.color.main_ui_buttons_color))
+                backgroundColor = primaryDark,
+                focusedIndicatorColor = onPrimaryDark,
+                unfocusedIndicatorColor = onPrimaryDark,
+                cursorColor = onPrimaryDark,
+                textColor = onPrimaryDark,
+                focusedLabelColor = onPrimaryDark,
+                unfocusedLabelColor = onPrimaryDark
             ),
             shape = RoundedCornerShape(16.dp)
         )
@@ -95,12 +87,12 @@ class AddTagDialog(
                 .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(context.getColor(R.color.main_ui_buttons_color))),
+            colors = ButtonDefaults.buttonColors(backgroundColor = onPrimaryDark),
             elevation = ButtonDefaults.elevation(0.dp)
         ) {
             Text(
                 text = context.getString(R.string.simple_add_button_text),
-                color = Color.White
+                style = Typography.titleLarge
             )
         }
     }
