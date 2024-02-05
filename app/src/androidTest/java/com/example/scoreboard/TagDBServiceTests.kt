@@ -3,8 +3,9 @@ package com.example.scoreboard
 import android.content.Context
 import android.provider.BaseColumns
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.scoreboard.database.DatabaseConstants
-import com.example.scoreboard.database.TagDBService
+import com.ozarskiapps.scoreboard.Tag
+import com.ozarskiapps.scoreboard.database.DatabaseConstants
+import com.ozarskiapps.scoreboard.database.TagDBService
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.After

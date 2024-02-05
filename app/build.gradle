@@ -4,15 +4,15 @@ plugins {
 }
 
 android {
-    namespace 'com.example.scoreboard'
+    namespace 'com.ozarskiapps.scoreboard'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.scoreboard"
+        applicationId "com.ozarskiapps.scoreboard"
         minSdk 24
         targetSdk 34
         versionCode 1
-        versionName "1.0"
+        versionName "0.1alpha"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

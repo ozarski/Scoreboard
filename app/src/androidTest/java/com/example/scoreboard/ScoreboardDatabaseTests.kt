@@ -2,8 +2,8 @@ package com.example.scoreboard
 
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.scoreboard.database.DatabaseConstants
-import com.example.scoreboard.database.ScoreboardDatabase
+import com.ozarskiapps.scoreboard.database.DatabaseConstants
+import com.ozarskiapps.scoreboard.database.ScoreboardDatabase
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
