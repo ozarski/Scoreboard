@@ -6,11 +6,7 @@ import android.provider.BaseColumns
 import com.example.scoreboard.session.Session
 import com.example.scoreboard.session.SessionData
 import com.example.scoreboard.setCalendarToDayEnd
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.Calendar
-import kotlin.system.measureTimeMillis
-import kotlin.time.measureTime
 
 class SessionDBService(
     private val appContext: Context,

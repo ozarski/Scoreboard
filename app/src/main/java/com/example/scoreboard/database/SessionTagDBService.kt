@@ -2,7 +2,6 @@ package com.example.scoreboard.database
 
 import android.content.ContentValues
 import android.content.Context
-import android.provider.BaseColumns
 import com.example.scoreboard.session.Session
 
 class SessionTagDBService(

@@ -18,13 +18,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
 import androidx.compose.material.Divider
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
@@ -33,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -47,15 +45,9 @@ import com.example.scoreboard.popups.AddSessionPopup
 import com.example.scoreboard.popups.TagDetailsPopup
 import com.example.scoreboard.ui.theme.Typography
 import com.example.scoreboard.ui.theme.backgroundDark
-import com.example.scoreboard.ui.theme.onBackgroundDark
-import com.example.scoreboard.ui.theme.onPrimaryContainerDark
 import com.example.scoreboard.ui.theme.onPrimaryDark
-import com.example.scoreboard.ui.theme.onSecondaryDark
 import com.example.scoreboard.ui.theme.onTertiaryContainerDark
-import com.example.scoreboard.ui.theme.primaryContainerDark
 import com.example.scoreboard.ui.theme.primaryDark
-import com.example.scoreboard.ui.theme.secondaryDark
-import com.example.scoreboard.ui.theme.tertiaryDark
 
 class ActivitiesTab(private val context: Context) : ComponentActivity() {
 

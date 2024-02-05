@@ -21,7 +21,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,9 +38,7 @@ import com.example.scoreboard.session.Session
 import com.example.scoreboard.ui.theme.Typography
 import com.example.scoreboard.ui.theme.errorContainerDark
 import com.example.scoreboard.ui.theme.errorDark
-import com.example.scoreboard.ui.theme.onErrorContainerDark
 import com.example.scoreboard.ui.theme.onErrorDark
-import com.example.scoreboard.ui.theme.onPrimaryContainerDark
 import com.example.scoreboard.ui.theme.onPrimaryDark
 import com.example.scoreboard.ui.theme.primaryContainerDark
 

@@ -3,9 +3,6 @@ package com.example.scoreboard.database
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.example.scoreboard.Tag
-import com.example.scoreboard.session.Session
-import java.util.Calendar
 
 open class ScoreboardDatabase(
     val context: Context,

@@ -5,24 +5,15 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.scoreboard.ui.theme.onPrimaryContainerDark
 import com.example.scoreboard.ui.theme.onPrimaryDark
-import com.example.scoreboard.ui.theme.onSecondaryDark
-import com.example.scoreboard.ui.theme.onTertiaryDark
-import com.example.scoreboard.ui.theme.primaryContainerDark
 import com.example.scoreboard.ui.theme.primaryDark
-import com.example.scoreboard.ui.theme.secondaryDark
-import com.example.scoreboard.ui.theme.tertiaryDark
 
 class GenericPopupContent {
 

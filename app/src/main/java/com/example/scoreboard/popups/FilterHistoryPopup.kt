@@ -18,8 +18,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,16 +31,10 @@ import androidx.compose.ui.window.PopupProperties
 import com.example.scoreboard.MainActivity
 import com.example.scoreboard.R
 import com.example.scoreboard.Tag
-import com.example.scoreboard.database.SessionDBService
-import com.example.scoreboard.database.SessionTagDBService
-import com.example.scoreboard.session.Session
 import com.example.scoreboard.ui.theme.Typography
-import com.example.scoreboard.ui.theme.onPrimaryContainerDark
 import com.example.scoreboard.ui.theme.onPrimaryDark
 import com.example.scoreboard.ui.theme.onTertiaryContainerDark
-import com.example.scoreboard.ui.theme.onTertiaryDark
 import com.example.scoreboard.ui.theme.primaryDark
-import com.example.scoreboard.ui.theme.tertiaryDark
 import org.apache.commons.lang3.tuple.MutablePair
 
 class FilterHistoryPopup(val context: Context) {

@@ -32,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -51,15 +50,10 @@ import com.example.scoreboard.session.Session
 import com.example.scoreboard.ui.theme.Typography
 import com.example.scoreboard.ui.theme.backgroundDark
 import com.example.scoreboard.ui.theme.errorContainerDark
-import com.example.scoreboard.ui.theme.errorDark
-import com.example.scoreboard.ui.theme.onPrimaryContainerDark
 import com.example.scoreboard.ui.theme.onPrimaryDark
-import com.example.scoreboard.ui.theme.onSecondaryDark
 import com.example.scoreboard.ui.theme.onTertiaryContainerDark
-import com.example.scoreboard.ui.theme.primaryContainerDark
 import com.example.scoreboard.ui.theme.primaryDark
 import com.example.scoreboard.ui.theme.secondaryDark
-import com.example.scoreboard.ui.theme.tertiaryDark
 import org.apache.commons.lang3.tuple.MutablePair
 
 class HistoryTab(val context: Context) : ComponentActivity() {
