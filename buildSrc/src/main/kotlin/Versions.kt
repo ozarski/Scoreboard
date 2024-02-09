@@ -9,4 +9,6 @@ object Versions{
     const val junit = "4.13.2"
     const val androidx_test_ext_junit = "1.1.5"
     const val androidx_test_espresso_core = "3.5.1"
+    const val androidx_compose_ui = "1.6.1"
+    const val compose_material3 = "1.2.0"
 }
