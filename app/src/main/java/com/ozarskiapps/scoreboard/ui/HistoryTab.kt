@@ -36,14 +36,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ozarskiapps.global.durationInSecondsToHoursAndMinutes
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
 import com.ozarskiapps.scoreboard.Tag
 import com.ozarskiapps.scoreboard.database.SessionTagDBService
 import com.ozarskiapps.scoreboard.database.StatsDBService
 import com.ozarskiapps.scoreboard.database.TagDBService
-import com.ozarskiapps.scoreboard.durationInSecondsToHoursAndMinutes
-import com.ozarskiapps.scoreboard.formatDate
 import com.ozarskiapps.scoreboard.popups.FilterHistoryPopup
 import com.ozarskiapps.scoreboard.popups.SessionDetailsPopup
 import com.ozarskiapps.scoreboard.session.Session
@@ -142,7 +141,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                     .padding(start = 10.dp, end = 3.dp)
             )
             Text(
-                text = durationInSecondsToHoursAndMinutes(
+                text = com.ozarskiapps.global.durationInSecondsToHoursAndMinutes(
                     sessionsDuration.value
                 ),
                 fontSize = 25.sp,
@@ -317,7 +316,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                 tint = secondaryDark,
                 modifier = Modifier.size(20.dp)
             )
-            val formattedDate = formatDate(session.getDate())
+            val formattedDate = com.ozarskiapps.global.formatDate(session.getDate())
             Text(
                 text = formattedDate,
                 fontSize = 15.sp,

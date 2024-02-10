@@ -5,6 +5,7 @@ import android.content.Context
 import android.provider.BaseColumns
 import com.ozarskiapps.scoreboard.session.Session
 import com.ozarskiapps.scoreboard.session.SessionData
+import com.ozarskiapps.global.setCalendarToDayEnd
 import java.util.Calendar
 
 class SessionDBService(
@@ -331,7 +332,7 @@ class SessionDBService(
 
     fun validateSessionDate(date: Calendar){
         val today = Calendar.getInstance()
-        com.ozarskiapps.scoreboard.setCalendarToDayEnd(today)
+        setCalendarToDayEnd(today)
         if (date.after(today)) {
             throw Exception("Session date cannot be in the future")
         }

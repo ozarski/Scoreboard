@@ -36,11 +36,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ozarskiapps.global.durationInSecondsToDaysAndHoursAndMinutes
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
 import com.ozarskiapps.scoreboard.Tag
 import com.ozarskiapps.scoreboard.database.StatsDBService
-import com.ozarskiapps.scoreboard.durationInSecondsToDaysAndHoursAndMinutes
 import com.ozarskiapps.scoreboard.popups.AddSessionPopup
 import com.ozarskiapps.scoreboard.popups.TagDetailsPopup
 import com.ozarskiapps.scoreboard.ui.theme.Typography

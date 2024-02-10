@@ -1,4 +1,5 @@
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.kotlin.dsl.project
 
 object Dependencies{
     const val core_ktx = "androidx.core:core-ktx:${Versions.androidx_core_ktx}"
@@ -49,4 +50,16 @@ fun DependencyHandler.test(){
 
 fun DependencyHandler.androidTest(){
     androidTestImplementation(Dependencies.test_ext_junit)
+}
+
+fun DependencyHandler.globalModule(){
+    implementation(project(":global"))
+}
+
+fun DependencyHandler.databaseModule(){
+    implementation(project(":database"))
+}
+
+fun DependencyHandler.baseModule(){
+    implementation(project(":base"))
 }

@@ -49,11 +49,14 @@ android {
 }
 
 dependencies {
+    //modules
+    globalModule()
+    //dependencies
     compose()
     core()
     accompanist()
     numberPicker()
-    //for mutable pair
+    // for mutable pair
     apacheCommons()
     test()
     androidTest()

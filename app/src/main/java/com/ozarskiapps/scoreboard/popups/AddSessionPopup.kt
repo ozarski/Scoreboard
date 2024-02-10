@@ -42,10 +42,10 @@ import androidx.compose.ui.window.PopupProperties
 import com.chargemap.compose.numberpicker.FullHours
 import com.chargemap.compose.numberpicker.Hours
 import com.chargemap.compose.numberpicker.HoursNumberPicker
-import com.ozarskiapps.scoreboard.MINUTES_IN_HOUR
+import com.ozarskiapps.global.MINUTES_IN_HOUR
+import com.ozarskiapps.global.SECONDS_IN_MINUTE
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
-import com.ozarskiapps.scoreboard.SECONDS_IN_MINUTE
 import com.ozarskiapps.scoreboard.Tag
 import com.ozarskiapps.scoreboard.database.SessionDBService
 import com.ozarskiapps.scoreboard.database.TagDBService
