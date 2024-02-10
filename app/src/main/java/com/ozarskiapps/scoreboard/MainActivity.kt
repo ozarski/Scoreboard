@@ -24,6 +24,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.PagerState
+import com.google.accompanist.pager.pagerTabIndicatorOffset
+import com.google.accompanist.pager.rememberPagerState
 import com.ozarskiapps.scoreboard.ui.ActivitiesTab
 import com.ozarskiapps.scoreboard.ui.HistoryTab
 import com.ozarskiapps.scoreboard.ui.theme.ScoreboardTheme
@@ -31,11 +36,6 @@ import com.ozarskiapps.scoreboard.ui.theme.Typography
 import com.ozarskiapps.scoreboard.ui.theme.backgroundDark
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.pagerTabIndicatorOffset
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -45,9 +45,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            com.ozarskiapps.scoreboard.MainActivity.Companion.totalDurationUpdate = remember { mutableStateOf(true) }
-            com.ozarskiapps.scoreboard.MainActivity.Companion.sessionsListUpdate = remember { mutableStateOf(true) }
-            com.ozarskiapps.scoreboard.MainActivity.Companion.tagsListUpdate = remember { mutableStateOf(true) }
+            totalDurationUpdate = remember { mutableStateOf(true) }
+            sessionsListUpdate = remember { mutableStateOf(true) }
+            tagsListUpdate = remember { mutableStateOf(true) }
             ScoreboardTheme {
                 LayoutMain()
             }

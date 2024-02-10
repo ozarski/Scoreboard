@@ -70,8 +70,8 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         Popup(
             onDismissRequest = {
                 popupVisible.value = false
-                com.ozarskiapps.scoreboard.MainActivity.totalDurationUpdate.value = true
-                com.ozarskiapps.scoreboard.MainActivity.tagsListUpdate.value = true
+                MainActivity.totalDurationUpdate.value = true
+                MainActivity.tagsListUpdate.value = true
             },
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             properties = PopupProperties(focusable = true)
@@ -142,8 +142,8 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     private fun addNewSession() {
         val selectedTags = tagListPick.filter { it.right }.map { it.left }
         val durationMinutes =
-            hourPickerValue.value.hours * com.ozarskiapps.scoreboard.MINUTES_IN_HOUR + hourPickerValue.value.minutes
-        val durationSeconds = durationMinutes * com.ozarskiapps.scoreboard.SECONDS_IN_MINUTE
+            hourPickerValue.value.hours * MINUTES_IN_HOUR + hourPickerValue.value.minutes
+        val durationSeconds = durationMinutes * SECONDS_IN_MINUTE
         val sessionDate = Calendar.getInstance()
         val session = Session(
             durationSeconds.toLong(),
@@ -152,9 +152,9 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             selectedTags.toMutableList()
         )
         SessionDBService(context).addSession(session)
-        com.ozarskiapps.scoreboard.MainActivity.totalDurationUpdate.value = true
-        com.ozarskiapps.scoreboard.MainActivity.sessionsListUpdate.value = true
-        com.ozarskiapps.scoreboard.MainActivity.tagsListUpdate.value = true
+        MainActivity.totalDurationUpdate.value = true
+        MainActivity.sessionsListUpdate.value = true
+        MainActivity.tagsListUpdate.value = true
     }
 
     @Composable

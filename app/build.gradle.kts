@@ -49,8 +49,8 @@ android {
 }
 
 dependencies {
-    core()
     compose()
+    core()
     accompanist()
     numberPicker()
     //for mutable pair

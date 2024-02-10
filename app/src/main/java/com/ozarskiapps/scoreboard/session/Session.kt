@@ -34,7 +34,7 @@ class Session(
 
     fun setDate(date: Calendar) {
         val today = Calendar.getInstance()
-        com.ozarskiapps.scoreboard.setCalendarToDayEnd(Calendar.getInstance())
+        setCalendarToDayEnd(Calendar.getInstance())
         if (date.timeInMillis <= today.timeInMillis) {
             this.date.timeInMillis = date.timeInMillis
         }

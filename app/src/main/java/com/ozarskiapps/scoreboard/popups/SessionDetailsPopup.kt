@@ -104,9 +104,9 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
         if (decision.value) {
             SessionDBService(context).deleteSessionByID(session.id)
             popupVisible.value = false
-            com.ozarskiapps.scoreboard.MainActivity.sessionsListUpdate.value = true
-            com.ozarskiapps.scoreboard.MainActivity.totalDurationUpdate.value = true
-            com.ozarskiapps.scoreboard.MainActivity.tagsListUpdate.value = true
+            MainActivity.sessionsListUpdate.value = true
+            MainActivity.totalDurationUpdate.value = true
+            MainActivity.tagsListUpdate.value = true
         }
     }
 
@@ -125,7 +125,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
                 tint = primaryContainerDark,
                 modifier = Modifier.size(30.dp)
             )
-            val formattedDate = com.ozarskiapps.scoreboard.formatDate(session.getDate())
+            val formattedDate = formatDate(session.getDate())
             Text(
                 text = formattedDate,
                 fontSize = 20.sp,
@@ -152,7 +152,7 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
                 modifier = Modifier.size(30.dp)
             )
             val durationString =
-                com.ozarskiapps.scoreboard.durationInSecondsToHoursAndMinutes(session.getDuration())
+                durationInSecondsToHoursAndMinutes(session.getDuration())
             Text(
                 text = durationString,
                 fontSize = 20.sp,

@@ -142,7 +142,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                     .padding(start = 10.dp, end = 3.dp)
             )
             Text(
-                text = com.ozarskiapps.scoreboard.durationInSecondsToHoursAndMinutes(
+                text = durationInSecondsToHoursAndMinutes(
                     sessionsDuration.value
                 ),
                 fontSize = 25.sp,
@@ -192,7 +192,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     @Composable
     fun SessionsHistoryList() {
         val sessions = remember { mutableStateListOf<Session>() }
-        if (com.ozarskiapps.scoreboard.MainActivity.sessionsListUpdate.value) {
+        if (MainActivity.sessionsListUpdate.value) {
             updateSessions(sessions)
         }
         val sessionDetailsPopupVisible = remember { mutableStateOf(false) }
@@ -261,7 +261,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
         sessions.clear()
         sessions.addAll(tempSessions)
         sessionsDuration.value = StatsDBService(context).getDurationForSessionsWithTags(pickedIDs)
-        com.ozarskiapps.scoreboard.MainActivity.sessionsListUpdate.value = false
+        MainActivity.sessionsListUpdate.value = false
     }
 
     private fun loadMoreSessions(sessions: SnapshotStateList<Session>) {
@@ -317,7 +317,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                 tint = secondaryDark,
                 modifier = Modifier.size(20.dp)
             )
-            val formattedDate = com.ozarskiapps.scoreboard.formatDate(session.getDate())
+            val formattedDate = formatDate(session.getDate())
             Text(
                 text = formattedDate,
                 fontSize = 15.sp,
@@ -338,7 +338,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                 modifier = Modifier.size(20.dp)
             )
             Text(
-                text = com.ozarskiapps.scoreboard.durationInSecondsToHoursAndMinutes(session.getDuration()),
+                text = durationInSecondsToHoursAndMinutes(session.getDuration()),
                 fontSize = 15.sp,
                 style = Typography.labelLarge
             )

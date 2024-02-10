@@ -22,7 +22,7 @@ fun DependencyHandler.debugImplementation(dependency: String){
 }
 
 fun DependencyHandler.implementationPlatform(dependency: String){
-    platform(dependency)
+    implementation(platform(dependency))
 }
 
 fun DependencyHandler.androidTestImplementationPlatform(dependency: String){

@@ -121,12 +121,12 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
     @Composable
     fun TotalDurationTextView() {
         val totalDuration = remember { mutableStateOf(StatsDBService(context).getTotalDuration()) }
-        if (com.ozarskiapps.scoreboard.MainActivity.totalDurationUpdate.value) {
+        if (MainActivity.totalDurationUpdate.value) {
             totalDuration.value = StatsDBService(context).getTotalDuration()
-            com.ozarskiapps.scoreboard.MainActivity.totalDurationUpdate.value = false
+            MainActivity.totalDurationUpdate.value = false
         }
         val totalDurationString =
-            com.ozarskiapps.scoreboard.durationInSecondsToDaysAndHoursAndMinutes(totalDuration.value)
+            durationInSecondsToDaysAndHoursAndMinutes(totalDuration.value)
         Card(
             modifier = Modifier.padding(10.dp),
             elevation = 3.dp,
@@ -165,12 +165,12 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
     fun ActivitiesDurationLazyColumn() {
         val tagsWithDurations =
             remember { mutableStateListOf<Pair<Tag, Long>>() }
-        if (com.ozarskiapps.scoreboard.MainActivity.tagsListUpdate.value) {
+        if (MainActivity.tagsListUpdate.value) {
             tagsWithDurations.clear()
             page = 1
             val newTags = StatsDBService(context).getAllTagsWithDurations(page, pageSize)
             tagsWithDurations.addAll(newTags)
-            com.ozarskiapps.scoreboard.MainActivity.tagsListUpdate.value = false
+            MainActivity.tagsListUpdate.value = false
         }
         if(tagsWithDurations.isEmpty()){
             page = 0
@@ -267,7 +267,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
 
             val duration =
-                com.ozarskiapps.scoreboard.durationInSecondsToDaysAndHoursAndMinutes(activityItem.second)
+                durationInSecondsToDaysAndHoursAndMinutes(activityItem.second)
             Text(
                 text = duration,
                 fontSize = 20.sp,

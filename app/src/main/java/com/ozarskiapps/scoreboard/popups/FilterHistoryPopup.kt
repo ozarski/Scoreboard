@@ -189,11 +189,11 @@ class FilterHistoryPopup(val context: Context) {
     }
 
     private fun filterTags() {
-        com.ozarskiapps.scoreboard.MainActivity.sessionsListUpdate.value = true
+        MainActivity.sessionsListUpdate.value = true
     }
 
     private fun resetTags() {
         tagPickList.forEach { it.right.value = false }
-        com.ozarskiapps.scoreboard.MainActivity.sessionsListUpdate.value = true
+        MainActivity.sessionsListUpdate.value = true
     }
 }
