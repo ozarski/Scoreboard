@@ -1,7 +1,7 @@
-package com.ozarskiapps.scoreboard.session
+package com.example.base.session
 
 import com.ozarskiapps.global.setCalendarToDayEnd
-import com.ozarskiapps.scoreboard.Tag
+import com.example.base.Tag
 import java.util.Calendar
 
 class Session(

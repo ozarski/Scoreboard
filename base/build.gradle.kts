@@ -34,4 +34,5 @@ android {
 
 dependencies {
     core()
+    globalModule()
 }

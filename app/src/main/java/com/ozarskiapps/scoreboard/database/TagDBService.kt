@@ -3,7 +3,7 @@ package com.ozarskiapps.scoreboard.database
 import android.content.ContentValues
 import android.content.Context
 import android.provider.BaseColumns
-import com.ozarskiapps.scoreboard.Tag
+import com.example.base.Tag
 
 class TagDBService(context: Context, databaseName: String = DatabaseConstants.DATABASE_NAME) :
     ScoreboardDatabase(context, databaseName) {

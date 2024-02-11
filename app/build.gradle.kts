@@ -51,6 +51,7 @@ android {
 dependencies {
     //modules
     globalModule()
+    baseModule()
     //dependencies
     compose()
     core()

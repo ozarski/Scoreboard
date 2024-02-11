@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.example.base.Tag
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
-import com.ozarskiapps.scoreboard.Tag
 import com.ozarskiapps.scoreboard.ui.theme.Typography
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.onTertiaryContainerDark

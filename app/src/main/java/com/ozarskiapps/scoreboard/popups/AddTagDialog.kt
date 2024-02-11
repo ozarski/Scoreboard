@@ -19,8 +19,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.base.Tag
 import com.ozarskiapps.scoreboard.R
-import com.ozarskiapps.scoreboard.Tag
 import com.ozarskiapps.scoreboard.database.TagDBService
 import com.ozarskiapps.scoreboard.ui.theme.Typography
 import com.ozarskiapps.scoreboard.ui.theme.errorDark

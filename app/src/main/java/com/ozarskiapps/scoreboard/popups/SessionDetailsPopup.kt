@@ -28,13 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.example.base.Tag
+import com.example.base.session.Session
 import com.ozarskiapps.global.durationInSecondsToHoursAndMinutes
 import com.ozarskiapps.global.formatDate
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
-import com.ozarskiapps.scoreboard.Tag
 import com.ozarskiapps.scoreboard.database.SessionDBService
-import com.ozarskiapps.scoreboard.session.Session
 import com.ozarskiapps.scoreboard.ui.theme.Typography
 import com.ozarskiapps.scoreboard.ui.theme.errorContainerDark
 import com.ozarskiapps.scoreboard.ui.theme.errorDark

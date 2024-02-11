@@ -2,7 +2,7 @@ package com.ozarskiapps.scoreboard.database
 
 import android.content.Context
 import android.provider.BaseColumns
-import com.ozarskiapps.scoreboard.Tag
+import com.example.base.Tag
 
 class StatsDBService(
     private val appContext: Context,

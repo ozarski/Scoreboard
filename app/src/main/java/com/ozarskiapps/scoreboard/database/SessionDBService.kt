@@ -3,9 +3,9 @@ package com.ozarskiapps.scoreboard.database
 import android.content.ContentValues
 import android.content.Context
 import android.provider.BaseColumns
+import com.example.base.session.Session
+import com.example.base.session.SessionData
 import com.ozarskiapps.global.setCalendarToDayEnd
-import com.ozarskiapps.scoreboard.session.Session
-import com.ozarskiapps.scoreboard.session.SessionData
 import java.util.Calendar
 
 class SessionDBService(

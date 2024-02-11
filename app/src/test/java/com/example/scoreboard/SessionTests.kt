@@ -1,6 +1,6 @@
 package com.example.scoreboard
 
-import com.ozarskiapps.scoreboard.session.Session
+import com.example.base.session.Session
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import java.util.Calendar
