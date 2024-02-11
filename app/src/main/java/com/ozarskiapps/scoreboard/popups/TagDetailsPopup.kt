@@ -8,17 +8,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -104,8 +105,8 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
         Button(
             onClick = { dialogOpen.value = true }, modifier = modifier,
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = onPrimaryDark),
-            elevation = ButtonDefaults.elevation(0.dp)
+            colors = ButtonDefaults.buttonColors(containerColor = onPrimaryDark),
+            elevation = ButtonDefaults.buttonElevation(0.dp)
         ) {
             Text(text = context.getString(R.string.simple_rename_button_text), color = primaryDark, style = Typography.titleLarge)
         }
@@ -133,16 +134,20 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                         .fillMaxWidth(),
                     singleLine = true,
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = primaryDark,
-                        focusedIndicatorColor = onPrimaryDark,
-                        unfocusedIndicatorColor = onPrimaryDark,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = primaryDark,
+                        unfocusedContainerColor = primaryDark,
                         cursorColor = onPrimaryDark,
-                        textColor = onPrimaryDark,
+                        errorCursorColor = errorDark,
                         focusedLabelColor = onPrimaryDark,
-                        unfocusedLabelColor = onPrimaryDark
+                        unfocusedLabelColor = onPrimaryDark,
+                        focusedTextColor = onPrimaryDark,
+                        unfocusedTextColor = onPrimaryDark,
+                        focusedBorderColor = onPrimaryDark,
+                        unfocusedBorderColor = onPrimaryDark,
                     ),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    textStyle = TextStyle(color = onPrimaryDark, fontSize = 16.sp)
                 )
                 Button(
                     onClick = {
@@ -156,8 +161,8 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                         .fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = onPrimaryDark),
-                    elevation = ButtonDefaults.elevation(0.dp)
+                    colors = ButtonDefaults.buttonColors(containerColor = onPrimaryDark),
+                    elevation = ButtonDefaults.buttonElevation(0.dp)
                 ) {
                     Text(text = context.getString(R.string.simple_rename_button_text), color = primaryDark, style = Typography.titleLarge)
                 }
@@ -175,8 +180,8 @@ class TagDetailsPopup(val context: Context, val tag: Tag) : ComponentActivity() 
             },
             modifier = modifier,
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = errorDark),
-            elevation = ButtonDefaults.elevation(0.dp)
+            colors = ButtonDefaults.buttonColors(containerColor = errorDark),
+            elevation = ButtonDefaults.buttonElevation(0.dp)
         ) {
             Text(text = context.getString(R.string.simple_delete_button_text), color = onErrorDark, style = Typography.titleLarge)
         }

@@ -5,22 +5,25 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.ozarskiapps.scoreboard.R
 import com.ozarskiapps.scoreboard.Tag
 import com.ozarskiapps.scoreboard.database.TagDBService
 import com.ozarskiapps.scoreboard.ui.theme.Typography
+import com.ozarskiapps.scoreboard.ui.theme.errorDark
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 import org.apache.commons.lang3.tuple.MutablePair
@@ -57,16 +60,20 @@ class AddTagDialog(
             modifier = Modifier
                 .padding(vertical = 10.dp, horizontal = 20.dp)
                 .fillMaxWidth(),
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = primaryDark,
-                focusedIndicatorColor = onPrimaryDark,
-                unfocusedIndicatorColor = onPrimaryDark,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = primaryDark,
+                unfocusedContainerColor = primaryDark,
                 cursorColor = onPrimaryDark,
-                textColor = onPrimaryDark,
+                errorCursorColor = errorDark,
                 focusedLabelColor = onPrimaryDark,
-                unfocusedLabelColor = onPrimaryDark
+                unfocusedLabelColor = onPrimaryDark,
+                focusedTextColor = onPrimaryDark,
+                unfocusedTextColor = onPrimaryDark,
+                focusedBorderColor = onPrimaryDark,
+                unfocusedBorderColor = onPrimaryDark,
             ),
-            shape = RoundedCornerShape(16.dp)
+            shape = RoundedCornerShape(16.dp),
+            textStyle = TextStyle(color = onPrimaryDark, fontSize = 16.sp)
         )
     }
 
@@ -80,8 +87,8 @@ class AddTagDialog(
                 .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = onPrimaryDark),
-            elevation = ButtonDefaults.elevation(0.dp)
+            colors = ButtonDefaults.buttonColors(containerColor = onPrimaryDark),
+            elevation = ButtonDefaults.buttonElevation(0.dp)
         ) {
             Text(
                 text = context.getString(R.string.simple_add_button_text),

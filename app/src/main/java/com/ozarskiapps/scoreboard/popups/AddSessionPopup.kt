@@ -13,14 +13,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.FloatingActionButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -127,8 +127,8 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 .padding(start = 20.dp, end = 20.dp, bottom = 10.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = onPrimaryDark),
-            elevation = ButtonDefaults.elevation(0.dp)
+            colors = ButtonDefaults.buttonColors(containerColor = onPrimaryDark),
+            elevation = ButtonDefaults.buttonElevation(3.dp)
         ) {
             Text(
                 text = context.getString(R.string.simple_add_button_text),
@@ -299,9 +299,11 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 dialogOpen.value = true
             },
             shape = RoundedCornerShape(50.dp),
-            backgroundColor = onPrimaryDark,
+            containerColor = onPrimaryDark,
             elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
-            modifier = Modifier.height(25.dp).padding(end=20.dp)
+            modifier = Modifier
+                .height(25.dp)
+                .padding(end = 20.dp)
         ) {
             Row(
                 horizontalArrangement = Arrangement.Center,

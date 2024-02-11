@@ -16,16 +16,18 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -120,16 +122,16 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
     @Composable
     fun TotalDurationTextView() {
-        val totalDuration = remember { mutableStateOf(StatsDBService(context).getTotalDuration()) }
+        val totalDuration = remember { mutableLongStateOf(StatsDBService(context).getTotalDuration()) }
         if (MainActivity.totalDurationUpdate.value) {
-            totalDuration.value = StatsDBService(context).getTotalDuration()
+            totalDuration.longValue = StatsDBService(context).getTotalDuration()
             MainActivity.totalDurationUpdate.value = false
         }
         val totalDurationString =
-            durationInSecondsToDaysAndHoursAndMinutes(totalDuration.value)
+            durationInSecondsToDaysAndHoursAndMinutes(totalDuration.longValue)
         Card(
             modifier = Modifier.padding(10.dp),
-            elevation = 3.dp,
+            elevation = CardDefaults.cardElevation(3.dp),
             shape = RoundedCornerShape(25.dp)
         ) {
             Row(
@@ -179,7 +181,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
         Card(
             modifier = Modifier.padding(10.dp),
-            elevation = 3.dp,
+            elevation = CardDefaults.cardElevation(3.dp),
             shape = RoundedCornerShape(25.dp)
         ) {
             LazyColumn(
@@ -191,7 +193,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
             ) {
                 items(tagsWithDurations.size) { index ->
                     ActivityItem(tagsWithDurations[index])
-                    Divider(
+                    HorizontalDivider(
                         color = onPrimaryDark,
                         thickness = 0.7.dp,
                         modifier = Modifier.fillMaxWidth(0.95f)
@@ -227,7 +229,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                 .padding(10.dp),
             shape = RoundedCornerShape(25.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = onPrimaryDark
+                containerColor = onPrimaryDark
             )
         ) {
             Text(

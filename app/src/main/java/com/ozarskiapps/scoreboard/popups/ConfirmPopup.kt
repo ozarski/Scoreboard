@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
@@ -116,8 +116,8 @@ class ConfirmPopup(val context: Context) {
             .padding(horizontal = 10.dp)
             .widthIn(100.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = buttonColor),
-            elevation = ButtonDefaults.elevation(0.dp)
+            colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+            elevation = ButtonDefaults.buttonElevation(0.dp)
         ) {
             Text(text = text, color = textColor, style = Typography.titleLarge)
         }

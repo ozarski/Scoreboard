@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -110,8 +110,8 @@ class FilterHistoryPopup(val context: Context) {
             onClick = onClick,
             modifier = modifier,
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = onPrimaryDark),
-            elevation = ButtonDefaults.elevation(0.dp)
+            colors = ButtonDefaults.buttonColors(containerColor = onPrimaryDark),
+            elevation = ButtonDefaults.buttonElevation(0.dp)
         ) {
             Text(text = text, color = primaryDark, style = Typography.titleLarge)
         }

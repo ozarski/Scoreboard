@@ -17,15 +17,17 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -88,7 +90,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     fun FilterSessionsHeader() {
         Card(
             modifier = Modifier.padding(10.dp),
-            elevation = 3.dp,
+            elevation = CardDefaults.cardElevation(3.dp),
             shape = RoundedCornerShape(25.dp)
         ) {
             Row(
@@ -127,7 +129,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
 
     @Composable
     fun Duration() {
-        sessionsDuration = remember { mutableStateOf(0L) }
+        sessionsDuration = remember { mutableLongStateOf(0L) }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
@@ -141,7 +143,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                     .padding(start = 10.dp, end = 3.dp)
             )
             Text(
-                text = com.ozarskiapps.global.durationInSecondsToHoursAndMinutes(
+                text = durationInSecondsToHoursAndMinutes(
                     sessionsDuration.value
                 ),
                 fontSize = 25.sp,
@@ -158,6 +160,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             horizontalArrangement = Arrangement.End,
             modifier = Modifier.fillMaxWidth()
         ) {
+            val interactionSource = remember { MutableInteractionSource() }
             Icon(
                 painter = painterResource(id = R.drawable.baseline_filter_list_24),
                 contentDescription = "Filter popup button",
@@ -176,7 +179,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                             color = onTertiaryContainerDark,
                             radius = 40.dp
                         ),
-                        interactionSource = MutableInteractionSource(),
+                        interactionSource = interactionSource,
                         onClick = {
                             filterPopupVisible.value = !filterPopupVisible.value
                         })
@@ -198,7 +201,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
 
         Card(
             modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, start = 10.dp, end = 10.dp),
-            elevation = 3.dp,
+            elevation = CardDefaults.cardElevation(3.dp),
             shape = RoundedCornerShape(25.dp)
         ) {
             LazyColumn(
@@ -210,10 +213,10 @@ class HistoryTab(val context: Context) : ComponentActivity() {
             ) {
                 items(sessions.size) {
                     SessionItem(sessions[it], sessionDetailsPopupVisible)
-                    Divider(
-                        color = onPrimaryDark,
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(0.95f),
                         thickness = 0.7.dp,
-                        modifier = Modifier.fillMaxWidth(0.95f)
+                        color = onPrimaryDark
                     )
                 }
                 item {
@@ -236,7 +239,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
                 .padding(10.dp),
             shape = RoundedCornerShape(25.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = onPrimaryDark
+                containerColor = onPrimaryDark
             )
         ) {
             Text(
