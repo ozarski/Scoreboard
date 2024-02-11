@@ -14,3 +14,7 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Scoreboard"
 include ':app'
+include ':database'
+include ':base'
+include ':global'
+include ':tests'
