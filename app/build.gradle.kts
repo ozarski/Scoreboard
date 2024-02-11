@@ -58,8 +58,5 @@ dependencies {
     core()
     accompanist()
     numberPicker()
-    // for mutable pair
-    apacheCommons()
-    test()
-    androidTest()
+    apacheCommons() // for mutable pair
 }

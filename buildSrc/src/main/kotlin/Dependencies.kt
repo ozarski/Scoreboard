@@ -16,6 +16,7 @@ object Dependencies{
     const val apache_commons_lang3 = "org.apache.commons:commons-lang3:${Versions.apache_commons_lang3}"
     const val junit = "junit:junit:${Versions.junit}"
     const val test_ext_junit = "androidx.test.ext:junit:${Versions.androidx_test_ext_junit}"
+    const val test_runner = "androidx.test:runner:${Versions.androidx_test_runner}"
 }
 
 fun DependencyHandler.core(){
@@ -50,6 +51,7 @@ fun DependencyHandler.test(){
 
 fun DependencyHandler.androidTest(){
     androidTestImplementation(Dependencies.test_ext_junit)
+    androidTestImplementation(Dependencies.test_runner)
 }
 
 fun DependencyHandler.globalModule(){

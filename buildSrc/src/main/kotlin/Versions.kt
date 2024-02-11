@@ -8,4 +8,5 @@ object Versions{
     const val apache_commons_lang3 = "3.12.0"
     const val junit = "4.13.2"
     const val androidx_test_ext_junit = "1.1.5"
+    const val androidx_test_runner = "1.4.0"
 }

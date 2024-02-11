@@ -1,4 +1,4 @@
-package com.example.scoreboard
+package com.example.tests
 
 import android.content.Context
 import android.provider.BaseColumns
