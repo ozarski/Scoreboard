@@ -34,4 +34,6 @@ android {
 
 dependencies {
     core()
+    globalModule()
+    baseModule()
 }

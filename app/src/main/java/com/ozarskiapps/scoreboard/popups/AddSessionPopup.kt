@@ -44,12 +44,12 @@ import com.chargemap.compose.numberpicker.Hours
 import com.chargemap.compose.numberpicker.HoursNumberPicker
 import com.example.base.Tag
 import com.example.base.session.Session
+import com.example.database.SessionDBService
+import com.example.database.TagDBService
 import com.ozarskiapps.global.MINUTES_IN_HOUR
 import com.ozarskiapps.global.SECONDS_IN_MINUTE
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
-import com.ozarskiapps.scoreboard.database.SessionDBService
-import com.ozarskiapps.scoreboard.database.TagDBService
 import com.ozarskiapps.scoreboard.ui.theme.Typography
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.onTertiaryContainerDark

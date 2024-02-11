@@ -40,12 +40,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.base.Tag
 import com.example.base.session.Session
+import com.example.database.SessionTagDBService
+import com.example.database.StatsDBService
+import com.example.database.TagDBService
 import com.ozarskiapps.global.durationInSecondsToHoursAndMinutes
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
-import com.ozarskiapps.scoreboard.database.SessionTagDBService
-import com.ozarskiapps.scoreboard.database.StatsDBService
-import com.ozarskiapps.scoreboard.database.TagDBService
 import com.ozarskiapps.scoreboard.popups.FilterHistoryPopup
 import com.ozarskiapps.scoreboard.popups.SessionDetailsPopup
 import com.ozarskiapps.scoreboard.ui.theme.Typography

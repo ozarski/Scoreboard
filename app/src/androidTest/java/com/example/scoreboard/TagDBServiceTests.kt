@@ -4,8 +4,8 @@ import android.content.Context
 import android.provider.BaseColumns
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.base.Tag
-import com.ozarskiapps.scoreboard.database.DatabaseConstants
-import com.ozarskiapps.scoreboard.database.TagDBService
+import com.example.database.DatabaseConstants
+import com.example.database.TagDBService
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.After

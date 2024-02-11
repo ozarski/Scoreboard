@@ -1,4 +1,4 @@
-package com.ozarskiapps.scoreboard.database
+package com.example.database
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase

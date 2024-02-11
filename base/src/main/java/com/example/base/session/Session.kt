@@ -1,7 +1,7 @@
 package com.example.base.session
 
-import com.ozarskiapps.global.setCalendarToDayEnd
 import com.example.base.Tag
+import com.ozarskiapps.global.setCalendarToDayEnd
 import java.util.Calendar
 
 class Session(

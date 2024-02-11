@@ -4,10 +4,10 @@ import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.base.Tag
 import com.example.base.session.Session
-import com.ozarskiapps.scoreboard.database.DatabaseConstants
-import com.ozarskiapps.scoreboard.database.SessionDBService
-import com.ozarskiapps.scoreboard.database.StatsDBService
-import com.ozarskiapps.scoreboard.database.TagDBService
+import com.example.database.DatabaseConstants
+import com.example.database.SessionDBService
+import com.example.database.StatsDBService
+import com.example.database.TagDBService
 import junit.framework.TestCase.assertEquals
 import org.junit.After
 import org.junit.Before

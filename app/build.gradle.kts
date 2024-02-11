@@ -52,6 +52,7 @@ dependencies {
     //modules
     globalModule()
     baseModule()
+    databaseModule()
     //dependencies
     compose()
     core()
