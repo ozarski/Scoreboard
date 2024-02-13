@@ -145,12 +145,12 @@ class StatsDBServiceTests {
         assert(tag2 != null)
         assert(tag3 != null)
 
-        val session1 = Session(10, Calendar.getInstance(), 0, mutableListOf(tag1!!))
+        val session1 = Session(10, Calendar.getInstance(), 0, mutableListOf(tag1!!, tag3!!))
         val session2 = Session(20, Calendar.getInstance(), 0, mutableListOf(tag1))
-        val session3 = Session(30, Calendar.getInstance(), 0, mutableListOf(tag1))
+        val session3 = Session(30, Calendar.getInstance(), 0, mutableListOf(tag1, tag3))
         val session4 = Session(40, Calendar.getInstance(), 0, mutableListOf(tag2!!))
         val session5 = Session(50, Calendar.getInstance(), 0, mutableListOf(tag2))
-        val session6 = Session(60, Calendar.getInstance(), 0, mutableListOf(tag3!!))
+        val session6 = Session(60, Calendar.getInstance(), 0, mutableListOf(tag3, tag1))
         val session7 = Session(70, Calendar.getInstance(), 0, mutableListOf(tag3))
         sessionDBService.addSession(session1)
         sessionDBService.addSession(session2)
@@ -161,7 +161,7 @@ class StatsDBServiceTests {
         sessionDBService.addSession(session7)
 
         val duration = statsDBService.getDurationForSessionsWithTags(listOf(tag1.id, tag3.id))
-        assertEquals(190L, duration)
+        assertEquals(100L, duration)
     }
 
     @Test
