@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.provider.BaseColumns
 import com.example.base.Tag
+import com.example.database.DatabaseConstants.DEFAULT_PAGE_SIZE
 
 class TagDBService(context: Context, databaseName: String = DatabaseConstants.DATABASE_NAME) :
     ScoreboardDatabase(context, databaseName) {
@@ -102,7 +103,7 @@ class TagDBService(context: Context, databaseName: String = DatabaseConstants.DA
         return tags
     }
 
-    fun getAllTags(page: Int, pageSize: Int): List<Tag> {
+    fun getAllTags(page: Int, pageSize: Int = DEFAULT_PAGE_SIZE): List<Tag> {
         val db = this.readableDatabase
         val projection = arrayOf(
             BaseColumns._ID,

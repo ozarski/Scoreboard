@@ -54,7 +54,6 @@ import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
     private var page = 1
-    private val pageSize = 15
 
     @Composable
     fun GenerateLayout() {
@@ -170,7 +169,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
         if (MainActivity.tagsListUpdate.value) {
             tagsWithDurations.clear()
             page = 1
-            val newTags = StatsDBService(context).getAllTagsWithDurations(page, pageSize)
+            val newTags = StatsDBService(context).getAllTagsWithDurations(page)
             tagsWithDurations.addAll(newTags)
             MainActivity.tagsListUpdate.value = false
         }
@@ -210,7 +209,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
     private fun loadMoreTags(tags: SnapshotStateList<Pair<Tag, Long>>) {
         page++
-        val newTags = StatsDBService(context).getAllTagsWithDurations(page, pageSize)
+        val newTags = StatsDBService(context).getAllTagsWithDurations(page)
         if (newTags.isEmpty()) {
             Toast.makeText(context, "No more tags to load", Toast.LENGTH_SHORT).show()
             return

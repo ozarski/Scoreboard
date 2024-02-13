@@ -3,6 +3,7 @@ package com.example.database
 import android.content.ContentValues
 import android.content.Context
 import com.example.base.session.Session
+import com.example.database.DatabaseConstants.DEFAULT_PAGE_SIZE
 
 class SessionTagDBService(
     context: Context,
@@ -122,7 +123,7 @@ class SessionTagDBService(
         return SessionDBService(context, databaseName).getSessionsByIDs(sessionIDs)
     }
 
-    fun getSessionsForTagIDs(tagIDs: List<Long>, page: Int, pageSize: Int): List<Session>{
+    fun getSessionsForTagIDs(tagIDs: List<Long>, page: Int, pageSize: Int = DEFAULT_PAGE_SIZE): List<Session>{
         if(tagIDs.isEmpty()){
             return SessionDBService(context, databaseName).getAllSessions(page, pageSize)
         }

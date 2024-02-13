@@ -57,13 +57,12 @@ import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 import com.ozarskiapps.scoreboard.ui.theme.secondaryDark
 import org.apache.commons.lang3.tuple.MutablePair
 
-class HistoryTab(val context: Context) : ComponentActivity() {
+class HistoryTab(private val context: Context) : ComponentActivity() {
 
     private var popupSessionID = 0L
     private lateinit var tagListPick: SnapshotStateList<MutablePair<MutableState<Tag>, MutableState<Boolean>>>
     private lateinit var sessionsDuration: MutableState<Long>
     private var page: Int = 1
-    private var pageSize: Int = 15
 
     @Composable
     fun GenerateLayout() {
@@ -256,7 +255,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
         println("page number is $page")
         val pickedIDs = tagListPick.filter { it.right.value }.map { it.left.value.id }
         var tempSessions =
-            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page, pageSize)
+            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page)
         print(tempSessions.size)
         page++
         tempSessions = tempSessions.sortedByDescending { it.getDate().timeInMillis }
@@ -269,7 +268,7 @@ class HistoryTab(val context: Context) : ComponentActivity() {
     private fun loadMoreSessions(sessions: SnapshotStateList<Session>) {
         val pickedIDs = tagListPick.filter { it.right.value }.map { it.left.value.id }
         var tempSessions =
-            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page, pageSize)
+            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page)
         if (tempSessions.isEmpty()) {
             Toast.makeText(context, "All sessions loaded", Toast.LENGTH_SHORT).show()
             return

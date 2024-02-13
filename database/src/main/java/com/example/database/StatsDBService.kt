@@ -3,6 +3,7 @@ package com.example.database
 import android.content.Context
 import android.provider.BaseColumns
 import com.example.base.Tag
+import com.example.database.DatabaseConstants.DEFAULT_PAGE_SIZE
 
 class StatsDBService(
     private val appContext: Context,
@@ -70,7 +71,7 @@ class StatsDBService(
         return tagDurationList
     }
 
-    fun getAllTagsWithDurations(page: Int, pageSize: Int): List<Pair<Tag, Long>> {
+    fun getAllTagsWithDurations(page: Int, pageSize: Int = DEFAULT_PAGE_SIZE): List<Pair<Tag, Long>> {
         val resultColumn = "total_duration"
         val db = this.readableDatabase
 

@@ -5,6 +5,7 @@ import android.content.Context
 import android.provider.BaseColumns
 import com.example.base.session.Session
 import com.example.base.session.SessionData
+import com.example.database.DatabaseConstants.DEFAULT_PAGE_SIZE
 import com.ozarskiapps.global.setCalendarToDayEnd
 import java.util.Calendar
 
@@ -234,7 +235,7 @@ class SessionDBService(
         return sessions
     }
 
-    fun getSessionsByIDs(sessionIDs: List<Long>, page: Int, pageSize: Int): List<Session>{
+    fun getSessionsByIDs(sessionIDs: List<Long>, page: Int, pageSize: Int = DEFAULT_PAGE_SIZE): List<Session>{
         val projection = arrayOf(
             BaseColumns._ID,
             DatabaseConstants.SessionsTable.DURATION_COLUMN,
@@ -282,7 +283,7 @@ class SessionDBService(
         return sessions
     }
 
-    fun getAllSessions(page: Int, pageSize: Int = 10): List<Session> {
+    fun getAllSessions(page: Int, pageSize: Int = DEFAULT_PAGE_SIZE): List<Session> {
         val db = this.readableDatabase
         val projection = arrayOf(
             BaseColumns._ID,
