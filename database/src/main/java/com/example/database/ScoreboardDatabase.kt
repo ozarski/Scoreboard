@@ -14,10 +14,10 @@ open class ScoreboardDatabase(
     DatabaseConstants.DATABASE_VERSION
 ) {
     override fun onCreate(db: SQLiteDatabase?) {
-        if (db != null) {
-            createSessionsTable(db)
-            createTagsTable(db)
-            createSessionsTagsTable(db)
+        db?.let {
+            createSessionsTable(it)
+            createTagsTable(it)
+            createSessionsTagsTable(it)
         }
     }
 

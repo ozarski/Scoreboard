@@ -100,7 +100,7 @@ class SessionDBServiceTests {
     @Test
     fun getSessionWithTagsByIDTest() {
         val calendar = Calendar.getInstance()
-        val tags = mutableListOf<Tag>(Tag("tag1", 1), Tag("tag2", 2))
+        val tags = mutableListOf(Tag("tag1", 1), Tag("tag2", 2))
         tags.forEach {
             TagDBService(applicationContext, DatabaseConstants.TEST_DATABASE_NAME).addTag(it)
         }
