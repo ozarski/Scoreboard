@@ -33,9 +33,10 @@ class Session(
     }
 
     fun setDate(date: Calendar) {
-        val today = Calendar.getInstance()
-        setCalendarToDayEnd(Calendar.getInstance())
-        if (date.timeInMillis <= today.timeInMillis) {
+        val today = Calendar.getInstance().also{
+            setCalendarToDayEnd(it)
+        }
+        if (!date.after(today)) {
             this.date.timeInMillis = date.timeInMillis
         }
     }
