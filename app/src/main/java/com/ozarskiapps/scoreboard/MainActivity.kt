@@ -1,6 +1,8 @@
 package com.ozarskiapps.scoreboard
 
+import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -19,20 +21,27 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabPosition
 import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableLongState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.example.base.Tag
+import com.example.base.session.Session
+import com.example.database.SessionTagDBService
+import com.example.database.StatsDBService
+import com.example.database.TagDBService
 import com.ozarskiapps.scoreboard.ui.ActivitiesTab
 import com.ozarskiapps.scoreboard.ui.HistoryTab
 import com.ozarskiapps.scoreboard.ui.theme.ScoreboardTheme
@@ -40,15 +49,20 @@ import com.ozarskiapps.scoreboard.ui.theme.Typography
 import com.ozarskiapps.scoreboard.ui.theme.backgroundDark
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
+import org.apache.commons.lang3.tuple.MutablePair
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            totalDurationUpdate = remember { mutableStateOf(true) }
-            sessionsListUpdate = remember { mutableStateOf(true) }
-            tagsListUpdate = remember { mutableStateOf(true) }
+            tagListPick = TagDBService(this).getAllTags().map { MutablePair(it, false) }
+            totalDuration = remember { mutableLongStateOf(StatsDBService(this).getTotalDuration()) }
+            tagList = remember { mutableStateListOf() }
+            loadMoreTags(this)
+            sessionList = remember { mutableStateListOf() }
+            filteredDuration = remember { mutableLongStateOf(0) }
+            loadMoreSessions(this)
             ScoreboardTheme {
                 LayoutMain()
             }
@@ -89,7 +103,6 @@ class MainActivity : ComponentActivity() {
         ) {
             MainTabsPager(
                 pagerState = pagerState,
-                tabs = tabs,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
@@ -147,7 +160,7 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun MainTabsPager(pagerState: PagerState, tabs: List<String>, modifier: Modifier) {
+    fun MainTabsPager(pagerState: PagerState, modifier: Modifier) {
         HorizontalPager(
             state = pagerState,
             modifier = modifier,
@@ -166,8 +179,61 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        lateinit var totalDurationUpdate: MutableState<Boolean>
-        lateinit var tagsListUpdate: MutableState<Boolean>
-        lateinit var sessionsListUpdate: MutableState<Boolean>
+        lateinit var tagList: SnapshotStateList<Pair<Tag, Long>>
+        lateinit var sessionList: SnapshotStateList<Session>
+        lateinit var totalDuration: MutableLongState
+        lateinit var filteredDuration: MutableLongState
+
+        var tagListPick = listOf<MutablePair<Tag, Boolean>>()
+
+        private var tagsPage = 1
+        private var sessionsPage = 1
+
+        fun loadMoreTags(context: Context, reload: Boolean = false) {
+            if (reload) {
+                tagsPage = 1
+                tagList.clear()
+            }
+            StatsDBService(context).getAllTagsWithDurations(tagsPage).run {
+                if (isEmpty()) {
+                    Toast.makeText(context, "No more tags to load", Toast.LENGTH_SHORT).show()
+                    return
+                }
+                tagList.addAll(this)
+            }
+            tagsPage++
+            totalDuration.longValue = StatsDBService(context).getTotalDuration()
+        }
+
+        fun loadMoreSessions(
+            context: Context,
+            reload: Boolean = false,
+            newTagListPick: List<MutablePair<Tag, Boolean>>? = null
+        ) {
+            if (reload) {
+                sessionsPage = 1
+                sessionList.clear()
+            }
+
+            val pickedIDs = newTagListPick?.let { tags ->
+                tagListPick = tags
+                tags.filter { it.right }.map { it.left.id }
+            } ?: tagListPick.filter { it.right }.map { it.left.id }
+
+            val tempSessions =
+                SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, sessionsPage)
+                    .sortedByDescending {
+                        it.getDate().timeInMillis
+                    }
+            if (tempSessions.isEmpty()) {
+                Toast.makeText(context, "All sessions loaded", Toast.LENGTH_SHORT).show()
+                return
+            }
+            sessionsPage++
+            sessionList.addAll(tempSessions)
+
+            filteredDuration.longValue =
+                StatsDBService(context).getDurationForSessionsWithTags(pickedIDs)
+        }
     }
 }

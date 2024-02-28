@@ -18,6 +18,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.base.Tag
+import com.example.database.TagDBService
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
 import com.ozarskiapps.scoreboard.ui.theme.Typography
@@ -40,13 +44,20 @@ class FilterHistoryPopup(val context: Context) {
     private lateinit var popupVisible: MutableState<Boolean>
     private lateinit var tagPickList: SnapshotStateList<MutablePair<MutableState<Tag>, MutableState<Boolean>>>
 
+
+
     @Composable
     fun GeneratePopup(
-        popupVisible: MutableState<Boolean>,
-        tagPickList: SnapshotStateList<MutablePair<MutableState<Tag>, MutableState<Boolean>>>
+        popupVisible: MutableState<Boolean>
     ) {
         this.popupVisible = popupVisible
-        this.tagPickList = tagPickList.apply { sortBy { it.left.value.tagName.lowercase() } }
+        MainActivity.tagListPick.map{ MutablePair(
+            remember { mutableStateOf(it.left) },
+            remember { mutableStateOf(it.right) })
+        }.run{
+            tagPickList = remember { mutableStateListOf() }
+            tagPickList.addAll(this)
+        }
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = {
@@ -181,11 +192,11 @@ class FilterHistoryPopup(val context: Context) {
     }
 
     private fun filterTags() {
-        MainActivity.sessionsListUpdate.value = true
+        MainActivity.loadMoreSessions(context, true, tagPickList.map{ MutablePair(it.left.value, it.right.value) })
     }
 
     private fun resetTags() {
         tagPickList.forEach { it.right.value = false }
-        MainActivity.sessionsListUpdate.value = true
+        MainActivity.loadMoreSessions(context, true, tagPickList.map{ MutablePair(it.left.value, it.right.value) })
     }
 }

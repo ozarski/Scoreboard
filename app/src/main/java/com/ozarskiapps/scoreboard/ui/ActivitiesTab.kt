@@ -1,7 +1,6 @@
 package com.ozarskiapps.scoreboard.ui
 
 import android.content.Context
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,11 +26,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -39,7 +35,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.base.Tag
-import com.example.database.StatsDBService
 import com.ozarskiapps.global.durationInSecondsToDaysAndHoursAndMinutes
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
@@ -67,67 +62,60 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
             ActivitiesHeader()
             ActivitiesDurationLazyColumn()
         }
-        AddSessionButton()
+    }
+
+
+    @Composable
+    fun ActivitiesHeader() {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row {
+                Text(
+                    text = context.getString(R.string.activities_tab_header),
+                    fontSize = 25.sp,
+                    modifier = Modifier.padding(start = 10.dp),
+                    style = Typography.bodyLarge,
+                    color = onTertiaryContainerDark
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_directions_run_24),
+                    contentDescription = "Activities icon",
+                    modifier = Modifier
+                        .size(30.dp)
+                        .padding(start = 3.dp),
+                    tint = onTertiaryContainerDark
+                )
+            }
+            AddSessionButton()
+        }
     }
 
     @Composable
     fun AddSessionButton() {
         val popupVisible = remember { mutableStateOf(false) }
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            FloatingActionButton(
-                onClick = {
+        Icon(
+            imageVector = Icons.Rounded.Add,
+            contentDescription = "Add button",
+            tint = onTertiaryContainerDark,
+            modifier = Modifier
+                .padding(end = 20.dp)
+                .size(40.dp)
+                .clickable {
                     popupVisible.value = true
-                },
-                containerColor = onPrimaryDark,
-                shape = CircleShape,
-                modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Add,
-                    contentDescription = "Add button",
-                    tint = primaryDark
-                )
-            }
-        }
+                }
+        )
         if (popupVisible.value) {
             AddSessionPopup(context).GeneratePopup(popupVisible)
         }
     }
 
     @Composable
-    fun ActivitiesHeader() {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = context.getString(R.string.activities_tab_header),
-                fontSize = 25.sp,
-                modifier = Modifier.padding(start = 10.dp),
-                style = Typography.bodyLarge,
-                color = onTertiaryContainerDark
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.baseline_directions_run_24),
-                contentDescription = "Activities icon",
-                modifier = Modifier
-                    .size(30.dp)
-                    .padding(start = 3.dp),
-                tint = onTertiaryContainerDark
-            )
-        }
-    }
-
-    @Composable
     fun TotalDurationTextView() {
-        val totalDuration = remember { mutableLongStateOf(StatsDBService(context).getTotalDuration()) }
-        if (MainActivity.totalDurationUpdate.value) {
-            totalDuration.longValue = StatsDBService(context).getTotalDuration()
-            MainActivity.totalDurationUpdate.value = false
-        }
         val totalDurationString =
-            durationInSecondsToDaysAndHoursAndMinutes(totalDuration.longValue)
+            durationInSecondsToDaysAndHoursAndMinutes(MainActivity.totalDuration.longValue)
         Card(
             modifier = Modifier.padding(10.dp),
             elevation = CardDefaults.cardElevation(3.dp),
@@ -164,22 +152,6 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
     @Composable
     fun ActivitiesDurationLazyColumn() {
-        val tagsWithDurations =
-            remember { mutableStateListOf<Pair<Tag, Long>>() }
-        if (MainActivity.tagsListUpdate.value) {
-            page = 1
-
-            StatsDBService(context).getAllTagsWithDurations(page).run{
-                tagsWithDurations.clear()
-                tagsWithDurations.addAll(this)
-            }
-
-            MainActivity.tagsListUpdate.value = false
-        }
-        if(tagsWithDurations.isEmpty()){
-            page = 0
-            loadMoreTags(tagsWithDurations)
-        }
 
         Card(
             modifier = Modifier.padding(10.dp),
@@ -193,8 +165,8 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(tagsWithDurations.size) { index ->
-                    ActivityItem(tagsWithDurations[index])
+                items(MainActivity.tagList.size) { index ->
+                    ActivityItem(MainActivity.tagList[index])
                     HorizontalDivider(
                         color = onPrimaryDark,
                         thickness = 0.7.dp,
@@ -203,21 +175,10 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                 }
                 item {
                     LoadMoreTagsButton {
-                        loadMoreTags(tagsWithDurations)
+                        MainActivity.loadMoreTags(context)
                     }
                 }
             }
-        }
-    }
-
-    private fun loadMoreTags(tags: SnapshotStateList<Pair<Tag, Long>>) {
-        page++
-        StatsDBService(context).getAllTagsWithDurations(page).run{
-            if (isEmpty()) {
-                Toast.makeText(context, "No more tags to load", Toast.LENGTH_SHORT).show()
-                return
-            }
-            tags.addAll(this)
         }
     }
 
