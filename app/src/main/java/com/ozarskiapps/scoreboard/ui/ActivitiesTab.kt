@@ -167,10 +167,13 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
         val tagsWithDurations =
             remember { mutableStateListOf<Pair<Tag, Long>>() }
         if (MainActivity.tagsListUpdate.value) {
-            tagsWithDurations.clear()
             page = 1
-            val newTags = StatsDBService(context).getAllTagsWithDurations(page)
-            tagsWithDurations.addAll(newTags)
+
+            StatsDBService(context).getAllTagsWithDurations(page).run{
+                tagsWithDurations.clear()
+                tagsWithDurations.addAll(this)
+            }
+
             MainActivity.tagsListUpdate.value = false
         }
         if(tagsWithDurations.isEmpty()){
@@ -209,12 +212,13 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
     private fun loadMoreTags(tags: SnapshotStateList<Pair<Tag, Long>>) {
         page++
-        val newTags = StatsDBService(context).getAllTagsWithDurations(page)
-        if (newTags.isEmpty()) {
-            Toast.makeText(context, "No more tags to load", Toast.LENGTH_SHORT).show()
-            return
+        StatsDBService(context).getAllTagsWithDurations(page).run{
+            if (isEmpty()) {
+                Toast.makeText(context, "No more tags to load", Toast.LENGTH_SHORT).show()
+                return
+            }
+            tags.addAll(this)
         }
-        tags.addAll(newTags)
     }
 
     @Composable

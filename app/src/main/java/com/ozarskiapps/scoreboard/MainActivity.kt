@@ -14,14 +14,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TabRow
 import androidx.compose.material.TabRowDefaults
+import androidx.compose.material.TabPosition
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -63,7 +66,7 @@ class MainActivity : ComponentActivity() {
             this.getString(R.string.main_tabs_activity_tab_title),
             this.getString(R.string.main_tabs_history_tab_title)
         )
-        val tabIndex = remember { mutableStateOf(0) }
+        val tabIndex = remember { mutableIntStateOf(0) }
         val pagerState = rememberPagerState()
         val scope = rememberCoroutineScope()
 
@@ -73,22 +76,12 @@ class MainActivity : ComponentActivity() {
                 .background(color = backgroundDark),
             verticalArrangement = Arrangement.Bottom
         ) {
-            val pagesModifier = Modifier.weight(1f)
-            MainTabsPager(pagerState = pagerState, tabs = tabs, modifier = pagesModifier)
+            MainTabsPager(pagerState = pagerState, tabs = tabs, modifier = Modifier.weight(1f))
+
             Row(modifier = Modifier.padding(horizontal = 5.dp)) {
                 TabRow(
-                    selectedTabIndex = tabIndex.value,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.Indicator(
-                            Modifier
-                                .pagerTabIndicatorOffset(pagerState, tabPositions)
-                                .height(3.dp)
-                                .padding(horizontal = 60.dp)
-                                .offset(y = ((-6).dp))
-                                .clip(shape = RoundedCornerShape(16.dp)),
-                            color = primaryDark,
-                        )
-                    },
+                    selectedTabIndex = tabIndex.intValue,
+                    indicator = tabIndicator(pagerState = pagerState),
                     backgroundColor = onPrimaryDark,
                     modifier = Modifier.clip(
                         shape = RoundedCornerShape(
@@ -103,6 +96,25 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(ExperimentalPagerApi::class)
+    @Composable
+    private fun tabIndicator(pagerState: PagerState): @Composable @UiComposable (List<TabPosition>) -> Unit {
+        val indicator: @Composable @UiComposable
+            (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
+            TabRowDefaults.Indicator(
+                Modifier
+                    .pagerTabIndicatorOffset(pagerState, tabPositions)
+                    .height(3.dp)
+                    .padding(horizontal = 60.dp)
+                    .offset(y = ((-6).dp))
+                    .clip(shape = RoundedCornerShape(16.dp)),
+                color = primaryDark,
+            )
+        }
+        return indicator
+    }
+
+
     @ExperimentalPagerApi
     @Composable
     fun MainTabs(
@@ -112,7 +124,8 @@ class MainActivity : ComponentActivity() {
         tabs: List<String>
     ) {
         tabs.forEachIndexed { index, title ->
-            Tab(text = { Text(title, style = Typography.titleLarge, color = primaryDark) },
+            Tab(
+                text = { Text(title, style = Typography.titleLarge, color = primaryDark) },
                 selected = tabIndex.value == index,
                 onClick = {
                     scope.launch {

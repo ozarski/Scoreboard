@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -44,6 +45,7 @@ import com.example.database.SessionTagDBService
 import com.example.database.StatsDBService
 import com.example.database.TagDBService
 import com.ozarskiapps.global.durationInSecondsToHoursAndMinutes
+import com.ozarskiapps.global.formatDate
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
 import com.ozarskiapps.scoreboard.popups.FilterHistoryPopup
@@ -164,30 +166,40 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
                 painter = painterResource(id = R.drawable.baseline_filter_list_24),
                 contentDescription = "Filter popup button",
                 tint = primaryDark,
-                modifier = Modifier
-                    .padding(end = 10.dp)
-                    .padding(vertical = 5.dp)
-                    .size(40.dp)
-                    .background(
-                        shape = CircleShape,
-                        color = onPrimaryDark
-                    )
-                    .clickable(
-                        indication = rememberRipple(
-                            bounded = false,
-                            color = onTertiaryContainerDark,
-                            radius = 40.dp
-                        ),
-                        interactionSource = interactionSource,
-                        onClick = {
-                            filterPopupVisible.value = !filterPopupVisible.value
-                        })
-                    .padding(5.dp)
+                modifier = Modifier.filterButtonIconModifier(
+                    interactionSource = interactionSource,
+                    filterPopupVisible = filterPopupVisible
+                )
             )
         }
         if (filterPopupVisible.value) {
             FilterHistoryPopup(context).GeneratePopup(filterPopupVisible, tagListPick)
         }
+    }
+
+    private fun Modifier.filterButtonIconModifier(
+        interactionSource: MutableInteractionSource,
+        filterPopupVisible: MutableState<Boolean>
+    ): Modifier = composed {
+        this
+            .padding(end = 10.dp)
+            .padding(vertical = 5.dp)
+            .size(40.dp)
+            .background(
+                shape = CircleShape,
+                color = onPrimaryDark
+            )
+            .clickable(
+                indication = rememberRipple(
+                    bounded = false,
+                    color = onTertiaryContainerDark,
+                    radius = 40.dp
+                ),
+                interactionSource = interactionSource,
+                onClick = {
+                    filterPopupVisible.value = !filterPopupVisible.value
+                })
+            .padding(5.dp)
     }
 
     @Composable
@@ -199,7 +211,7 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
         val sessionDetailsPopupVisible = remember { mutableStateOf(false) }
 
         Card(
-            modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, start = 10.dp, end = 10.dp),
+            modifier = Modifier.padding(10.dp),
             elevation = CardDefaults.cardElevation(3.dp),
             shape = RoundedCornerShape(25.dp)
         ) {
@@ -252,37 +264,43 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
 
     private fun updateSessions(sessions: SnapshotStateList<Session>) {
         page = 1
-        println("page number is $page")
         val pickedIDs = tagListPick.filter { it.right.value }.map { it.left.value.id }
-        var tempSessions =
-            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page)
-        print(tempSessions.size)
-        page++
-        tempSessions = tempSessions.sortedByDescending { it.getDate().timeInMillis }
-        sessions.clear()
-        sessions.addAll(tempSessions)
+
+        SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page).sortedByDescending {
+            it.getDate().timeInMillis
+        }.also {
+            sessions.clear()
+            sessions.addAll(it)
+        }
+
         sessionsDuration.value = StatsDBService(context).getDurationForSessionsWithTags(pickedIDs)
         MainActivity.sessionsListUpdate.value = false
+        page++
     }
 
     private fun loadMoreSessions(sessions: SnapshotStateList<Session>) {
         val pickedIDs = tagListPick.filter { it.right.value }.map { it.left.value.id }
-        var tempSessions =
-            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page)
+
+        val tempSessions =
+            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page).sortedByDescending {
+                it.getDate().timeInMillis
+            }
         if (tempSessions.isEmpty()) {
             Toast.makeText(context, "All sessions loaded", Toast.LENGTH_SHORT).show()
             return
         }
         page++
-        tempSessions = tempSessions.sortedByDescending { it.getDate().timeInMillis }
         sessions.addAll(tempSessions)
+
         sessionsDuration.value = StatsDBService(context).getDurationForSessionsWithTags(pickedIDs)
     }
 
     private fun reloadTags() {
-        val tags = TagDBService(context).getAllTags()
+        val tags = TagDBService(context).getAllTags().map {
+            MutablePair(mutableStateOf(it), mutableStateOf(false))
+        }
         tagListPick.clear()
-        tagListPick.addAll(tags.map { MutablePair(mutableStateOf(it), mutableStateOf(false)) })
+        tagListPick.addAll(tags)
     }
 
     @Composable
@@ -318,7 +336,7 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
                 tint = secondaryDark,
                 modifier = Modifier.size(20.dp)
             )
-            val formattedDate = com.ozarskiapps.global.formatDate(session.getDate())
+            val formattedDate = formatDate(session.getDate())
             Text(
                 text = formattedDate,
                 fontSize = 15.sp,
@@ -348,10 +366,7 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
 
     @Composable
     fun SessionTagsText(tags: MutableList<Tag>) {
-        var tagsString = ""
-        tags.sortedBy { it.tagName.lowercase() }.forEach {
-            tagsString += it.tagName + " "
-        }
+        val tagsString = tags.sortedBy { it.tagName.lowercase() }.joinToString(" ") { it.tagName }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_tag_24),
