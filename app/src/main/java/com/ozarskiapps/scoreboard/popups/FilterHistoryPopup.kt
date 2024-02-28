@@ -21,7 +21,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -47,8 +46,7 @@ class FilterHistoryPopup(val context: Context) {
         tagPickList: SnapshotStateList<MutablePair<MutableState<Tag>, MutableState<Boolean>>>
     ) {
         this.popupVisible = popupVisible
-        this.tagPickList = tagPickList
-        tagPickList.sortBy { it.left.value.tagName.lowercase() }
+        this.tagPickList = tagPickList.apply { sortBy { it.left.value.tagName.lowercase() } }
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = {
@@ -142,13 +140,7 @@ class FilterHistoryPopup(val context: Context) {
         item: MutablePair<MutableState<Tag>, MutableState<Boolean>>
     ) {
 
-        val textColor: Color = if (item.right.value) {
-            onPrimaryDark
-        } else {
-            onTertiaryContainerDark
-        }
-
-        val iconColor = if (item.right.value) {
+        val contentColor = if (item.right.value) {
             onPrimaryDark
         } else {
             onTertiaryContainerDark
@@ -172,13 +164,13 @@ class FilterHistoryPopup(val context: Context) {
             Icon(
                 painter = iconResource,
                 contentDescription = "Tag icon",
-                tint = iconColor,
+                tint = contentColor,
                 modifier = Modifier.size(25.dp)
             )
             Text(
                 text = item.left.value.tagName,
                 fontSize = 20.sp,
-                color = textColor,
+                color = contentColor,
                 modifier = Modifier
                     .padding(start = 5.dp),
                 maxLines = 1,

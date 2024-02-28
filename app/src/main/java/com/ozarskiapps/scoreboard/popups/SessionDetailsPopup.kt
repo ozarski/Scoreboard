@@ -42,7 +42,7 @@ import com.ozarskiapps.scoreboard.ui.theme.onErrorDark
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryContainerDark
 
-class SessionDetailsPopup(val context: Context, val session: Session) : ComponentActivity() {
+class SessionDetailsPopup(private val context: Context, private val session: Session) : ComponentActivity() {
 
     private lateinit var popupVisible: MutableState<Boolean>
 
@@ -125,9 +125,8 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
                 tint = primaryContainerDark,
                 modifier = Modifier.size(30.dp)
             )
-            val formattedDate = formatDate(session.getDate())
             Text(
-                text = formattedDate,
+                text = formatDate(session.getDate()),
                 fontSize = 20.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(start = 5.dp),
@@ -195,7 +194,10 @@ class SessionDetailsPopup(val context: Context, val session: Session) : Componen
 
     @Composable
     private fun TagItem(tag: Tag) {
-        Row(modifier = Modifier.padding(top = 5.dp, start = 15.dp, bottom = 5.dp, end = 15.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(top = 5.dp, start = 15.dp, bottom = 5.dp, end = 15.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_tag_24),
                 contentDescription = "Session details tag icon",

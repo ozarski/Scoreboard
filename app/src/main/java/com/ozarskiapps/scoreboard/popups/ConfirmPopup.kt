@@ -28,7 +28,7 @@ import com.ozarskiapps.scoreboard.ui.theme.onErrorDark
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 
-class ConfirmPopup(val context: Context) {
+class ConfirmPopup(private val context: Context) {
 
     private lateinit var popupVisible: MutableState<Boolean>
     private var otherPopupVisible: MutableState<Boolean>? = null
@@ -49,7 +49,8 @@ class ConfirmPopup(val context: Context) {
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             onDismissRequest = {
-                closePopup(false)
+                decision.value = false
+                closePopup()
             },
             properties = PopupProperties(focusable = true)
         ) {
@@ -110,7 +111,8 @@ class ConfirmPopup(val context: Context) {
     fun DecisionButton(text: String, buttonColor: Color, textColor: Color, decision: Boolean) {
         Button(
             onClick = {
-                closePopup(decision)
+                this.decision.value = decision
+                closePopup()
             },
             modifier = Modifier
             .padding(horizontal = 10.dp)
@@ -123,8 +125,7 @@ class ConfirmPopup(val context: Context) {
         }
     }
 
-    private fun closePopup(decisionValue: Boolean) {
-        decision.value = decisionValue
+    private fun closePopup() {
         popupVisible.value = false
         if (otherPopupVisible != null) {
             otherPopupVisible!!.value = hideOtherPopup

@@ -198,7 +198,8 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
                 interactionSource = interactionSource,
                 onClick = {
                     filterPopupVisible.value = !filterPopupVisible.value
-                })
+                }
+            )
             .padding(5.dp)
     }
 

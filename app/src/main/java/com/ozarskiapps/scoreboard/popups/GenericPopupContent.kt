@@ -32,18 +32,18 @@ class GenericPopupContent {
         ) {
             val minHeight = if (heightMin == null && height == null) 0 else heightMin ?: height!!
             val minWidth = if (widthMin == null && width == null) 0 else widthMin ?: width!!
-            val maxHeight = if (heightMax == null && height == null) 0 else heightMax ?: height!!
-            val maxWidth = if (widthMax == null && width == null) 0 else widthMax ?: width!!
+            val maxHeight = if (heightMax == null && height == null) Int.MAX_VALUE else heightMax ?: height!!
+            val maxWidth = if (widthMax == null && width == null) Int.MAX_VALUE else widthMax ?: width!!
 
             Column(
                 modifier = Modifier
                     .widthIn(
                         min = minWidth.dp,
-                        max = if (maxWidth == 0) Int.MAX_VALUE.dp else maxWidth.dp
+                        max = maxWidth.dp
                     )
                     .heightIn(
                         min = minHeight.dp,
-                        max = if (maxHeight == 0) Int.MAX_VALUE.dp else maxHeight.dp
+                        max = maxHeight.dp
                     )
                     .background(primaryDark, RoundedCornerShape(25.dp))
                     .border(

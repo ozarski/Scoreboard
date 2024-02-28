@@ -8,12 +8,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.base.Tag
 import com.example.database.TagDBService
+import com.ozarskiapps.global.textFieldColors
 import com.ozarskiapps.scoreboard.R
 import com.ozarskiapps.scoreboard.ui.theme.Typography
 import com.ozarskiapps.scoreboard.ui.theme.errorDark
@@ -31,7 +33,7 @@ import kotlin.concurrent.thread
 
 class AddTagDialog(
     private val dialogOpen: MutableState<Boolean>,
-    val context: Context,
+    private val context: Context,
     private val tagListPick: MutableList<MutablePair<Tag, Boolean>>
 ) {
 
@@ -41,36 +43,29 @@ class AddTagDialog(
     fun GenerateDialog() {
         Dialog(onDismissRequest = { dialogOpen.value = false }) {
             GenericPopupContent.GenerateContent(width = 200) {
-                val newTagName = remember { mutableStateOf("") }
-                TagNameField(newTagName)
+                TagNameField()
                 AddButton()
             }
         }
     }
 
     @Composable
-    fun TagNameField(name: MutableState<String>) {
+    fun TagNameField() {
+        var name by remember { mutableStateOf("") }
         OutlinedTextField(
-            value = name.value,
+            value = name,
             onValueChange = {
-                name.value = it
+                name = it
                 tagName = it
             },
             label = { Text(text = context.getString(R.string.add_new_tag_dialog_tag_name_label)) },
             modifier = Modifier
                 .padding(vertical = 10.dp, horizontal = 20.dp)
                 .fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = primaryDark,
-                unfocusedContainerColor = primaryDark,
-                cursorColor = onPrimaryDark,
-                errorCursorColor = errorDark,
-                focusedLabelColor = onPrimaryDark,
-                unfocusedLabelColor = onPrimaryDark,
-                focusedTextColor = onPrimaryDark,
-                unfocusedTextColor = onPrimaryDark,
-                focusedBorderColor = onPrimaryDark,
-                unfocusedBorderColor = onPrimaryDark,
+            colors = textFieldColors(
+                primaryDark = primaryDark,
+                onPrimaryDark = onPrimaryDark,
+                errorDark = errorDark
             ),
             shape = RoundedCornerShape(16.dp),
             textStyle = TextStyle(color = onPrimaryDark, fontSize = 16.sp)
@@ -100,11 +95,11 @@ class AddTagDialog(
     private fun addTag() {
         thread {
             if (tagName != "") {
-                val newTag = Tag(tagName = tagName, id = -1)
-                newTag.id = TagDBService(context).addTag(newTag)
-                tagListPick.add(MutablePair(newTag, false))
-            }
-            else{
+                Tag(tagName = tagName, id = -1).run {
+                    id = TagDBService(context).addTag(this)
+                    tagListPick.add(MutablePair(this, false))
+                }
+            } else {
                 Toast.makeText(context, "Tag name cannot be empty", Toast.LENGTH_SHORT).show()
             }
             dialogOpen.value = false
