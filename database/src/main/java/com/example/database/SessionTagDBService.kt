@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import com.example.base.session.Session
 import com.example.database.DatabaseConstants.DEFAULT_PAGE_SIZE
+import java.security.InvalidParameterException
 
 class SessionTagDBService(
     context: Context,
@@ -11,36 +12,39 @@ class SessionTagDBService(
 ) : ScoreboardDatabase(context, databaseName) {
 
     fun addTagToSession(tagID: Long, sessionID: Long) {
-        val db = this.writableDatabase
         if (tagID < 0 || sessionID < 0) {
-            print("Failed to add tag to session: Invalid tagID or sessionID")
-            db.close()
+            println("Invalid tagID or sessionID")
             return
         }
         val contentValues = ContentValues().apply {
             put(DatabaseConstants.SessionTagTable.TAG_ID_COLUMN, tagID)
             put(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN, sessionID)
         }
-        db.insert(DatabaseConstants.SessionTagTable.TABLE_NAME, null, contentValues)
-        db.close()
+        this.writableDatabase.insert(
+            DatabaseConstants.SessionTagTable.TABLE_NAME,
+            null,
+            contentValues
+        )
     }
 
     fun removeTagFromSession(tagID: Long, sessionID: Long) {
-        val db = this.writableDatabase
         val selection =
             "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} = ? " +
                     "AND ${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} = ?"
         val selectionArgs = arrayOf(tagID.toString(), sessionID.toString())
-        db.delete(DatabaseConstants.SessionTagTable.TABLE_NAME, selection, selectionArgs)
-        db.close()
+        this.writableDatabase.delete(
+            DatabaseConstants.SessionTagTable.TABLE_NAME,
+            selection,
+            selectionArgs
+        )
     }
 
     fun getSessionIDsForTag(tagID: Long): List<Long> {
-        val db = this.readableDatabase
         val projection = arrayOf(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)
         val selection = "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} = ?"
         val selectionArgs = arrayOf(tagID.toString())
-        val cursor = db.query(
+
+        val cursor = this.readableDatabase.query(
             DatabaseConstants.SessionTagTable.TABLE_NAME,
             projection,
             selection,
@@ -52,22 +56,21 @@ class SessionTagDBService(
         val sessionIDs = mutableListOf<Long>()
         with(cursor) {
             while (moveToNext()) {
-                val sessionID =
-                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
-                sessionIDs.add(sessionID)
+                getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)).also {
+                    sessionIDs.add(it)
+                }
             }
+            close()
         }
-        cursor.close()
-        db.close()
         return sessionIDs
     }
 
     fun getTagIDsForSession(sessionID: Long): List<Long> {
-        val db = this.readableDatabase
         val projection = arrayOf(DatabaseConstants.SessionTagTable.TAG_ID_COLUMN)
         val selection = "${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} = ?"
         val selectionArgs = arrayOf(sessionID.toString())
-        val cursor = db.query(
+
+        val cursor = this.readableDatabase.query(
             DatabaseConstants.SessionTagTable.TABLE_NAME,
             projection,
             selection,
@@ -76,31 +79,30 @@ class SessionTagDBService(
             null,
             null
         )
+
         val tagIDs = mutableListOf<Long>()
         with(cursor) {
             while (moveToNext()) {
-                val tagID =
-                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.TAG_ID_COLUMN))
-                tagIDs.add(tagID)
+                getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.TAG_ID_COLUMN)).also {
+                    tagIDs.add(it)
+                }
             }
+            close()
         }
-        cursor.close()
-        db.close()
         return tagIDs
     }
 
     fun getSessionsForTagIDs(tagIDs: List<Long>): List<Session> {
-        if(tagIDs.isEmpty()){
+        if (tagIDs.isEmpty()) {
             return SessionDBService(context, databaseName).getAllSessions()
         }
-        val db = this.readableDatabase
         val projection = arrayOf(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)
         val selection =
             "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} IN (${tagIDs.joinToString(", ")})"
         val having =
             "COUNT(${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN}) = ${tagIDs.size}"
 
-        val cursor = db.query(
+        val cursor = this.readableDatabase.query(
             DatabaseConstants.SessionTagTable.TABLE_NAME,
             projection,
             selection,
@@ -113,28 +115,30 @@ class SessionTagDBService(
         val sessionIDs = mutableListOf<Long>()
         with(cursor) {
             while (moveToNext()) {
-                val sessionID =
-                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
-                sessionIDs.add(sessionID)
+                getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)).also {
+                    sessionIDs.add(it)
+                }
             }
+            close()
         }
-        cursor.close()
-        db.close()
         return SessionDBService(context, databaseName).getSessionsByIDs(sessionIDs)
     }
 
-    fun getSessionsForTagIDs(tagIDs: List<Long>, page: Int, pageSize: Int = DEFAULT_PAGE_SIZE): List<Session>{
-        if(tagIDs.isEmpty()){
+    fun getSessionsForTagIDs(
+        tagIDs: List<Long>,
+        page: Int,
+        pageSize: Int = DEFAULT_PAGE_SIZE
+    ): List<Session> {
+        if (tagIDs.isEmpty()) {
             return SessionDBService(context, databaseName).getAllSessions(page, pageSize)
         }
-        val db = this.readableDatabase
         val projection = arrayOf(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)
         val selection =
             "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} IN (${tagIDs.joinToString(", ")})"
         val having =
             "COUNT(${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN}) = ${tagIDs.size}"
 
-        val cursor = db.query(
+        val cursor = this.readableDatabase.query(
             DatabaseConstants.SessionTagTable.TABLE_NAME,
             projection,
             selection,
@@ -147,31 +151,26 @@ class SessionTagDBService(
         val sessionIDs = mutableListOf<Long>()
         with(cursor) {
             while (moveToNext()) {
-                val sessionID =
-                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN))
-                sessionIDs.add(sessionID)
+                getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)).also {
+                    sessionIDs.add(it)
+                }
             }
+            close()
         }
-        cursor.close()
-        db.close()
         return SessionDBService(context, databaseName).getSessionsByIDs(sessionIDs, page, pageSize)
     }
 
 
     fun deleteSessionTagsOnSessionDelete(sessionID: Long) {
-        val db = this.writableDatabase
         val selection = "${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} = ?"
         val selectionArgs = arrayOf(sessionID.toString())
-        db.delete(DatabaseConstants.SessionTagTable.TABLE_NAME, selection, selectionArgs)
-        db.close()
+        this.writableDatabase.delete(DatabaseConstants.SessionTagTable.TABLE_NAME, selection, selectionArgs)
     }
 
     fun deleteSessionTagsOnTagDelete(tagID: Long) {
-        val db = this.writableDatabase
         val selection = "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} = ?"
         val selectionArgs = arrayOf(tagID.toString())
-        db.delete(DatabaseConstants.SessionTagTable.TABLE_NAME, selection, selectionArgs)
-        db.close()
+        this.writableDatabase.delete(DatabaseConstants.SessionTagTable.TABLE_NAME, selection, selectionArgs)
     }
 
 }

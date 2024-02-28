@@ -46,7 +46,7 @@ import com.example.base.Tag
 import com.example.base.session.Session
 import com.example.database.SessionDBService
 import com.example.database.TagDBService
-import com.ozarskiapps.global.MINUTES_IN_HOUR
+import com.ozarskiapps.global.SECONDS_IN_HOUR
 import com.ozarskiapps.global.SECONDS_IN_MINUTE
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
@@ -140,18 +140,19 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
 
 
     private fun addNewSession() {
-        val selectedTags = tagListPick.filter { it.right }.map { it.left }
-        val durationMinutes =
-            hourPickerValue.value.hours * MINUTES_IN_HOUR + hourPickerValue.value.minutes
-        val durationSeconds = durationMinutes * SECONDS_IN_MINUTE
-        val sessionDate = Calendar.getInstance()
-        val session = Session(
+        val selectedTags = tagListPick.filter { it.right }.map { it.left }.toMutableList()
+        val durationSeconds =
+            (hourPickerValue.value.hours * SECONDS_IN_HOUR) + (hourPickerValue.value.minutes * SECONDS_IN_MINUTE)
+
+        Session(
             durationSeconds.toLong(),
-            sessionDate,
+            Calendar.getInstance(),
             -1,
-            selectedTags.toMutableList()
-        )
-        SessionDBService(context).addSession(session)
+            selectedTags
+        ).run{
+            SessionDBService(context).addSession(this)
+        }
+
         MainActivity.totalDurationUpdate.value = true
         MainActivity.sessionsListUpdate.value = true
         MainActivity.tagsListUpdate.value = true
@@ -214,9 +215,9 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             mutableStateListOf()
         }
         //necessary to avoid duplicating the whole list due to recomposition when adding a new tag
-        if(tagListPick.isEmpty()){
+        if (tagListPick.isEmpty()) {
             tagListPick.addAll(TagDBService(context).getAllTags().map { MutablePair(it, false) })
-            tagListPick.sortBy{ it.left.tagName.lowercase() }
+            tagListPick.sortBy { it.left.tagName.lowercase() }
         }
         LazyColumn(
             modifier = Modifier
@@ -230,26 +231,24 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 )
         ) {
             items(tagListPick.size) { index ->
-                val tagPicked = remember { mutableStateOf(tagListPick[index].right) }
-                val tag = tagListPick[index].left
-                TagPickListItem(tag, tagPicked, tagListPick[index])
+                TagPickListItem(tagListPick[index])
             }
         }
     }
 
     @Composable
     private fun TagPickListItem(
-        tag: Tag,
-        tagPicked: MutableState<Boolean>,
         item: MutablePair<Tag, Boolean>
     ) {
-        val contentColor: Color = if (tagPicked.value) {
+        val isTagPicked = remember { mutableStateOf(item.right) }
+
+        val contentColor: Color = if (isTagPicked.value) {
             onPrimaryDark
         } else {
             onTertiaryContainerDark
         }
 
-        val iconResource = if (tagPicked.value) {
+        val iconResource = if (isTagPicked.value) {
             painterResource(R.drawable.baseline_label_24)
         } else {
             painterResource(R.drawable.outline_label_24)
@@ -261,8 +260,8 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             modifier = Modifier
                 .padding(vertical = 5.dp, horizontal = 20.dp)
                 .clickable {
-                    tagPicked.value = !tagPicked.value
-                    item.right = tagPicked.value
+                    isTagPicked.value = !isTagPicked.value
+                    item.right = isTagPicked.value
                 }
         ) {
             Icon(
@@ -272,7 +271,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
                 modifier = Modifier.size(25.dp)
             )
             Text(
-                text = tag.tagName,
+                text = item.left.tagName,
                 fontSize = 20.sp,
                 color = contentColor,
                 modifier = Modifier

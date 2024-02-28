@@ -11,11 +11,10 @@ class StatsDBService(
 ) : ScoreboardDatabase(appContext, databaseName) {
 
     fun getTotalDuration(): Long {
-        val db = this.readableDatabase
         val resultColumn = "total_duration"
         val projection =
             arrayOf("SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn")
-        val cursor = db.query(
+        val cursor = this.readableDatabase.query(
             DatabaseConstants.SessionsTable.TABLE_NAME,
             projection,
             null,
@@ -24,17 +23,15 @@ class StatsDBService(
             null,
             null
         )
-        if (cursor.moveToFirst()) {
-            val duration = cursor.getLong(cursor.getColumnIndexOrThrow(resultColumn))
-            cursor.close()
-            db.close()
-            return duration
+        with(cursor) {
+            if (moveToFirst()) {
+                return getLong(getColumnIndexOrThrow(resultColumn)).also { close() }
+            }
         }
         return 0L
     }
 
     fun getDurationForTag(tagID: Long): Long {
-        val db = this.readableDatabase
         val resultColumn = "total_duration"
         val projection =
             arrayOf("SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn")
@@ -44,7 +41,8 @@ class StatsDBService(
                 "${DatabaseConstants.SessionTagTable.TABLE_NAME}.${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN}"
         val selection = "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} = ?"
         val selectionArgs = arrayOf(tagID.toString())
-        val cursor = db.query(
+
+        val cursor = this.readableDatabase.query(
             tableJoined,
             projection,
             selection,
@@ -53,27 +51,25 @@ class StatsDBService(
             null,
             null
         )
-        if (cursor.moveToFirst()) {
-            val duration = cursor.getLong(cursor.getColumnIndexOrThrow(resultColumn))
-            cursor.close()
-            db.close()
-            return duration
+        with(cursor) {
+            if (moveToFirst()) {
+                return getLong(getColumnIndexOrThrow(resultColumn)).also { close() }
+            }
         }
         return 0L
     }
 
     fun getAllTagsWithDurations(): List<Pair<Tag, Long>> {
-        val tagList = TagDBService(appContext, databaseName).getAllTags()
-        var tagDurationList = tagList.map { tag ->
+        return TagDBService(appContext, databaseName).getAllTags().map { tag ->
             Pair(tag, getDurationForTag(tag.id))
-        }
-        tagDurationList = tagDurationList.sortedByDescending { it.second }
-        return tagDurationList
+        }.sortedByDescending { it.second }
     }
 
-    fun getAllTagsWithDurations(page: Int, pageSize: Int = DEFAULT_PAGE_SIZE): List<Pair<Tag, Long>> {
+    fun getAllTagsWithDurations(
+        page: Int,
+        pageSize: Int = DEFAULT_PAGE_SIZE
+    ): List<Pair<Tag, Long>> {
         val resultColumn = "total_duration"
-        val db = this.readableDatabase
 
         val sessionIDalt = "id_from_sessions"
         val sessionDurationsSubQuery =
@@ -89,10 +85,11 @@ class StatsDBService(
                 "GROUP BY ${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} " +
                 "ORDER BY $resultColumn DESC "
 
-        val finalQuery = "(SELECT ${DatabaseConstants.TagsTable.NAME_COLUMN}, $resultColumn, ${BaseColumns._ID} " +
-                "FROM ($tagsDurationsSubQuery) " +
-                "INNER JOIN ${DatabaseConstants.TagsTable.TABLE_NAME} " +
-                "ON ${DatabaseConstants.TagsTable.TABLE_NAME}.${BaseColumns._ID} = ${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN}) "
+        val finalQuery =
+            "(SELECT ${DatabaseConstants.TagsTable.NAME_COLUMN}, $resultColumn, ${BaseColumns._ID} " +
+                    "FROM ($tagsDurationsSubQuery) " +
+                    "INNER JOIN ${DatabaseConstants.TagsTable.TABLE_NAME} " +
+                    "ON ${DatabaseConstants.TagsTable.TABLE_NAME}.${BaseColumns._ID} = ${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN}) "
 
         val projection = arrayOf(
             DatabaseConstants.TagsTable.NAME_COLUMN,
@@ -102,9 +99,8 @@ class StatsDBService(
         val offset = (page - 1) * pageSize
         val limit = "$offset, $pageSize"
 
-        val tagsWithDuration = mutableListOf<Pair<Tag, Long>>()
 
-        val cursor = db.query(
+        val cursor = this.readableDatabase.query(
             finalQuery,
             projection,
             null,
@@ -115,23 +111,26 @@ class StatsDBService(
             limit
         )
 
-        with(cursor){
-            while(moveToNext()){
+        val tagsWithDuration = mutableListOf<Pair<Tag, Long>>()
+        with(cursor) {
+            while (moveToNext()) {
                 val id = getLong(getColumnIndexOrThrow(BaseColumns._ID))
-                val tagName = getString(getColumnIndexOrThrow(DatabaseConstants.TagsTable.NAME_COLUMN))
+                val tagName =
+                    getString(getColumnIndexOrThrow(DatabaseConstants.TagsTable.NAME_COLUMN))
                 val duration = getLong(getColumnIndexOrThrow(resultColumn))
 
-
-                val tag = Tag(tagName, id)
-                tagsWithDuration.add(Pair(tag, duration))
+                Tag(tagName, id).also { tag ->
+                    tagsWithDuration.add(Pair(tag, duration))
+                }
             }
+            close()
         }
         return tagsWithDuration
     }
 
     fun getDurationForSessionsWithTags(tagIDs: List<Long>): Long {
         if (tagIDs.isEmpty()) return getTotalDuration()
-        val db = this.readableDatabase
+
         val resultColumn = "total_duration"
         val projection =
             arrayOf("SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn")
@@ -147,7 +146,7 @@ class StatsDBService(
                 "INNER JOIN ${DatabaseConstants.SessionsTable.TABLE_NAME} " +
                 "ON ${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} = ${BaseColumns._ID}"
 
-        val cursor = db.query(
+        val cursor = this.readableDatabase.query(
             tableJoined,
             projection,
             null,
@@ -156,13 +155,11 @@ class StatsDBService(
             null,
             null
         )
-        if (cursor.moveToFirst()) {
-            val duration = cursor.getLong(cursor.getColumnIndexOrThrow(resultColumn))
-            cursor.close()
-            db.close()
-            return duration
+        with(cursor) {
+            if (moveToFirst()) {
+                return getLong(getColumnIndexOrThrow(resultColumn)).also { close() }
+            }
         }
-        db.close()
         return 0L
     }
 }

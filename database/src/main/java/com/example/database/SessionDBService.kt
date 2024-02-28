@@ -2,7 +2,9 @@ package com.example.database
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.provider.BaseColumns
+import com.example.base.Tag
 import com.example.base.session.Session
 import com.example.base.session.SessionData
 import com.example.database.DatabaseConstants.DEFAULT_PAGE_SIZE
@@ -20,19 +22,23 @@ class SessionDBService(
         }
 
         validateSessionDate(session.getDate())
-
-        val db = this.writableDatabase
         val contentValues = ContentValues().apply {
             put(DatabaseConstants.SessionsTable.DURATION_COLUMN, session.getDuration())
             put(DatabaseConstants.SessionsTable.DATE_COLUMN, session.getDate().timeInMillis)
         }
 
-        val sessionID = db.insert(DatabaseConstants.SessionsTable.TABLE_NAME, null, contentValues)
-        session.tags.forEach {
-            SessionTagDBService(appContext, databaseName).addTagToSession(it.id, sessionID)
+        session.id = this.writableDatabase.insert(
+            DatabaseConstants.SessionsTable.TABLE_NAME,
+            null,
+            contentValues
+        )
+
+        SessionTagDBService(appContext, databaseName).run {
+            session.tags.forEach {
+                addTagToSession(it.id, session.id)
+            }
         }
-        db.close()
-        return sessionID
+        return session.id
     }
 
     fun updateSession(session: Session) {
@@ -42,48 +48,46 @@ class SessionDBService(
 
         validateSessionDate(session.getDate())
 
-        val db = this.writableDatabase
         val contentValues = ContentValues().apply {
             put(DatabaseConstants.SessionsTable.DURATION_COLUMN, session.getDuration())
             put(DatabaseConstants.SessionsTable.DATE_COLUMN, session.getDate().timeInMillis)
         }
         val selection = "${BaseColumns._ID} = ?"
         val selectionArgs = arrayOf(session.id.toString())
-        db.update(
+
+        this.writableDatabase.update(
             DatabaseConstants.SessionsTable.TABLE_NAME,
             contentValues,
             selection,
             selectionArgs
         )
-        SessionTagDBService(appContext, databaseName).deleteSessionTagsOnSessionDelete(session.id)
-        session.tags.forEach {
-            SessionTagDBService(appContext, databaseName).addTagToSession(it.id, session.id)
+        SessionTagDBService(appContext, databaseName).apply {
+            deleteSessionTagsOnSessionDelete(session.id)
+            session.tags.forEach {
+                addTagToSession(it.id, session.id)
+            }
         }
-        db.close()
     }
 
     fun deleteSessionByID(id: Long) {
-        val db = this.writableDatabase
         val selection = "${BaseColumns._ID} = ?"
         val selectionArgs = arrayOf(id.toString())
-        db.delete(
+        this.writableDatabase.delete(
             DatabaseConstants.SessionsTable.TABLE_NAME,
             selection,
             selectionArgs
         )
         SessionTagDBService(appContext, databaseName).deleteSessionTagsOnSessionDelete(id)
-        db.close()
     }
 
     fun getSessionDataByID(id: Long): SessionData? {
-        val db = this.readableDatabase
         val projection = arrayOf(
             DatabaseConstants.SessionsTable.DURATION_COLUMN,
             DatabaseConstants.SessionsTable.DATE_COLUMN
         )
         val selection = "${BaseColumns._ID} = ?"
         val selectionArgs = arrayOf(id.toString())
-        val cursor = db.query(
+        val cursor = this.readableDatabase.query(
             DatabaseConstants.SessionsTable.TABLE_NAME,
             projection,
             selection,
@@ -92,28 +96,27 @@ class SessionDBService(
             null,
             null
         )
-        if (cursor.moveToFirst()) {
-            val duration =
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DURATION_COLUMN))
-            val date =
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
-            val sessionData = SessionData(duration, date, id)
-            cursor.close()
-            return sessionData
+        with(cursor) {
+            if (!moveToFirst()) return null
+
+            return SessionData(
+                getLong(getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DURATION_COLUMN)),
+                getLong(getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN)),
+                id
+            ).also {
+                close()
+            }
         }
-        cursor.close()
-        return null
     }
 
     fun getSessionWithTagsByID(id: Long): Session? {
-        val db = this.readableDatabase
         val projection = arrayOf(
             DatabaseConstants.SessionsTable.DURATION_COLUMN,
             DatabaseConstants.SessionsTable.DATE_COLUMN
         )
         val selection = "${BaseColumns._ID} = ?"
         val selectionArgs = arrayOf(id.toString())
-        val cursor = db.query(
+        val cursor = this.readableDatabase.query(
             DatabaseConstants.SessionsTable.TABLE_NAME,
             projection,
             selection,
@@ -122,40 +125,22 @@ class SessionDBService(
             null,
             null
         )
-        if (cursor.moveToFirst()) {
-            val duration =
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DURATION_COLUMN))
-            val date =
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
-            val session = Session(
-                duration,
-                Calendar.getInstance().apply { timeInMillis = date },
-                id,
-                mutableListOf()
-            )
-            val sessionTagIDs =
-                SessionTagDBService(appContext, databaseName).getTagIDsForSession(id)
-            sessionTagIDs.forEach {
-                val tag = TagDBService(appContext, databaseName).getTagByID(it)
-                if (tag != null) {
-                    session.tags.add(tag)
-                }
+        with(cursor) {
+            if (!moveToFirst()) return null
+
+            return getSession(cursor, id).also {
+                close()
             }
-            cursor.close()
-            return session
         }
-        cursor.close()
-        return null
     }
 
     fun getAllSessions(): List<Session> {
-        val db = this.readableDatabase
         val projection = arrayOf(
             BaseColumns._ID,
             DatabaseConstants.SessionsTable.DURATION_COLUMN,
             DatabaseConstants.SessionsTable.DATE_COLUMN
         )
-        val cursor = db.query(
+        val cursor = this.readableDatabase.query(
             DatabaseConstants.SessionsTable.TABLE_NAME,
             projection,
             null,
@@ -165,41 +150,26 @@ class SessionDBService(
             null
         )
         val sessions = mutableListOf<Session>()
-        while (cursor.moveToNext()) {
-            val id = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID))
-            val duration =
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DURATION_COLUMN))
-            val date =
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
-            val session = Session(
-                duration,
-                Calendar.getInstance().apply { timeInMillis = date },
-                id,
-                mutableListOf()
-            )
-            val sessionTagIDs =
-                SessionTagDBService(appContext, databaseName).getTagIDsForSession(id)
-            sessionTagIDs.forEach {
-                val tag = TagDBService(appContext, databaseName).getTagByID(it)
-                if (tag != null) {
-                    session.tags.add(tag)
+        with(cursor) {
+            while (moveToNext()) {
+                val id = getLong(getColumnIndexOrThrow(BaseColumns._ID))
+                getSession(cursor, id).also { session ->
+                    sessions.add(session)
                 }
             }
-            sessions.add(session)
+            close()
         }
-        cursor.close()
         return sessions
     }
 
     fun getSessionsByIDs(sessionIDs: List<Long>): List<Session> {
-        val db = this.readableDatabase
         val projection = arrayOf(
             BaseColumns._ID,
             DatabaseConstants.SessionsTable.DURATION_COLUMN,
             DatabaseConstants.SessionsTable.DATE_COLUMN
         )
         val selection = "${BaseColumns._ID} IN (${sessionIDs.joinToString(",")})"
-        val cursor = db.query(
+        val cursor = this.readableDatabase.query(
             DatabaseConstants.SessionsTable.TABLE_NAME,
             projection,
             selection,
@@ -209,33 +179,23 @@ class SessionDBService(
             null
         )
         val sessions = mutableListOf<Session>()
-        while (cursor.moveToNext()) {
-            val id = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID))
-            val duration =
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DURATION_COLUMN))
-            val date =
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
-            val session = Session(
-                duration,
-                Calendar.getInstance().apply { timeInMillis = date },
-                id,
-                mutableListOf()
-            )
-            val sessionTagIDs =
-                SessionTagDBService(appContext, databaseName).getTagIDsForSession(id)
-            sessionTagIDs.forEach {
-                val tag = TagDBService(appContext, databaseName).getTagByID(it)
-                if (tag != null) {
-                    session.tags.add(tag)
+        with(cursor) {
+            while (moveToNext()) {
+                val id = getLong(getColumnIndexOrThrow(BaseColumns._ID))
+                getSession(cursor, id).also { session ->
+                    sessions.add(session)
                 }
             }
-            sessions.add(session)
+            close()
         }
-        cursor.close()
         return sessions
     }
 
-    fun getSessionsByIDs(sessionIDs: List<Long>, page: Int, pageSize: Int = DEFAULT_PAGE_SIZE): List<Session>{
+    fun getSessionsByIDs(
+        sessionIDs: List<Long>,
+        page: Int,
+        pageSize: Int = DEFAULT_PAGE_SIZE
+    ): List<Session> {
         val projection = arrayOf(
             BaseColumns._ID,
             DatabaseConstants.SessionsTable.DURATION_COLUMN,
@@ -255,36 +215,19 @@ class SessionDBService(
             limit
         )
         val sessions = mutableListOf<Session>()
-        with(cursor){
-            while(moveToNext()){
+        with(cursor) {
+            while (moveToNext()) {
                 val id = getLong(getColumnIndexOrThrow(BaseColumns._ID))
-                val duration =
-                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DURATION_COLUMN))
-                val date =
-                    getLong(getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
-                val session = Session(
-                    duration,
-                    Calendar.getInstance().apply { timeInMillis = date },
-                    id,
-                    mutableListOf()
-                )
-                val sessionTagIDs =
-                    SessionTagDBService(appContext, databaseName).getTagIDsForSession(id)
-                sessionTagIDs.forEach {
-                    val tag = TagDBService(appContext, databaseName).getTagByID(it)
-                    if (tag != null) {
-                        session.tags.add(tag)
-                    }
+                getSession(cursor, id).also { session ->
+                    sessions.add(session)
                 }
-                sessions.add(session)
-
             }
+            close()
         }
         return sessions
     }
 
     fun getAllSessions(page: Int, pageSize: Int = DEFAULT_PAGE_SIZE): List<Session> {
-        val db = this.readableDatabase
         val projection = arrayOf(
             BaseColumns._ID,
             DatabaseConstants.SessionsTable.DURATION_COLUMN,
@@ -294,7 +237,7 @@ class SessionDBService(
         val orderBy = "${DatabaseConstants.SessionsTable.DATE_COLUMN} DESC"
         val limit = "${(page - 1) * pageSize}, $pageSize"
 
-        val cursor = db.query(
+        val cursor = this.readableDatabase.query(
             DatabaseConstants.SessionsTable.TABLE_NAME,
             projection,
             null,
@@ -305,33 +248,43 @@ class SessionDBService(
             limit
         )
         val sessions = mutableListOf<Session>()
-        while (cursor.moveToNext()) {
-            val id = cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID))
-            val duration =
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DURATION_COLUMN))
-            val date =
-                cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
-            val session = Session(
-                duration,
-                Calendar.getInstance().apply { timeInMillis = date },
-                id,
-                mutableListOf()
-            )
-            val sessionTagIDs =
-                SessionTagDBService(appContext, databaseName).getTagIDsForSession(id)
-            sessionTagIDs.forEach {
-                val tag = TagDBService(appContext, databaseName).getTagByID(it)
-                if (tag != null) {
-                    session.tags.add(tag)
+        with(cursor) {
+            while (moveToNext()) {
+                val id = getLong(getColumnIndexOrThrow(BaseColumns._ID))
+                getSession(cursor, id).also { session ->
+                    sessions.add(session)
                 }
             }
-            sessions.add(session)
+            close()
         }
-        cursor.close()
         return sessions
     }
 
-    fun validateSessionDate(date: Calendar){
+    private fun getSession(cursor: Cursor, id: Long): Session {
+        with(cursor) {
+            val duration =
+                getLong(getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DURATION_COLUMN))
+            val date =
+                getLong(getColumnIndexOrThrow(DatabaseConstants.SessionsTable.DATE_COLUMN))
+            val sessionTags = mutableListOf<Tag>().apply {
+                val sessionTagIDs =
+                    SessionTagDBService(appContext, databaseName).getTagIDsForSession(id)
+                sessionTagIDs.forEach {
+                    TagDBService(appContext, databaseName).getTagByID(it)?.let { tag ->
+                        add(tag)
+                    }
+                }
+            }
+            return Session(
+                duration,
+                Calendar.getInstance().apply { timeInMillis = date },
+                id,
+                sessionTags
+            )
+        }
+    }
+
+    private fun validateSessionDate(date: Calendar) {
         val today = Calendar.getInstance()
         setCalendarToDayEnd(today)
         if (date.after(today)) {
