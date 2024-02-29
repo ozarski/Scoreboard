@@ -1,7 +1,6 @@
 package com.ozarskiapps.scoreboard.ui
 
 import android.content.Context
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,11 +26,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -41,9 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.base.Tag
 import com.example.base.session.Session
-import com.example.database.SessionTagDBService
-import com.example.database.StatsDBService
-import com.example.database.TagDBService
 import com.ozarskiapps.global.durationInSecondsToHoursAndMinutes
 import com.ozarskiapps.global.formatDate
 import com.ozarskiapps.scoreboard.MainActivity
@@ -57,19 +50,13 @@ import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.onTertiaryContainerDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 import com.ozarskiapps.scoreboard.ui.theme.secondaryDark
-import org.apache.commons.lang3.tuple.MutablePair
 
 class HistoryTab(private val context: Context) : ComponentActivity() {
 
     private var popupSessionID = 0L
-    private lateinit var tagListPick: SnapshotStateList<MutablePair<MutableState<Tag>, MutableState<Boolean>>>
-    private lateinit var sessionsDuration: MutableState<Long>
-    private var page: Int = 1
 
     @Composable
     fun GenerateLayout() {
-        tagListPick = remember { mutableStateListOf() }
-        reloadTags()
         HistoryTabLayout()
     }
 
@@ -130,7 +117,6 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
 
     @Composable
     fun Duration() {
-        sessionsDuration = remember { mutableLongStateOf(0L) }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
@@ -145,7 +131,7 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
             )
             Text(
                 text = durationInSecondsToHoursAndMinutes(
-                    sessionsDuration.value
+                    MainActivity.filteredDuration.longValue
                 ),
                 fontSize = 25.sp,
                 style = Typography.labelLarge
@@ -173,7 +159,7 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
             )
         }
         if (filterPopupVisible.value) {
-            FilterHistoryPopup(context).GeneratePopup(filterPopupVisible, tagListPick)
+            FilterHistoryPopup(context).GeneratePopup(filterPopupVisible)
         }
     }
 
@@ -205,10 +191,6 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
 
     @Composable
     fun SessionsHistoryList() {
-        val sessions = remember { mutableStateListOf<Session>() }
-        if (MainActivity.sessionsListUpdate.value) {
-            updateSessions(sessions)
-        }
         val sessionDetailsPopupVisible = remember { mutableStateOf(false) }
 
         Card(
@@ -223,8 +205,8 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
                     shape = RoundedCornerShape(25.dp)
                 )
             ) {
-                items(sessions.size) {
-                    SessionItem(sessions[it], sessionDetailsPopupVisible)
+                items(MainActivity.sessionList.size) {
+                    SessionItem(MainActivity.sessionList[it], sessionDetailsPopupVisible)
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(0.95f),
                         thickness = 0.7.dp,
@@ -233,7 +215,7 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
                 }
                 item {
                     LoadMoreSessionsButton {
-                        loadMoreSessions(sessions)
+                        MainActivity.loadMoreSessions(context)
                     }
                 }
             }
@@ -261,47 +243,6 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
                 color = primaryDark
             )
         }
-    }
-
-    private fun updateSessions(sessions: SnapshotStateList<Session>) {
-        page = 1
-        val pickedIDs = tagListPick.filter { it.right.value }.map { it.left.value.id }
-
-        SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page).sortedByDescending {
-            it.getDate().timeInMillis
-        }.also {
-            sessions.clear()
-            sessions.addAll(it)
-        }
-
-        sessionsDuration.value = StatsDBService(context).getDurationForSessionsWithTags(pickedIDs)
-        MainActivity.sessionsListUpdate.value = false
-        page++
-    }
-
-    private fun loadMoreSessions(sessions: SnapshotStateList<Session>) {
-        val pickedIDs = tagListPick.filter { it.right.value }.map { it.left.value.id }
-
-        val tempSessions =
-            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, page).sortedByDescending {
-                it.getDate().timeInMillis
-            }
-        if (tempSessions.isEmpty()) {
-            Toast.makeText(context, "All sessions loaded", Toast.LENGTH_SHORT).show()
-            return
-        }
-        page++
-        sessions.addAll(tempSessions)
-
-        sessionsDuration.value = StatsDBService(context).getDurationForSessionsWithTags(pickedIDs)
-    }
-
-    private fun reloadTags() {
-        val tags = TagDBService(context).getAllTags().map {
-            MutablePair(mutableStateOf(it), mutableStateOf(false))
-        }
-        tagListPick.clear()
-        tagListPick.addAll(tags)
     }
 
     @Composable

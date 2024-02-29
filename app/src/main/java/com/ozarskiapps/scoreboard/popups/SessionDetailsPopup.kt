@@ -104,9 +104,8 @@ class SessionDetailsPopup(private val context: Context, private val session: Ses
         if (decision.value) {
             SessionDBService(context).deleteSessionByID(session.id)
             popupVisible.value = false
-            MainActivity.sessionsListUpdate.value = true
-            MainActivity.totalDurationUpdate.value = true
-            MainActivity.tagsListUpdate.value = true
+            MainActivity.loadMoreSessions(context, true)
+            MainActivity.loadMoreTags(context, true)
         }
     }
 

@@ -56,7 +56,6 @@ dependencies {
     //dependencies
     compose()
     core()
-    accompanist()
     numberPicker()
     apacheCommons() // for mutable pair
 }

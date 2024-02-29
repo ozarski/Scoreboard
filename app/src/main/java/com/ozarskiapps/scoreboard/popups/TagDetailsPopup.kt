@@ -203,8 +203,7 @@ class TagDetailsPopup(private val context: Context, private val tag: Tag) : Comp
         if (decision.value) {
             TagDBService(context).deleteTagByID(tag.id)
             decision.value = false
-            MainActivity.totalDurationUpdate.value = true
-            MainActivity.tagsListUpdate.value = true
+            MainActivity.loadMoreTags(context, true)
         }
     }
 }
