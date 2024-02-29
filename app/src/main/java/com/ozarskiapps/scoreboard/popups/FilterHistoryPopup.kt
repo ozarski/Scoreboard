@@ -56,7 +56,7 @@ class FilterHistoryPopup(val context: Context) {
             remember { mutableStateOf(it.right) })
         }.run{
             tagPickList = remember { mutableStateListOf() }
-            tagPickList.addAll(this)
+            tagPickList.addAll(this.sortedBy { it.left.value.tagName.lowercase() } )
         }
         Popup(
             popupPositionProvider = WindowCenterOffsetPositionProvider(),

@@ -96,17 +96,23 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
     @Composable
     fun AddSessionButton() {
         val popupVisible = remember { mutableStateOf(false) }
-        Icon(
-            imageVector = Icons.Rounded.Add,
-            contentDescription = "Add button",
-            tint = onTertiaryContainerDark,
-            modifier = Modifier
-                .padding(end = 20.dp)
-                .size(40.dp)
-                .clickable {
-                    popupVisible.value = true
-                }
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Add,
+                contentDescription = "Add button",
+                tint = onTertiaryContainerDark,
+                modifier = Modifier
+                    .padding(end = 20.dp)
+                    .size(40.dp)
+                    .clickable {
+                        popupVisible.value = true
+                    }
+            )
+        }
         if (popupVisible.value) {
             AddSessionPopup(context).GeneratePopup(popupVisible)
         }
