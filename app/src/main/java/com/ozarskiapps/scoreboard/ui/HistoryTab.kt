@@ -89,7 +89,12 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Duration()
-                FilterButton()
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FilterButton()
+                }
             }
         }
     }
@@ -148,6 +153,7 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
             modifier = Modifier.fillMaxWidth()
         ) {
             val interactionSource = remember { MutableInteractionSource() }
+            ImportDataIcon()
             Icon(
                 painter = painterResource(id = R.drawable.baseline_filter_list_24),
                 contentDescription = "Filter popup button",
@@ -161,6 +167,21 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
         if (filterPopupVisible.value) {
             FilterHistoryPopup(context).GeneratePopup(filterPopupVisible)
         }
+    }
+
+    @Composable
+    fun ImportDataIcon() {
+        Icon(
+            painter = painterResource(id = R.drawable.baseline_download_24),
+            contentDescription = "Filter popup button",
+            tint = onPrimaryDark,
+            modifier = Modifier
+                .clickable {
+                    //TODO("Let the user pick a file to import")
+                }
+                .size(50.dp)
+                .padding(horizontal = 5.dp)
+        )
     }
 
     private fun Modifier.filterButtonIconModifier(
