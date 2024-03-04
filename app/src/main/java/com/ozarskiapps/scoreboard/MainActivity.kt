@@ -1,6 +1,9 @@
 package com.ozarskiapps.scoreboard
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -50,6 +53,8 @@ import com.ozarskiapps.scoreboard.ui.theme.backgroundDark
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 import org.apache.commons.lang3.tuple.MutablePair
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : ComponentActivity() {
 
@@ -172,10 +177,35 @@ class MainActivity : ComponentActivity() {
                 }
 
                 1 -> {
-                    HistoryTab(this@MainActivity).GenerateLayout()
+                    HistoryTab(this@MainActivity, this@MainActivity).GenerateLayout()
                 }
             }
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(resultCode == Activity.RESULT_OK && requestCode == 100){
+            data?.data?.let {
+                println(it.path)
+                Toast.makeText(this@MainActivity, it.path, Toast.LENGTH_SHORT).show()
+                copyFileToAppDatabasesFolder(it)
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun copyFileToAppDatabasesFolder(uri: Uri) {
+        val inputStream = contentResolver.openInputStream(uri)
+        val file = File("$dataDir/databases")
+
+        if (!file.exists()) {
+            file.mkdirs()
+        }
+        val outputFile = File(file, "test.db")
+        val outputStream = FileOutputStream(outputFile)
+        inputStream?.copyTo(outputStream)
+        inputStream?.close()
+        outputStream.close()
     }
 
     companion object {

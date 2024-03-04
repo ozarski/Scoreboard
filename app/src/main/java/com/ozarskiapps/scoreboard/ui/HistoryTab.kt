@@ -1,7 +1,10 @@
 package com.ozarskiapps.scoreboard.ui
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -50,8 +53,9 @@ import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.onTertiaryContainerDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 import com.ozarskiapps.scoreboard.ui.theme.secondaryDark
+import java.io.File
 
-class HistoryTab(private val context: Context) : ComponentActivity() {
+class HistoryTab(private val context: Context, private val activityContext: Activity) : ComponentActivity() {
 
     private var popupSessionID = 0L
 
@@ -177,11 +181,21 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
             tint = onPrimaryDark,
             modifier = Modifier
                 .clickable {
-                    //TODO("Let the user pick a file to import")
+                    pickFile()
                 }
                 .size(50.dp)
                 .padding(horizontal = 5.dp)
         )
+    }
+
+    private fun pickFile(){
+        val PICK_PDF_FILE = 100
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+        }
+
+        activityContext.startActivityForResult(intent, PICK_PDF_FILE)
     }
 
     private fun Modifier.filterButtonIconModifier(
