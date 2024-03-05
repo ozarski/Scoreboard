@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.example.base.Tag
 import com.example.base.session.Session
+import com.example.database.DatabaseConstants
 import com.example.database.SessionTagDBService
 import com.example.database.StatsDBService
 import com.example.database.TagDBService
@@ -194,18 +195,21 @@ class MainActivity : ComponentActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun copyFileToAppDatabasesFolder(uri: Uri) {
+    private fun copyFileToAppDatabasesFolder(uri: Uri, targetFilename: String = DatabaseConstants.DATABASE_NAME) {
         val inputStream = contentResolver.openInputStream(uri)
         val file = File("$dataDir/databases")
 
         if (!file.exists()) {
             file.mkdirs()
         }
-        val outputFile = File(file, "test.db")
+
+        val outputFile = File(file, targetFilename)
         val outputStream = FileOutputStream(outputFile)
         inputStream?.copyTo(outputStream)
         inputStream?.close()
         outputStream.close()
+        loadMoreTags(this, true)
+        loadMoreSessions(this, true)
     }
 
     companion object {
