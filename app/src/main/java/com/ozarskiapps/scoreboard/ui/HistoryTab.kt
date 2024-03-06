@@ -55,7 +55,8 @@ import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 import com.ozarskiapps.scoreboard.ui.theme.secondaryDark
 import java.io.File
 
-class HistoryTab(private val context: Context, private val activityContext: Activity) : ComponentActivity() {
+class HistoryTab(private val context: Context, private val activityContext: Activity) :
+    ComponentActivity() {
 
     private var popupSessionID = 0L
 
@@ -188,14 +189,15 @@ class HistoryTab(private val context: Context, private val activityContext: Acti
         )
     }
 
-    private fun pickFile(){
-        val PICK_PDF_FILE = 100
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "*/*"
+    private fun pickFile() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            //can't filter for .db files so filtering for binary files (which includes .db
+            //files but exclude most image, video, audio, txt etc.)
+            type = "application/octet-stream"
         }
+        println(intent.type)
 
-        activityContext.startActivityForResult(intent, PICK_PDF_FILE)
+        activityContext.startActivityForResult(intent, MainActivity.PICK_DB_REQUEST_CODE)
     }
 
     private fun Modifier.filterButtonIconModifier(

@@ -185,10 +185,9 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if(resultCode == Activity.RESULT_OK && requestCode == 100){
+        if(resultCode == Activity.RESULT_OK && requestCode == PICK_DB_REQUEST_CODE){
             data?.data?.let {
-                println(it.path)
-                Toast.makeText(this@MainActivity, it.path, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, it.path.toString(), Toast.LENGTH_SHORT).show()
                 copyFileToAppDatabasesFolder(it)
             }
         }
@@ -213,6 +212,7 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
+        const val PICK_DB_REQUEST_CODE = 100
         lateinit var tagList: SnapshotStateList<Pair<Tag, Long>>
         lateinit var sessionList: SnapshotStateList<Session>
         lateinit var totalDuration: MutableLongState

@@ -9,6 +9,7 @@ object DatabaseConstants {
     const val TEST_DATABASE_NAME = "scoreboard_tests.db"
     const val DATABASE_VERSION = 1
     const val DEFAULT_PAGE_SIZE = 15
+    const val SCHEMA_TEST_DATABASE_NAME = "scoreboard_failing_schema_check.db"
 
     const val CREATE_SESSIONS_TABLE = "CREATE TABLE ${SessionsTable.TABLE_NAME} (" +
             "${BaseColumns._ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -24,6 +25,10 @@ object DatabaseConstants {
             "${SessionTagTable.TAG_ID_COLUMN} INTEGER NOT NULL," +
             "FOREIGN KEY(${SessionTagTable.SESSION_ID_COLUMN}) REFERENCES ${SessionsTable.TABLE_NAME}(${BaseColumns._ID})," +
             "FOREIGN KEY(${SessionTagTable.TAG_ID_COLUMN}) REFERENCES ${TagsTable.TABLE_NAME}(${BaseColumns._ID}))"
+
+    const val ALL_TABLES_QUERY = "SELECT name FROM sqlite_master WHERE type='table'"
+
+    fun tableInfoQuery(tableName: String) = "PRAGMA table_info($tableName)"
 
     object SessionsTable {
         const val TABLE_NAME = "WorkSessions"
