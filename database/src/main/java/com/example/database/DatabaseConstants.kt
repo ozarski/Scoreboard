@@ -11,6 +11,7 @@ object DatabaseConstants {
     const val DEFAULT_PAGE_SIZE = 15
     const val SCHEMA_TEST_DATABASE_NAME = "scoreboard_failing_schema_check.db"
     const val SCHEMA_CHECK_DATABASE_NAME = "schema_check.db"
+    const val DATABASE_EXPORT_FILENAME = "scoreboard_export"
 
     const val CREATE_SESSIONS_TABLE = "CREATE TABLE ${SessionsTable.TABLE_NAME} (" +
             "${BaseColumns._ID} INTEGER PRIMARY KEY AUTOINCREMENT," +

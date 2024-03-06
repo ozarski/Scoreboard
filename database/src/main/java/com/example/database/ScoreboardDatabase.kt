@@ -3,6 +3,12 @@ package com.example.database
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.os.Environment
+import android.widget.Toast
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 open class ScoreboardDatabase(
     val context: Context,
@@ -15,7 +21,7 @@ open class ScoreboardDatabase(
 ) {
     override fun onCreate(db: SQLiteDatabase?) {
         db?.let {
-            if(databaseName == DatabaseConstants.SCHEMA_CHECK_DATABASE_NAME) {
+            if (databaseName == DatabaseConstants.SCHEMA_CHECK_DATABASE_NAME) {
                 return
             }
             createSessionsTable(it)
@@ -54,7 +60,7 @@ open class ScoreboardDatabase(
                     tables.contains(DatabaseConstants.TagsTable.TABLE_NAME) &&
                     tables.contains(DatabaseConstants.SessionTagTable.TABLE_NAME))
         ) {
-           return false
+            return false
         }
         return checkSessionsTableSchema() &&
                 checkTagsTableSchema() &&
@@ -73,13 +79,13 @@ open class ScoreboardDatabase(
         }
         cursor.close()
         db.close()
-        columns.indexOfFirst { it.first == DatabaseConstants.SessionsTable.DURATION_COLUMN }.run{
+        columns.indexOfFirst { it.first == DatabaseConstants.SessionsTable.DURATION_COLUMN }.run {
             if (this == -1) {
                 return false
             }
             columns[this].second == "INTEGER"
         }
-        columns.indexOfFirst { it.first == DatabaseConstants.SessionsTable.DATE_COLUMN }.run{
+        columns.indexOfFirst { it.first == DatabaseConstants.SessionsTable.DATE_COLUMN }.run {
             if (this == -1) {
                 return false
             }
@@ -100,7 +106,7 @@ open class ScoreboardDatabase(
         }
         cursor.close()
         db.close()
-        columns.indexOfFirst { it.first == DatabaseConstants.TagsTable.NAME_COLUMN }.run{
+        columns.indexOfFirst { it.first == DatabaseConstants.TagsTable.NAME_COLUMN }.run {
             if (this == -1) {
                 return false
             }
@@ -121,18 +127,39 @@ open class ScoreboardDatabase(
         }
         cursor.close()
         db.close()
-        columns.indexOfFirst { it.first == DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN }.run{
-            if (this == -1) {
-                return false
+        columns.indexOfFirst { it.first == DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN }
+            .run {
+                if (this == -1) {
+                    return false
+                }
+                columns[this].second == "INTEGER"
             }
-            columns[this].second == "INTEGER"
-        }
-        columns.indexOfFirst { it.first == DatabaseConstants.SessionTagTable.TAG_ID_COLUMN }.run{
+        columns.indexOfFirst { it.first == DatabaseConstants.SessionTagTable.TAG_ID_COLUMN }.run {
             if (this == -1) {
                 return false
             }
             columns[this].second == "INTEGER"
         }
         return true
+    }
+
+    fun exportDatabase() {
+        val toDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath)
+        val dbFile = context.getDatabasePath(DatabaseConstants.DATABASE_NAME)
+
+        if (!toDir.exists()) {
+            toDir.mkdirs()
+        }
+
+        val date = SimpleDateFormat("dd_MM_yyyy", Locale.ROOT).format(Calendar.getInstance().time)
+
+        val toFile = File(
+            toDir,
+            "${DatabaseConstants.DATABASE_EXPORT_FILENAME}_$date"
+        )
+
+        if(dbFile.copyTo(toFile, true).exists()){
+            Toast.makeText(context, "Data backup exported to downloads folder", Toast.LENGTH_SHORT).show()
+        }
     }
 }

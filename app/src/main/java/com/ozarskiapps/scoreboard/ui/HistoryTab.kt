@@ -3,6 +3,7 @@ package com.ozarskiapps.scoreboard.ui
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Environment
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.base.Tag
 import com.example.base.session.Session
+import com.example.database.ScoreboardDatabase
 import com.ozarskiapps.global.durationInSecondsToHoursAndMinutes
 import com.ozarskiapps.global.formatDate
 import com.ozarskiapps.scoreboard.MainActivity
@@ -158,6 +160,7 @@ class HistoryTab(private val context: Context, private val activityContext: Acti
             modifier = Modifier.fillMaxWidth()
         ) {
             val interactionSource = remember { MutableInteractionSource() }
+            ExportDataIcon()
             ImportDataIcon()
             Icon(
                 painter = painterResource(id = R.drawable.baseline_filter_list_24),
@@ -183,6 +186,21 @@ class HistoryTab(private val context: Context, private val activityContext: Acti
             modifier = Modifier
                 .clickable {
                     pickFile()
+                }
+                .size(50.dp)
+                .padding(horizontal = 5.dp)
+        )
+    }
+
+    @Composable
+    fun ExportDataIcon(){
+        Icon(
+            painter = painterResource(id = R.drawable.baseline_publish_24),
+            contentDescription = "Filter popup button",
+            tint = onPrimaryDark,
+            modifier = Modifier
+                .clickable {
+                    ScoreboardDatabase(context).exportDatabase()
                 }
                 .size(50.dp)
                 .padding(horizontal = 5.dp)
