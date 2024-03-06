@@ -15,6 +15,9 @@ open class ScoreboardDatabase(
 ) {
     override fun onCreate(db: SQLiteDatabase?) {
         db?.let {
+            if(databaseName == DatabaseConstants.SCHEMA_CHECK_DATABASE_NAME) {
+                return
+            }
             createSessionsTable(it)
             createTagsTable(it)
             createSessionsTagsTable(it)
@@ -42,6 +45,7 @@ open class ScoreboardDatabase(
         val cursor = db.rawQuery(DatabaseConstants.ALL_TABLES_QUERY, null)
         val tables = mutableListOf<String>()
         while (cursor.moveToNext()) {
+            println(cursor.getString(0))
             tables.add(cursor.getString(0))
         }
         cursor.close()

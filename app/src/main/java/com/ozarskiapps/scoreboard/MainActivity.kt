@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.example.base.Tag
 import com.example.base.session.Session
 import com.example.database.DatabaseConstants
+import com.example.database.ScoreboardDatabase
 import com.example.database.SessionTagDBService
 import com.example.database.StatsDBService
 import com.example.database.TagDBService
@@ -185,30 +186,47 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if(resultCode == Activity.RESULT_OK && requestCode == PICK_DB_REQUEST_CODE){
+        if (resultCode == Activity.RESULT_OK && requestCode == PICK_DB_REQUEST_CODE) {
             data?.data?.let {
-                Toast.makeText(this@MainActivity, it.path.toString(), Toast.LENGTH_SHORT).show()
                 copyFileToAppDatabasesFolder(it)
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun copyFileToAppDatabasesFolder(uri: Uri, targetFilename: String = DatabaseConstants.DATABASE_NAME) {
-        val inputStream = contentResolver.openInputStream(uri)
-        val file = File("$dataDir/databases")
+    private fun copyFileToAppDatabasesFolder(
+        uri: Uri,
+        targetFilename: String = DatabaseConstants.DATABASE_NAME
+    ) {
+        val toDir = File("$dataDir/databases")
 
-        if (!file.exists()) {
-            file.mkdirs()
+        if (!toDir.exists()) {
+            toDir.mkdirs()
         }
 
-        val outputFile = File(file, targetFilename)
-        val outputStream = FileOutputStream(outputFile)
+        val schemaCheckFile = File(toDir, DatabaseConstants.SCHEMA_CHECK_DATABASE_NAME)
+        copyFile(uri, schemaCheckFile)
+        ScoreboardDatabase(this@MainActivity, DatabaseConstants.SCHEMA_CHECK_DATABASE_NAME).run {
+            checkDatabaseSchema()
+            if (!checkDatabaseSchema()) {
+                Toast.makeText(this@MainActivity, "Wrong data format!", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+
+        val toFile = File(toDir, targetFilename)
+        copyFile(uri, toFile)
+        schemaCheckFile.delete()
+        loadMoreTags(this, true)
+        loadMoreSessions(this, true)
+    }
+
+    private fun copyFile(from: Uri, to: File) {
+        val inputStream = contentResolver.openInputStream(from)
+        val outputStream = FileOutputStream(to)
         inputStream?.copyTo(outputStream)
         inputStream?.close()
         outputStream.close()
-        loadMoreTags(this, true)
-        loadMoreSessions(this, true)
     }
 
     companion object {
@@ -227,6 +245,7 @@ class MainActivity : ComponentActivity() {
             if (reload) {
                 tagsPage = 1
                 tagList.clear()
+                tagListPick = TagDBService(context).getAllTags().map { MutablePair(it, false) }
             }
             StatsDBService(context).getAllTagsWithDurations(tagsPage).run {
                 if (isEmpty()) {

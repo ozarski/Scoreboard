@@ -195,7 +195,6 @@ class HistoryTab(private val context: Context, private val activityContext: Acti
             //files but exclude most image, video, audio, txt etc.)
             type = "application/octet-stream"
         }
-        println(intent.type)
 
         activityContext.startActivityForResult(intent, MainActivity.PICK_DB_REQUEST_CODE)
     }
