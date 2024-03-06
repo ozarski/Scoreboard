@@ -1,14 +1,18 @@
 package com.example.database
 
+import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.net.Uri
 import android.os.Environment
+import android.provider.MediaStore
 import android.widget.Toast
-import java.io.File
+import androidx.core.net.toUri
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
 
 open class ScoreboardDatabase(
     val context: Context,
@@ -144,22 +148,25 @@ open class ScoreboardDatabase(
     }
 
     fun exportDatabase() {
-        val toDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath)
-        val dbFile = context.getDatabasePath(DatabaseConstants.DATABASE_NAME)
+        val date = SimpleDateFormat("dd_MM_yyyy_HH_mm", Locale.ROOT).format(Calendar.getInstance().time)
 
-        if (!toDir.exists()) {
-            toDir.mkdirs()
+        val contentValues = ContentValues().apply{
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "${DatabaseConstants.DATABASE_EXPORT_FILENAME}$date")
+            put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
         }
+        val targetUri = context.contentResolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
+        val dbUri = context.getDatabasePath(DatabaseConstants.DATABASE_NAME).toUri()
 
-        val date = SimpleDateFormat("dd_MM_yyyy", Locale.ROOT).format(Calendar.getInstance().time)
+        val outputStream = context.contentResolver.openOutputStream(targetUri!!)
+        val inputStream = context.contentResolver.openInputStream(dbUri)
 
-        val toFile = File(
-            toDir,
-            "${DatabaseConstants.DATABASE_EXPORT_FILENAME}_$date"
-        )
-
-        if(dbFile.copyTo(toFile, true).exists()){
-            Toast.makeText(context, "Data backup exported to downloads folder", Toast.LENGTH_SHORT).show()
+        inputStream?.use { input ->
+            outputStream?.use { output ->
+                if(input.copyTo(output) > 0) {
+                    Toast.makeText(context, "Data exported to downloads folder", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }
