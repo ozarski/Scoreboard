@@ -3,9 +3,7 @@ package com.ozarskiapps.scoreboard.ui
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Environment
 import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -48,6 +46,7 @@ import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
 import com.ozarskiapps.scoreboard.popups.FilterHistoryPopup
 import com.ozarskiapps.scoreboard.popups.SessionDetailsPopup
+import com.ozarskiapps.scoreboard.popups.SettingsPopup
 import com.ozarskiapps.scoreboard.ui.theme.Typography
 import com.ozarskiapps.scoreboard.ui.theme.backgroundDark
 import com.ozarskiapps.scoreboard.ui.theme.errorContainerDark
@@ -55,7 +54,6 @@ import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.onTertiaryContainerDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 import com.ozarskiapps.scoreboard.ui.theme.secondaryDark
-import java.io.File
 
 class HistoryTab(private val context: Context, private val activityContext: Activity) :
     ComponentActivity() {
@@ -154,14 +152,14 @@ class HistoryTab(private val context: Context, private val activityContext: Acti
     @Composable
     fun FilterButton() {
         val filterPopupVisible = remember { mutableStateOf(false) }
+        val settingsPopupVisible = remember { mutableStateOf(false) }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End,
             modifier = Modifier.fillMaxWidth()
         ) {
             val interactionSource = remember { MutableInteractionSource() }
-            ExportDataIcon()
-            ImportDataIcon()
+            SettingsIcon(settingsPopupVisible)
             Icon(
                 painter = painterResource(id = R.drawable.baseline_filter_list_24),
                 contentDescription = "Filter popup button",
@@ -175,47 +173,26 @@ class HistoryTab(private val context: Context, private val activityContext: Acti
         if (filterPopupVisible.value) {
             FilterHistoryPopup(context).GeneratePopup(filterPopupVisible)
         }
-    }
-
-    @Composable
-    fun ImportDataIcon() {
-        Icon(
-            painter = painterResource(id = R.drawable.baseline_download_24),
-            contentDescription = "Filter popup button",
-            tint = onPrimaryDark,
-            modifier = Modifier
-                .clickable {
-                    pickFile()
-                }
-                .size(50.dp)
-                .padding(horizontal = 5.dp)
-        )
-    }
-
-    @Composable
-    fun ExportDataIcon(){
-        Icon(
-            painter = painterResource(id = R.drawable.baseline_publish_24),
-            contentDescription = "Filter popup button",
-            tint = onPrimaryDark,
-            modifier = Modifier
-                .clickable {
-                    ScoreboardDatabase(context).exportDatabase()
-                }
-                .size(50.dp)
-                .padding(horizontal = 5.dp)
-        )
-    }
-
-    private fun pickFile() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-            //can't filter for .db files so filtering for binary files (which includes .db
-            //files but exclude most image, video, audio, txt etc.)
-            type = "application/octet-stream"
+        if(settingsPopupVisible.value){
+            SettingsPopup(context, activityContext).GeneratePopup(settingsPopupVisible)
         }
-
-        activityContext.startActivityForResult(intent, MainActivity.PICK_DB_REQUEST_CODE)
     }
+
+    @Composable
+    fun SettingsIcon(settingsPopupVisible: MutableState<Boolean>){
+        Icon(
+            painter = painterResource(id = R.drawable.settings_icon),
+            contentDescription = "Filter popup button",
+            tint = onPrimaryDark,
+            modifier = Modifier
+                .clickable {
+                    settingsPopupVisible.value = !settingsPopupVisible.value
+                }
+                .size(50.dp)
+                .padding(horizontal = 5.dp)
+        )
+    }
+
 
     private fun Modifier.filterButtonIconModifier(
         interactionSource: MutableInteractionSource,
