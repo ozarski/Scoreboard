@@ -151,7 +151,7 @@ open class ScoreboardDatabase(
         val date = SimpleDateFormat("dd_MM_yyyy_HH_mm", Locale.ROOT).format(Calendar.getInstance().time)
 
         val contentValues = ContentValues().apply{
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "${DatabaseConstants.DATABASE_EXPORT_FILENAME}$date")
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "${DatabaseConstants.DATABASE_EXPORT_FILENAME}_$date")
             put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream")
             put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
         }
