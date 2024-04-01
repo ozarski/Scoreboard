@@ -223,6 +223,7 @@ class HistoryTab(private val context: Context, private val activityContext: Acti
     @Composable
     fun SessionsHistoryList() {
         val sessionDetailsPopupVisible = remember { mutableStateOf(false) }
+        MainActivity.loadMoreSessionsButtonVisible = remember { mutableStateOf(true) }
 
         Card(
             modifier = Modifier.padding(10.dp),
@@ -244,9 +245,11 @@ class HistoryTab(private val context: Context, private val activityContext: Acti
                         color = onPrimaryDark
                     )
                 }
-                item {
-                    LoadMoreSessionsButton {
-                        MainActivity.loadMoreSessions(context)
+                if(MainActivity.loadMoreSessionsButtonVisible.value){
+                    item {
+                        LoadMoreSessionsButton {
+                            MainActivity.loadMoreSessions(context)
+                        }
                     }
                 }
             }

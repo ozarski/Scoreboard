@@ -141,10 +141,13 @@ class MainActivity : ComponentActivity() {
 
             confirmImportPopupVisible = remember { mutableStateOf(false) }
             val decision = remember { mutableStateOf(false) }
-            if(confirmImportPopupVisible.value){
-                ConfirmImportPopup(this@MainActivity).GeneratePopup(popupVisible = confirmImportPopupVisible, decision = decision)
+            if (confirmImportPopupVisible.value) {
+                ConfirmImportPopup(this@MainActivity).GeneratePopup(
+                    popupVisible = confirmImportPopupVisible,
+                    decision = decision
+                )
             }
-            if(decision.value){
+            if (decision.value) {
                 importDatabaseFile()
                 decision.value = false
             }
@@ -240,7 +243,7 @@ class MainActivity : ComponentActivity() {
 
     private fun importDatabaseFile() {
         val toFile = File("$dataDir/databases/${DatabaseConstants.DATABASE_NAME}")
-        importUri?.let{
+        importUri?.let {
             copyFile(it, toFile)
             loadMoreTags(this, true)
             loadMoreSessions(this, true)
@@ -261,6 +264,8 @@ class MainActivity : ComponentActivity() {
         lateinit var sessionList: SnapshotStateList<Session>
         lateinit var totalDuration: MutableLongState
         lateinit var filteredDuration: MutableLongState
+        lateinit var loadMoreSessionsButtonVisible: MutableState<Boolean>
+        lateinit var loadMoreTagsButtonVisible: MutableState<Boolean>
 
         var tagListPick = listOf<MutablePair<Tag, Boolean>>()
 
@@ -272,11 +277,15 @@ class MainActivity : ComponentActivity() {
                 tagsPage = 1
                 tagList.clear()
                 tagListPick = TagDBService(context).getAllTags().map { MutablePair(it, false) }
+                loadMoreTagsButtonVisible.value = true
             }
             StatsDBService(context).getAllTagsWithDurations(tagsPage).run {
                 if (isEmpty()) {
                     Toast.makeText(context, "No more tags to load", Toast.LENGTH_SHORT).show()
                     return
+                }
+                if (size < DatabaseConstants.DEFAULT_PAGE_SIZE) {
+                    loadMoreTagsButtonVisible.value = false
                 }
                 tagList.addAll(this)
             }
@@ -292,6 +301,7 @@ class MainActivity : ComponentActivity() {
             if (reload) {
                 sessionsPage = 1
                 sessionList.clear()
+                loadMoreSessionsButtonVisible.value = true
             }
 
             val pickedIDs = newTagListPick?.let { tags ->
@@ -299,17 +309,21 @@ class MainActivity : ComponentActivity() {
                 tags.filter { it.right }.map { it.left.id }
             } ?: tagListPick.filter { it.right }.map { it.left.id }
 
-            val tempSessions =
-                SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, sessionsPage)
-                    .sortedByDescending {
-                        it.getDate().timeInMillis
+            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, sessionsPage)
+                .sortedByDescending {
+                    it.getDate().timeInMillis
+                }.run {
+                    if (isEmpty()) {
+                        Toast.makeText(context, "All sessions loaded", Toast.LENGTH_SHORT).show()
+                        return
                     }
-            if (tempSessions.isEmpty()) {
-                Toast.makeText(context, "All sessions loaded", Toast.LENGTH_SHORT).show()
-                return
-            }
+                    if (size < DatabaseConstants.DEFAULT_PAGE_SIZE) {
+                        loadMoreSessionsButtonVisible.value = false
+                    }
+                    sessionList.addAll(this)
+                }
+
             sessionsPage++
-            sessionList.addAll(tempSessions)
 
             filteredDuration.longValue =
                 StatsDBService(context).getDurationForSessionsWithTags(pickedIDs)

@@ -158,6 +158,7 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
     @Composable
     fun ActivitiesDurationLazyColumn() {
+        MainActivity.loadMoreTagsButtonVisible = remember { mutableStateOf(true) }
 
         Card(
             modifier = Modifier.padding(10.dp),
@@ -179,9 +180,11 @@ class ActivitiesTab(private val context: Context) : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth(0.95f)
                     )
                 }
-                item {
-                    LoadMoreTagsButton {
-                        MainActivity.loadMoreTags(context)
+                if(MainActivity.loadMoreTagsButtonVisible.value){
+                    item {
+                        LoadMoreTagsButton {
+                            MainActivity.loadMoreTags(context)
+                        }
                     }
                 }
             }
