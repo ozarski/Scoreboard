@@ -12,13 +12,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -39,12 +37,10 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.base.Tag
 import com.example.base.session.Session
 import com.example.database.DatabaseConstants
@@ -53,7 +49,6 @@ import com.example.database.SessionTagDBService
 import com.example.database.StatsDBService
 import com.example.database.TagDBService
 import com.ozarskiapps.scoreboard.popups.ConfirmImportPopup
-import com.ozarskiapps.scoreboard.popups.GenericPopupContent
 import com.ozarskiapps.scoreboard.ui.ActivitiesTab
 import com.ozarskiapps.scoreboard.ui.HistoryTab
 import com.ozarskiapps.scoreboard.ui.theme.ScoreboardTheme

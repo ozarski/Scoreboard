@@ -3,6 +3,7 @@ package com.ozarskiapps.scoreboard.popups
 import android.content.Context
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.base.Tag
-import com.example.database.TagDBService
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
 import com.ozarskiapps.scoreboard.ui.theme.Typography
@@ -163,12 +163,16 @@ class FilterHistoryPopup(val context: Context) {
             painterResource(R.drawable.outline_label_24)
         }
 
+        val interactionSource = remember { MutableInteractionSource() }
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
                 .padding(vertical = 5.dp, horizontal = 20.dp)
-                .clickable {
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                ) {
                     item.right.value = !item.right.value
                 }
         ) {

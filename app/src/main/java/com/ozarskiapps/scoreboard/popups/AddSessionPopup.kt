@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -250,12 +251,16 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             painterResource(R.drawable.outline_label_24)
         }
 
+        val interactionSource = remember { MutableInteractionSource() }
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
                 .padding(vertical = 5.dp, horizontal = 20.dp)
-                .clickable {
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                ) {
                     isTagPicked.value = !isTagPicked.value
                     item.right = isTagPicked.value
                 }

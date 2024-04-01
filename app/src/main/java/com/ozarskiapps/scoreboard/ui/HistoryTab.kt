@@ -2,7 +2,6 @@ package com.ozarskiapps.scoreboard.ui
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.base.Tag
 import com.example.base.session.Session
-import com.example.database.ScoreboardDatabase
 import com.ozarskiapps.global.durationInSecondsToHoursAndMinutes
 import com.ozarskiapps.global.formatDate
 import com.ozarskiapps.scoreboard.MainActivity
