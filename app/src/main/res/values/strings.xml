@@ -24,4 +24,5 @@
     <string name="are_you_sure">Are you sure?</string>
     <string name="add_session_popup_adding_text">saving</string>
     <string name="activities_tab_header">Activities</string>
+    <string name="data_import_warning">This operation cannot be reversed without data backup</string>
 </resources>

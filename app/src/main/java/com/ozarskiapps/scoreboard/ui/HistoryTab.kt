@@ -1,6 +1,8 @@
 package com.ozarskiapps.scoreboard.ui
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,12 +39,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.base.Tag
 import com.example.base.session.Session
+import com.example.database.ScoreboardDatabase
 import com.ozarskiapps.global.durationInSecondsToHoursAndMinutes
 import com.ozarskiapps.global.formatDate
 import com.ozarskiapps.scoreboard.MainActivity
 import com.ozarskiapps.scoreboard.R
 import com.ozarskiapps.scoreboard.popups.FilterHistoryPopup
 import com.ozarskiapps.scoreboard.popups.SessionDetailsPopup
+import com.ozarskiapps.scoreboard.popups.SettingsPopup
 import com.ozarskiapps.scoreboard.ui.theme.Typography
 import com.ozarskiapps.scoreboard.ui.theme.backgroundDark
 import com.ozarskiapps.scoreboard.ui.theme.errorContainerDark
@@ -51,7 +55,8 @@ import com.ozarskiapps.scoreboard.ui.theme.onTertiaryContainerDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 import com.ozarskiapps.scoreboard.ui.theme.secondaryDark
 
-class HistoryTab(private val context: Context) : ComponentActivity() {
+class HistoryTab(private val context: Context, private val activityContext: Activity) :
+    ComponentActivity() {
 
     private var popupSessionID = 0L
 
@@ -89,7 +94,12 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Duration()
-                FilterButton()
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FilterButton()
+                }
             }
         }
     }
@@ -142,12 +152,14 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
     @Composable
     fun FilterButton() {
         val filterPopupVisible = remember { mutableStateOf(false) }
+        val settingsPopupVisible = remember { mutableStateOf(false) }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End,
             modifier = Modifier.fillMaxWidth()
         ) {
             val interactionSource = remember { MutableInteractionSource() }
+            SettingsIcon(settingsPopupVisible)
             Icon(
                 painter = painterResource(id = R.drawable.baseline_filter_list_24),
                 contentDescription = "Filter popup button",
@@ -161,7 +173,26 @@ class HistoryTab(private val context: Context) : ComponentActivity() {
         if (filterPopupVisible.value) {
             FilterHistoryPopup(context).GeneratePopup(filterPopupVisible)
         }
+        if(settingsPopupVisible.value){
+            SettingsPopup(context, activityContext).GeneratePopup(settingsPopupVisible)
+        }
     }
+
+    @Composable
+    fun SettingsIcon(settingsPopupVisible: MutableState<Boolean>){
+        Icon(
+            painter = painterResource(id = R.drawable.settings_icon),
+            contentDescription = "Filter popup button",
+            tint = onPrimaryDark,
+            modifier = Modifier
+                .clickable {
+                    settingsPopupVisible.value = !settingsPopupVisible.value
+                }
+                .size(50.dp)
+                .padding(horizontal = 5.dp)
+        )
+    }
+
 
     private fun Modifier.filterButtonIconModifier(
         interactionSource: MutableInteractionSource,

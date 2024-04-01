@@ -2,6 +2,7 @@ package com.ozarskiapps.scoreboard.popups
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +16,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,7 +28,7 @@ import com.ozarskiapps.scoreboard.ui.theme.onErrorDark
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 
-class ConfirmPopup(private val context: Context) {
+class ConfirmImportPopup(private val context: Context) {
 
     private lateinit var popupVisible: MutableState<Boolean>
     private var otherPopupVisible: MutableState<Boolean>? = null
@@ -40,7 +40,7 @@ class ConfirmPopup(private val context: Context) {
         popupVisible: MutableState<Boolean>,
         decision: MutableState<Boolean>,
         otherPopupVisible: MutableState<Boolean>? = null,
-        hideOtherPopup: Boolean = true
+        hideOtherPopup: Boolean = false
     ) {
         this.popupVisible = popupVisible
         this.otherPopupVisible = otherPopupVisible
@@ -54,32 +54,35 @@ class ConfirmPopup(private val context: Context) {
             },
             properties = PopupProperties(focusable = true)
         ) {
-            ConfirmPopupLayout()
-        }
-    }
-
-    @Composable
-    private fun ConfirmPopupLayout() {
-        GenericPopupContent.GenerateContent(
-            width = 300,
-        ) {
-            PopupQuestion()
-            DecisionButtons()
+            GenericPopupContent.GenerateContent(
+                width = 300,
+            ) {
+                PopupQuestion()
+                DecisionButtons()
+            }
         }
     }
 
     @Composable
     private fun PopupQuestion() {
-        Text(
-            text = stringResource(R.string.are_you_sure),
-            fontSize = 25.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(top = 16.dp, bottom = 20.dp)
-                .fillMaxWidth(),
-            style = Typography.titleLarge,
-            color = onPrimaryDark
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 25.dp)
+        ) {
+            Text(
+                text = context.getString(R.string.are_you_sure),
+                fontSize = 25.sp,
+                modifier = Modifier.padding(bottom = 20.dp),
+                color = onPrimaryDark
+            )
+            Text(
+                text = context.getString(R.string.data_import_warning),
+                fontSize = 17.sp,
+                modifier = Modifier.widthIn(max = 250.dp),
+                textAlign = TextAlign.Center,
+                color = onPrimaryDark
+            )
+        }
     }
 
     @Composable
@@ -113,8 +116,8 @@ class ConfirmPopup(private val context: Context) {
                 closePopup()
             },
             modifier = Modifier
-            .padding(horizontal = 10.dp)
-            .widthIn(100.dp),
+                .padding(horizontal = 10.dp)
+                .widthIn(100.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
             elevation = ButtonDefaults.buttonElevation(0.dp)

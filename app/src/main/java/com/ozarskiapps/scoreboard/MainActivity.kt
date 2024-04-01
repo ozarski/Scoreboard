@@ -1,6 +1,9 @@
 package com.ozarskiapps.scoreboard
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -9,11 +12,13 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -31,17 +36,24 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.base.Tag
 import com.example.base.session.Session
+import com.example.database.DatabaseConstants
+import com.example.database.ScoreboardDatabase
 import com.example.database.SessionTagDBService
 import com.example.database.StatsDBService
 import com.example.database.TagDBService
+import com.ozarskiapps.scoreboard.popups.ConfirmImportPopup
+import com.ozarskiapps.scoreboard.popups.GenericPopupContent
 import com.ozarskiapps.scoreboard.ui.ActivitiesTab
 import com.ozarskiapps.scoreboard.ui.HistoryTab
 import com.ozarskiapps.scoreboard.ui.theme.ScoreboardTheme
@@ -50,8 +62,13 @@ import com.ozarskiapps.scoreboard.ui.theme.backgroundDark
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 import org.apache.commons.lang3.tuple.MutablePair
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var confirmImportPopupVisible: MutableState<Boolean>
+    private var importUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,6 +138,16 @@ class MainActivity : ComponentActivity() {
             ) {
                 MainTabs(selectedTabIndex, tabs)
             }
+
+            confirmImportPopupVisible = remember { mutableStateOf(false) }
+            val decision = remember { mutableStateOf(false) }
+            if(confirmImportPopupVisible.value){
+                ConfirmImportPopup(this@MainActivity).GeneratePopup(popupVisible = confirmImportPopupVisible, decision = decision)
+            }
+            if(decision.value){
+                importDatabaseFile()
+                decision.value = false
+            }
         }
     }
 
@@ -172,13 +199,64 @@ class MainActivity : ComponentActivity() {
                 }
 
                 1 -> {
-                    HistoryTab(this@MainActivity).GenerateLayout()
+                    HistoryTab(this@MainActivity, this@MainActivity).GenerateLayout()
                 }
             }
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK && requestCode == PICK_DB_REQUEST_CODE) {
+            data?.data?.let {
+                copyFileToAppDatabasesFolder(it)
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun copyFileToAppDatabasesFolder(
+        uri: Uri,
+        targetFilename: String = DatabaseConstants.DATABASE_NAME
+    ) {
+        val toDir = File("$dataDir/databases")
+
+        if (!toDir.exists()) {
+            toDir.mkdirs()
+        }
+
+        val schemaCheckFile = File(toDir, DatabaseConstants.SCHEMA_CHECK_DATABASE_NAME)
+        copyFile(uri, schemaCheckFile)
+        ScoreboardDatabase(this@MainActivity, DatabaseConstants.SCHEMA_CHECK_DATABASE_NAME).run {
+            checkDatabaseSchema()
+            if (!checkDatabaseSchema()) {
+                Toast.makeText(this@MainActivity, "Wrong data format!", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+        confirmImportPopupVisible.value = true
+        schemaCheckFile.delete()
+        importUri = uri
+    }
+
+    private fun importDatabaseFile() {
+        val toFile = File("$dataDir/databases/${DatabaseConstants.DATABASE_NAME}")
+        importUri?.let{
+            copyFile(it, toFile)
+            loadMoreTags(this, true)
+            loadMoreSessions(this, true)
+        }
+    }
+
+    private fun copyFile(from: Uri, to: File) {
+        val inputStream = contentResolver.openInputStream(from)
+        val outputStream = FileOutputStream(to)
+        inputStream?.copyTo(outputStream)
+        inputStream?.close()
+        outputStream.close()
+    }
+
     companion object {
+        const val PICK_DB_REQUEST_CODE = 100
         lateinit var tagList: SnapshotStateList<Pair<Tag, Long>>
         lateinit var sessionList: SnapshotStateList<Session>
         lateinit var totalDuration: MutableLongState
@@ -193,6 +271,7 @@ class MainActivity : ComponentActivity() {
             if (reload) {
                 tagsPage = 1
                 tagList.clear()
+                tagListPick = TagDBService(context).getAllTags().map { MutablePair(it, false) }
             }
             StatsDBService(context).getAllTagsWithDurations(tagsPage).run {
                 if (isEmpty()) {
