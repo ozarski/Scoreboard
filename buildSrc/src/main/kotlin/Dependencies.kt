@@ -17,6 +17,8 @@ object Dependencies{
     const val junit = "junit:junit:${Versions.junit}"
     const val test_ext_junit = "androidx.test.ext:junit:${Versions.androidx_test_ext_junit}"
     const val test_runner = "androidx.test:runner:${Versions.androidx_test_runner}"
+    const val vanpra_dialogs = "io.github.vanpra.compose-material-dialogs:datetime:${Versions.vanpra_dialogs}"
+
 }
 
 fun DependencyHandler.core(){
@@ -30,6 +32,10 @@ fun DependencyHandler.compose(){
     implementation(Dependencies.compose_ui_graphics)
     implementation(Dependencies.compose_ui_tooling_preview)
     implementation(Dependencies.compose_material_3)
+}
+
+fun DependencyHandler.vanpraDialogs(){
+    implementation(Dependencies.vanpra_dialogs)
 }
 
 fun DependencyHandler.accompanist(){

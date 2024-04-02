@@ -46,8 +46,6 @@ import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 
 class ActivitiesTab(private val context: Context) : ComponentActivity() {
 
-    private var page = 1
-
     @Composable
     fun GenerateLayout() {
         Column(

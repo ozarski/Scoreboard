@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -56,7 +57,9 @@ import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.onTertiaryContainerDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 import org.apache.commons.lang3.tuple.MutablePair
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 import kotlin.concurrent.thread
 
 class AddSessionPopup(val context: Context) : ComponentActivity() {
@@ -64,6 +67,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     private lateinit var popupVisible: MutableState<Boolean>
     private lateinit var tagListPick: SnapshotStateList<MutablePair<Tag, Boolean>>
     private lateinit var hourPickerValue: MutableState<Hours>
+    private lateinit var date: MutableState<Calendar>
 
     @Composable
     fun GeneratePopup(popupVisible: MutableState<Boolean>) {
@@ -88,6 +92,9 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            DateLabel()
+            DateValue()
+
             DurationLabel()
             HourPicker24hMax()
 
@@ -97,6 +104,52 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             AddSessionButton()
         }
 
+    }
+
+    @Composable
+    fun DateLabel() {
+        Text(
+            text = context.getString(R.string.add_session_popup_date_header),
+            fontSize = 20.sp,
+            modifier = Modifier
+                .padding(top = 10.dp, start = 20.dp)
+                .fillMaxWidth(),
+            textAlign = TextAlign.Start,
+            style = Typography.titleLarge,
+            color = onPrimaryDark
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun DateValue() {
+        date = remember {
+            mutableStateOf(Calendar.getInstance())
+        }
+        val pickDateDialogVisible = remember { mutableStateOf(false) }
+        val interactionSource = remember { MutableInteractionSource() }
+        Text(
+            text = calToDateString(date.value),
+            fontSize = 25.sp,
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) {
+                    pickDateDialogVisible.value = true
+                },
+            textAlign = TextAlign.Center,
+            style = Typography.titleLarge,
+            color = onPrimaryDark
+        )
+
+        if (pickDateDialogVisible.value) {
+            PickDateDialog(date).GenerateDialog {
+                pickDateDialogVisible.value = false
+            }
+        }
     }
 
     @Composable
@@ -145,10 +198,10 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
 
         Session(
             durationSeconds.toLong(),
-            Calendar.getInstance(),
+            date.value,
             -1,
             selectedTags
-        ).run{
+        ).run {
             SessionDBService(context).addSession(this)
         }
         MainActivity.loadMoreSessions(context, true)
@@ -324,6 +377,10 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             }
 
         }
+    }
+
+    private fun calToDateString(cal: Calendar): String {
+        return SimpleDateFormat("dd.MM.yyyy", Locale.ROOT).format(cal.time)
     }
 }
 
