@@ -62,7 +62,7 @@ import java.util.Calendar
 import java.util.Locale
 import kotlin.concurrent.thread
 
-class AddSessionPopup(val context: Context) : ComponentActivity() {
+class EditSessionPopup(val context: Context, private val session: Session) : ComponentActivity() {
 
     private lateinit var popupVisible: MutableState<Boolean>
     private lateinit var tagListPick: SnapshotStateList<MutablePair<Tag, Boolean>>
@@ -70,22 +70,23 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     private lateinit var date: MutableState<Calendar>
 
     @Composable
-    fun GeneratePopup(popupVisible: MutableState<Boolean>) {
+    fun GeneratePopup(popupVisible: MutableState<Boolean>, onDismiss: () -> Unit = { }) {
         this.popupVisible = popupVisible
+
         Popup(
             onDismissRequest = {
                 popupVisible.value = false
+                onDismiss()
             },
             popupPositionProvider = WindowCenterOffsetPositionProvider(),
             properties = PopupProperties(focusable = true)
         ) {
-            AddSessionPopupLayout()
+            EditSessionPopupLayout()
         }
     }
 
     @Composable
-    private fun AddSessionPopupLayout() {
-
+    fun EditSessionPopupLayout() {
         GenericPopupContent.GenerateContent(
             widthMin = 0,
             widthMax = 375,
@@ -101,7 +102,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             TagListHeader()
             TagPickList()
 
-            AddSessionButton()
+            ModifySessionButton()
         }
 
     }
@@ -124,7 +125,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     @Composable
     fun DateValue() {
         date = remember {
-            mutableStateOf(Calendar.getInstance())
+            mutableStateOf(session.getDate())
         }
         val pickDateDialogVisible = remember { mutableStateOf(false) }
         val interactionSource = remember { MutableInteractionSource() }
@@ -167,11 +168,11 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     }
 
     @Composable
-    private fun AddSessionButton() {
+    private fun ModifySessionButton() {
         Button(
             onClick = {
                 thread {
-                    addNewSession()
+                    modifySession()
                     popupVisible.value = false
                 }
             },
@@ -183,7 +184,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
             elevation = ButtonDefaults.buttonElevation(3.dp)
         ) {
             Text(
-                text = context.getString(R.string.simple_add_button_text),
+                text = context.getString(R.string.simple_save_button_text),
                 textAlign = TextAlign.Center,
                 style = Typography.titleLarge
             )
@@ -191,7 +192,7 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
     }
 
 
-    private fun addNewSession() {
+    private fun modifySession() {
         val selectedTags = tagListPick.filter { it.right }.map { it.left }.toMutableList()
         val durationSeconds =
             (hourPickerValue.value.hours * SECONDS_IN_HOUR) + (hourPickerValue.value.minutes * SECONDS_IN_MINUTE)
@@ -199,12 +200,12 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         Session(
             durationSeconds.toLong(),
             date.value,
-            -1,
+            session.id,
             selectedTags
         ).run {
-            SessionDBService(context).addSession(this)
+            SessionDBService(context).updateSession(this)
         }
-        MainActivity.loadMoreSessions(context, true)
+        MainActivity.updateSession(session.id, context)
         MainActivity.loadMoreTags(context, true)
     }
 
@@ -230,7 +231,9 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
 
     @Composable
     private fun HourPicker24hMax() {
-        hourPickerValue = remember { mutableStateOf(FullHours(0, 0)) }
+        val sessionHours = session.getDuration().toInt() / SECONDS_IN_HOUR
+        val sessionMinutes = (session.getDuration().toInt() % SECONDS_IN_HOUR) / SECONDS_IN_MINUTE
+        hourPickerValue = remember { mutableStateOf(FullHours(sessionHours, sessionMinutes)) }
         HoursNumberPicker(
             value = hourPickerValue.value,
             leadingZero = true,
@@ -266,7 +269,15 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
         }
         //necessary to avoid duplicating the whole list due to recomposition when adding a new tag
         if (tagListPick.isEmpty()) {
-            tagListPick.addAll(TagDBService(context).getAllTags().map { MutablePair(it, false) })
+            tagListPick.addAll(
+                TagDBService(context).getAllTags()
+                    .map {
+                        MutablePair(
+                            it,
+                            session.tags.map { sessionTag -> sessionTag.id }.contains(it.id)
+                        )
+                    }
+            )
             tagListPick.sortBy { it.left.tagName.lowercase() }
         }
         LazyColumn(
@@ -386,7 +397,18 @@ class AddSessionPopup(val context: Context) : ComponentActivity() {
 
 @Preview
 @Composable
-fun AddSessionPopupPreview() {
+fun EditSessionPopupPreview() {
     val popupVisible = remember { mutableStateOf(true) }
-    AddSessionPopup(context = LocalContext.current).GeneratePopup(popupVisible)
+    val context = LocalContext.current
+    val session = Session(
+        3600,
+        Calendar.getInstance(),
+        -1,
+        mutableListOf(
+            Tag("tag1", 1),
+            Tag("tag2", 2),
+            Tag("tag3", 3),
+        )
+    )
+    EditSessionPopup(context, session).EditSessionPopupLayout()
 }

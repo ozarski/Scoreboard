@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -41,6 +42,7 @@ import com.ozarskiapps.scoreboard.ui.theme.errorDark
 import com.ozarskiapps.scoreboard.ui.theme.onErrorDark
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryContainerDark
+import com.ozarskiapps.scoreboard.ui.theme.primaryDark
 
 class SessionDetailsPopup(private val context: Context, private val session: Session) : ComponentActivity() {
 
@@ -68,19 +70,63 @@ class SessionDetailsPopup(private val context: Context, private val session: Ses
             SessionDate()
             SessionDuration()
             SessionTagsList()
-            DeleteButton()
+            ButtonsRow()
         }
     }
 
     @Composable
-    private fun DeleteButton() {
+    fun ButtonsRow(){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val modifier = Modifier.weight(1f)
+            EditButton(modifier)
+            DeleteButton(modifier)
+        }
+    }
+
+     @Composable
+    private fun EditButton(modifier: Modifier) {
+        val editPopupVisible = remember { mutableStateOf(false) }
+        Button(
+            onClick = {
+                editPopupVisible.value = true
+            },
+            modifier = modifier.padding(vertical = 10.dp, horizontal = 20.dp).width(80.dp),
+            shape = RoundedCornerShape(16.dp),
+            elevation = ButtonDefaults.buttonElevation(0.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = onPrimaryDark)
+        ) {
+            Text(
+                text = context.getString(R.string.simple_edit_button_text),
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center,
+                color = primaryDark,
+                style = Typography.titleLarge
+            )
+        }
+        if(editPopupVisible.value){
+            EditSessionPopup(context, session).GeneratePopup(editPopupVisible){
+                popupVisible.value = false
+                MainActivity.loadMoreSessions(context, true)
+                MainActivity.loadMoreTags(context, true)
+            }
+        }
+    }
+
+    @Composable
+    private fun DeleteButton(modifier: Modifier) {
         val confirmPopupVisible = remember { mutableStateOf(false) }
         val decision = remember { mutableStateOf(false) }
         Button(
             onClick = {
                 confirmPopupVisible.value = true
             },
-            modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
+            modifier = modifier.padding(vertical = 10.dp, horizontal = 20.dp),
             shape = RoundedCornerShape(16.dp),
             elevation = ButtonDefaults.buttonElevation(0.dp),
             colors = ButtonDefaults.buttonColors(containerColor = errorDark)

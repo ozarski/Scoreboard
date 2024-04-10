@@ -45,6 +45,7 @@ import com.example.base.Tag
 import com.example.base.session.Session
 import com.example.database.DatabaseConstants
 import com.example.database.ScoreboardDatabase
+import com.example.database.SessionDBService
 import com.example.database.SessionTagDBService
 import com.example.database.StatsDBService
 import com.example.database.TagDBService
@@ -280,7 +281,11 @@ class MainActivity : ComponentActivity() {
                     return
                 }
                 if (size < DatabaseConstants.DEFAULT_PAGE_SIZE) {
-                    loadMoreTagsButtonVisible.value = false
+                    try {
+                        loadMoreTagsButtonVisible.value = false
+                    } catch (exception: Exception) {
+                        println(exception.message)
+                    }
                 }
                 tagList.addAll(this)
             }
@@ -313,7 +318,11 @@ class MainActivity : ComponentActivity() {
                         return
                     }
                     if (size < DatabaseConstants.DEFAULT_PAGE_SIZE) {
-                        loadMoreSessionsButtonVisible.value = false
+                        try {
+                            loadMoreSessionsButtonVisible.value = false
+                        } catch (exception: Exception) {
+                            println(exception.message)
+                        }
                     }
                     sessionList.addAll(this)
                 }
@@ -322,6 +331,17 @@ class MainActivity : ComponentActivity() {
 
             filteredDuration.longValue =
                 StatsDBService(context).getDurationForSessionsWithTags(pickedIDs)
+        }
+
+        fun updateSession(sessionID: Long, context: Context) {
+            if (sessionList.map { it.id }.contains(sessionID)) {
+                SessionDBService(context).getSessionWithTagsByID(sessionID)?.let {
+                    sessionList[sessionList.indexOfFirst { sessionFromList ->
+                        sessionFromList.id == sessionID
+                    }] = it
+                }
+            }
+
         }
     }
 }

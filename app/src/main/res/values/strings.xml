@@ -25,4 +25,7 @@
     <string name="add_session_popup_adding_text">saving</string>
     <string name="activities_tab_header">Activities</string>
     <string name="data_import_warning">This operation cannot be reversed without data backup</string>
+    <string name="add_session_popup_date_header">Date</string>
+    <string name="simple_edit_button_text">Edit</string>
+    <string name="simple_save_button_text">Save</string>
 </resources>

@@ -1,6 +1,7 @@
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.kotlin.dsl.project
 
+@Suppress("ConstPropertyName")
 object Dependencies{
     const val core_ktx = "androidx.core:core-ktx:${Versions.androidx_core_ktx}"
     const val lifecycle_runtime = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.androidx_lifecycle_runtime}"
@@ -9,6 +10,7 @@ object Dependencies{
     const val compose_ui = "androidx.compose.ui:ui"
     const val compose_ui_graphics = "androidx.compose.ui:ui-graphics"
     const val compose_ui_tooling_preview = "androidx.compose.ui:ui-tooling-preview"
+    const val compose_ui_tooling = "androidx.compose.ui:ui-tooling"
     const val compose_material_3 = "androidx.compose.material3:material3"
     const val google_accompanist_pager = "com.google.accompanist:accompanist-pager:${Versions.google_accompanist_pager}"
     const val google_accompanist_pager_indicators = "com.google.accompanist:accompanist-pager-indicators:${Versions.google_accompanist_pager}"
@@ -17,6 +19,7 @@ object Dependencies{
     const val junit = "junit:junit:${Versions.junit}"
     const val test_ext_junit = "androidx.test.ext:junit:${Versions.androidx_test_ext_junit}"
     const val test_runner = "androidx.test:runner:${Versions.androidx_test_runner}"
+    const val vanpra_dialogs = "io.github.vanpra.compose-material-dialogs:datetime:${Versions.vanpra_dialogs}"
 }
 
 fun DependencyHandler.core(){
@@ -30,6 +33,11 @@ fun DependencyHandler.compose(){
     implementation(Dependencies.compose_ui_graphics)
     implementation(Dependencies.compose_ui_tooling_preview)
     implementation(Dependencies.compose_material_3)
+    debugImplementation(Dependencies.compose_ui_tooling)
+}
+
+fun DependencyHandler.vanpraDialogs(){
+    implementation(Dependencies.vanpra_dialogs)
 }
 
 fun DependencyHandler.accompanist(){

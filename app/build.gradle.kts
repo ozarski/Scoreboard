@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.ozarskiapps.scoreboard"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 3
         versionName = "0.2.2alpha"
@@ -58,4 +58,5 @@ dependencies {
     core()
     numberPicker()
     apacheCommons() // for mutable pair
+    vanpraDialogs()
 }
