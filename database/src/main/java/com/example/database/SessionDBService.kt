@@ -291,4 +291,71 @@ class SessionDBService(
             throw Exception("Session date cannot be in the future")
         }
     }
+
+    fun getSessionsByIDsWithinDateRange(sessionIDs: MutableList<Long>, page: Int, pageSize: Int, startDate: Long, endDate: Long): List<Session> {
+        val projection = arrayOf(
+            BaseColumns._ID,
+            DatabaseConstants.SessionsTable.DURATION_COLUMN,
+            DatabaseConstants.SessionsTable.DATE_COLUMN
+        )
+        val selection = "${BaseColumns._ID} IN (${sessionIDs.joinToString(",")})" +
+                "AND ${DatabaseConstants.SessionsTable.DATE_COLUMN} >= '$startDate'" +
+                "AND ${DatabaseConstants.SessionsTable.DATE_COLUMN} <= '$endDate'"
+        val orderBy = "${DatabaseConstants.SessionsTable.DATE_COLUMN} DESC"
+        val limit = "${(page - 1) * pageSize}, $pageSize"
+        val cursor = this.readableDatabase.query(
+            DatabaseConstants.SessionsTable.TABLE_NAME,
+            projection,
+            selection,
+            null,
+            null,
+            null,
+            orderBy,
+            limit
+        )
+        val sessions = mutableListOf<Session>()
+        with(cursor) {
+            while (moveToNext()) {
+                val id = getLong(getColumnIndexOrThrow(BaseColumns._ID))
+                getSession(cursor, id).also { session ->
+                    sessions.add(session)
+                }
+            }
+            close()
+        }
+        return sessions
+    }
+
+    fun getAllSessionsWithinDateRange(page: Int, pageSize: Int, startDate: Long, endDate: Long): List<Session> {
+        val projection = arrayOf(
+            BaseColumns._ID,
+            DatabaseConstants.SessionsTable.DURATION_COLUMN,
+            DatabaseConstants.SessionsTable.DATE_COLUMN
+        )
+        val selection = "${DatabaseConstants.SessionsTable.DATE_COLUMN} >= '$startDate'" +
+                "AND ${DatabaseConstants.SessionsTable.DATE_COLUMN} <= '$endDate'"
+        val orderBy = "${DatabaseConstants.SessionsTable.DATE_COLUMN} DESC"
+        val limit = "${(page - 1) * pageSize}, $pageSize"
+        val cursor = this.readableDatabase.query(
+            DatabaseConstants.SessionsTable.TABLE_NAME,
+            projection,
+            selection,
+            null,
+            null,
+            null,
+            orderBy,
+            limit
+        )
+        val sessions = mutableListOf<Session>()
+        with(cursor) {
+            while (moveToNext()) {
+                val id = getLong(getColumnIndexOrThrow(BaseColumns._ID))
+                getSession(cursor, id).also { session ->
+                    sessions.add(session)
+                }
+            }
+            close()
+        }
+        return sessions
+    }
 }

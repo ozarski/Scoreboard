@@ -162,4 +162,45 @@ class StatsDBService(
         }
         return 0L
     }
+
+    fun getDurationForSessionWithTagsWithinDateRange(
+        tagIDs: List<Long>,
+        startDate: Long,
+        endDate: Long
+    ): Long {
+        val resultColumn = "total_duration"
+        val projection =
+            arrayOf("SUM(${DatabaseConstants.SessionsTable.DURATION_COLUMN}) as $resultColumn")
+
+        val sessionIDsTableQuery =
+            if (tagIDs.isNotEmpty()) "SELECT ${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} " +
+                    "FROM ${DatabaseConstants.SessionTagTable.TABLE_NAME} " +
+                    "WHERE ${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} IN (${tagIDs.joinToString()}) " +
+                    "GROUP BY ${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} " +
+                    "HAVING COUNT(${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN}) = ${tagIDs.size}"
+            else "SELECT ${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} " +
+                    "FROM ${DatabaseConstants.SessionTagTable.TABLE_NAME} " +
+                    "GROUP BY ${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} "
+
+        val tableJoined = "($sessionIDsTableQuery) " +
+                "INNER JOIN ${DatabaseConstants.SessionsTable.TABLE_NAME} " +
+                "ON ${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} = ${BaseColumns._ID} " +
+                "WHERE ${DatabaseConstants.SessionsTable.DATE_COLUMN} BETWEEN '$startDate' AND '$endDate'"
+
+        val cursor = this.readableDatabase.query(
+            tableJoined,
+            projection,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        with(cursor) {
+            if (moveToFirst()) {
+                return getLong(getColumnIndexOrThrow(resultColumn)).also { close() }
+            }
+        }
+        return 0L
+    }
 }

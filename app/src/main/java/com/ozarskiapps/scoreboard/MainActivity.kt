@@ -264,6 +264,8 @@ class MainActivity : ComponentActivity() {
         lateinit var loadMoreTagsButtonVisible: MutableState<Boolean>
 
         var tagListPick = listOf<MutablePair<Tag, Boolean>>()
+        var startDate: Long? = null
+        var endDate: Long? = null
 
         private var tagsPage = 1
         private var sessionsPage = 1
@@ -296,7 +298,9 @@ class MainActivity : ComponentActivity() {
         fun loadMoreSessions(
             context: Context,
             reload: Boolean = false,
-            newTagListPick: List<MutablePair<Tag, Boolean>>? = null
+            newTagListPick: List<MutablePair<Tag, Boolean>>? = null,
+            startDate: Long? = null,
+            endDate: Long? = null
         ) {
             if (reload) {
                 sessionsPage = 1
@@ -308,8 +312,24 @@ class MainActivity : ComponentActivity() {
                 tagListPick = tags
                 tags.filter { it.right }.map { it.left.id }
             } ?: tagListPick.filter { it.right }.map { it.left.id }
+            this.startDate = startDate
+            this.endDate = endDate
 
-            SessionTagDBService(context).getSessionsForTagIDs(pickedIDs, sessionsPage)
+            filteredDuration.longValue =
+                if (startDate == null || endDate == null) StatsDBService(context).getDurationForSessionsWithTags(
+                    pickedIDs
+                )
+                else StatsDBService(context).getDurationForSessionWithTagsWithinDateRange(
+                    pickedIDs,
+                    startDate,
+                    endDate
+                )
+            SessionTagDBService(context).getSessionsForTagIDsWithinDateRange(
+                pickedIDs,
+                sessionsPage,
+                startDate = startDate,
+                endDate = endDate
+            )
                 .sortedByDescending {
                     it.getDate().timeInMillis
                 }.run {
@@ -329,8 +349,6 @@ class MainActivity : ComponentActivity() {
 
             sessionsPage++
 
-            filteredDuration.longValue =
-                StatsDBService(context).getDurationForSessionsWithTags(pickedIDs)
         }
 
         fun updateSession(sessionID: Long, context: Context) {

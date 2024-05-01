@@ -160,17 +160,71 @@ class SessionTagDBService(
         return SessionDBService(context, databaseName).getSessionsByIDs(sessionIDs, page, pageSize)
     }
 
+    fun getSessionsForTagIDsWithinDateRange(
+        tagIDs: List<Long>,
+        page: Int,
+        pageSize: Int = DEFAULT_PAGE_SIZE,
+        startDate: Long? = null,
+        endDate: Long? = null
+    ):List<Session> {
+        if (tagIDs.isEmpty()) {
+            if(startDate == null || endDate == null){
+                return SessionDBService(context, databaseName).getAllSessions(page, pageSize)
+            }
+            else{
+                return SessionDBService(context, databaseName).getAllSessionsWithinDateRange(page, pageSize, startDate, endDate)
+            }
+        }
+        val projection = arrayOf(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)
+        val selection =
+            "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} IN (${tagIDs.joinToString(", ")})"
+        val having =
+            "COUNT(${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN}) = ${tagIDs.size}"
+
+        val cursor = this.readableDatabase.query(
+            DatabaseConstants.SessionTagTable.TABLE_NAME,
+            projection,
+            selection,
+            null,
+            DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN,
+            having,
+            null
+        )
+
+        val sessionIDs = mutableListOf<Long>()
+        with(cursor) {
+            while (moveToNext()) {
+                getLong(getColumnIndexOrThrow(DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN)).also {
+                    sessionIDs.add(it)
+                }
+            }
+            close()
+        }
+
+        if(startDate == null || endDate == null) {
+            return SessionDBService(context, databaseName).getSessionsByIDs(sessionIDs, page, pageSize)
+        }
+        return SessionDBService(context, databaseName).getSessionsByIDsWithinDateRange(sessionIDs, page, pageSize, startDate, endDate)
+    }
 
     fun deleteSessionTagsOnSessionDelete(sessionID: Long) {
         val selection = "${DatabaseConstants.SessionTagTable.SESSION_ID_COLUMN} = ?"
         val selectionArgs = arrayOf(sessionID.toString())
-        this.writableDatabase.delete(DatabaseConstants.SessionTagTable.TABLE_NAME, selection, selectionArgs)
+        this.writableDatabase.delete(
+            DatabaseConstants.SessionTagTable.TABLE_NAME,
+            selection,
+            selectionArgs
+        )
     }
 
     fun deleteSessionTagsOnTagDelete(tagID: Long) {
         val selection = "${DatabaseConstants.SessionTagTable.TAG_ID_COLUMN} = ?"
         val selectionArgs = arrayOf(tagID.toString())
-        this.writableDatabase.delete(DatabaseConstants.SessionTagTable.TABLE_NAME, selection, selectionArgs)
+        this.writableDatabase.delete(
+            DatabaseConstants.SessionTagTable.TABLE_NAME,
+            selection,
+            selectionArgs
+        )
     }
 
 }

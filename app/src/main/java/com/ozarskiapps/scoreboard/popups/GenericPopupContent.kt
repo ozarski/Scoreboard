@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.ozarskiapps.scoreboard.ui.theme.onPrimaryDark
 import com.ozarskiapps.scoreboard.ui.theme.primaryDark
@@ -28,6 +29,8 @@ class GenericPopupContent {
             height: Int? = null,
             horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
             verticalArrangement: Arrangement.Vertical = Arrangement.SpaceEvenly,
+            backgroundColor: Color = primaryDark,
+            borderColor: Color = onPrimaryDark,
             content: @Composable ColumnScope.() -> Unit
         ) {
             val minHeight = if (heightMin == null && height == null) 0 else heightMin ?: height!!
@@ -45,10 +48,10 @@ class GenericPopupContent {
                         min = minHeight.dp,
                         max = maxHeight.dp
                     )
-                    .background(primaryDark, RoundedCornerShape(25.dp))
+                    .background(backgroundColor, RoundedCornerShape(25.dp))
                     .border(
                         width = 2.dp,
-                        color = onPrimaryDark,
+                        color = borderColor,
                         shape = RoundedCornerShape(25.dp)
                     ),
                 horizontalAlignment = horizontalAlignment,

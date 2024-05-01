@@ -28,4 +28,6 @@
     <string name="add_session_popup_date_header">Date</string>
     <string name="simple_edit_button_text">Edit</string>
     <string name="simple_save_button_text">Save</string>
+    <string name="date_range_picker_placeholder">all time</string>
+    <string name="date_range_picker_title">Date range</string>
 </resources>
